@@ -1,4 +1,5 @@
 package com.lukevalenty.rpgforge.edit;
+
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -22,7 +23,6 @@ public class MapEditEngine {
     private final MainLoop mainLoop;
     private Thread mainLoopThread;
 
-    
     @Inject MapEditEngine(
         final MainLoop mainLoop
     ) {
@@ -59,10 +59,6 @@ public class MapEditEngine {
         private boolean mRunning;
 
         private MapData map;
-
-        private int xLoc;
-        private int yLoc;
-        private float mapScale = 1;
         
         @Inject MainLoop(
             final DrawCommandBuffer drawCommandBuffer,
@@ -74,9 +70,6 @@ public class MapEditEngine {
             this.spritePool = spritePool;
             this.tilemapPool = tilemapPool;
             this.eventBus = EventBus.getDefault();
-
-            this.xLoc = 0;
-            this.yLoc = 0;
             
             eventBus.register(this, PanMapEvent.class, ScaleMapEvent.class);
             

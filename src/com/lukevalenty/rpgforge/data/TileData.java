@@ -3,11 +3,10 @@ package com.lukevalenty.rpgforge.data;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 
-public class TileData {
+public abstract class TileData {
     private TileSetData tileset;
     private Rect[] src;
     private int frameDelay;
-    private boolean oscillate;
     private boolean passable;
     private int[] frames;
     
