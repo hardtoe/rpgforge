@@ -4,9 +4,9 @@ import com.google.inject.Singleton;
 import com.lukevalenty.rpgforge.memory.ObjectPool;
 
 @Singleton
-public class DrawTilemapPool extends ObjectPool<DrawTilemap> {
+public class DrawTileMapPool extends ObjectPool<DrawTileMap> {
     @Override
-    public DrawTilemap create() {
-        return new DrawTilemap(this);
+    public DrawTileMap create() {
+        return new DrawTileMap(this);
     }
 }

@@ -1,21 +1,15 @@
-package com.lukevalenty.rpgforge;
-
-import java.io.IOException;
-import java.io.InputStream;
+package com.lukevalenty.rpgforge.edit;
 import java.util.ArrayList;
-import java.util.Random;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.util.Log;
 
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.data.AutoTileData;
 import com.lukevalenty.rpgforge.data.BasicTileData;
 import com.lukevalenty.rpgforge.data.MapData;
-import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.data.TileSetData;
 import com.lukevalenty.rpgforge.graphics.DrawCommand;
 import com.lukevalenty.rpgforge.graphics.DrawCommandBuffer;
@@ -24,16 +18,17 @@ import com.lukevalenty.rpgforge.graphics.DrawTileMapPool;
 
 import de.greenrobot.event.EventBus;
 
-public class GameEngine {
+public class MapEditEngine {
     private final MainLoop mainLoop;
     private Thread mainLoopThread;
 
-    @Inject GameEngine(
+    
+    @Inject MapEditEngine(
         final MainLoop mainLoop
     ) {
         this.mainLoop = mainLoop;
     }
-
+    
     public void start() {
         mainLoopThread = new Thread(mainLoop);
         mainLoop.setRunning(true);
@@ -43,14 +38,19 @@ public class GameEngine {
     public void stop() {
         mainLoop.setRunning(false);
         
-        try {
-            mainLoopThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (mainLoopThread != null) {
+            try {
+                mainLoopThread.join();
+                mainLoopThread = null;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public static class MainLoop implements Runnable {
+        private static final String TAG = MainLoop.class.getCanonicalName();
+        
         private final DrawCommandBuffer drawCommandBuffer;
         private final DrawSpritePool spritePool;
         private final DrawTileMapPool tilemapPool;
@@ -59,6 +59,10 @@ public class GameEngine {
         private boolean mRunning;
 
         private MapData map;
+
+        private int xLoc;
+        private int yLoc;
+        private float mapScale = 1;
         
         @Inject MainLoop(
             final DrawCommandBuffer drawCommandBuffer,
@@ -70,8 +74,12 @@ public class GameEngine {
             this.spritePool = spritePool;
             this.tilemapPool = tilemapPool;
             this.eventBus = EventBus.getDefault();
-            
 
+            this.xLoc = 0;
+            this.yLoc = 0;
+            
+            eventBus.register(this, PanMapEvent.class, ScaleMapEvent.class);
+            
             TileSetData tileSetA5 = 
                 new TileSetData("TileA5.png");
             
@@ -142,7 +150,17 @@ public class GameEngine {
                 .setPassable(true);
             
             map = 
-                new MapData(20, 10,
+                new MapData(20, 20,
+                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, s, s, o, o, o, 
+                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, s, s, o, o, 
+                    g, g, F, F, F, F, F, F, g, k, k, g, G, G, G, G, G, s, o, o, 
+                    g, g, F, w, w, w, w, F, g, g, k, g, G, G, G, G, G, s, o, o, 
+                    g, g, F, w, w, w, w, F, g, g, k, g, G, G, G, G, G, s, o, o, 
+                    g, g, F, w, w, w, w, F, g, k, k, k, G, G, G, G, G, s, o, o, 
+                    g, g, F, F, p, p, F, F, g, g, k, g, g, g, g, g, g, s, o, o, 
+                    g, g, g, f, p, p, f, g, g, g, g, g, g, g, g, g, g, s, o, o, 
+                    g, g, g, f, p, p, p, p, p, p, p, p, p, p, p, p, p, s, o, o, 
+                    g, g, g, f, p, p, f, g, g, g, g, g, g, g, g, g, s, s, o, o,
                     g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, s, s, o, o, o, 
                     g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, s, s, o, o, 
                     g, g, F, F, F, F, F, F, g, k, k, g, G, G, G, G, G, s, o, o, 
@@ -157,6 +175,18 @@ public class GameEngine {
 
         }
 
+        public void onEvent(
+            final PanMapEvent e
+        ) {   
+            viewMatrix.postTranslate(e.x(), e.y());
+        }
+        
+        public void onEvent(
+            final ScaleMapEvent e        
+        ) {
+            viewMatrix.postScale(e.scale(), e.scale(), e.x(), e.y());
+        }
+        
         private AutoTileData autotile(
             final TileSetData tileset,
             final int frames,
@@ -175,17 +205,16 @@ public class GameEngine {
             
             return autoTileData;
         }
-        
-        private Matrix matrix = new Matrix();
+
+        private Matrix viewMatrix = new Matrix();
         
         @Override
         public void run() {
-            
             while(mRunning){
                 final ArrayList<DrawCommand> backBuffer = 
                     drawCommandBuffer.lockBackBuffer();
                 
-                backBuffer.add(tilemapPool.get().set(map, matrix));
+                backBuffer.add(tilemapPool.get().set(map, viewMatrix));
                 
                 drawCommandBuffer.unlockBackBuffer();
             }

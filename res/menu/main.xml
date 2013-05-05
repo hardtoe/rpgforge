@@ -1,9 +1,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-
+    
+    
+    <item android:id="@+id/menu_undo"
+          android:title="Undo"
+          android:showAsAction="ifRoom|withText" />
+    
+    <item android:id="@+id/menu_redo"
+          android:title="Redo"
+          android:showAsAction="ifRoom|withText" />
+    
+    <item android:id="@+id/menu_move"
+          android:title="Move"
+          android:showAsAction="ifRoom|withText" />
+    
+    <item android:id="@+id/menu_draw"
+          android:title="Draw"
+          android:showAsAction="ifRoom|withText" />
+    
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/action_settings"/>
-
+        android:title="@string/action_settings" />
+ 
 </menu>
