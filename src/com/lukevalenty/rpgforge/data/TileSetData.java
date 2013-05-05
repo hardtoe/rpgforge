@@ -1,15 +1,12 @@
 package com.lukevalenty.rpgforge.data;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TileSetData extends BitmapData {
-    @SuppressWarnings("unused")
-    private TileSetData() {
+    private ArrayList<TileData> tiles = new ArrayList<TileData>();
+    
+    protected TileSetData() {
         // default constructor needed for serialization
         super();
     }
@@ -18,5 +15,13 @@ public class TileSetData extends BitmapData {
         final String bitmapFilePath
     ) {
         super(bitmapFilePath);
+    }
+    
+    public void addTile(final TileData tile) {
+        this.tiles.add(tile);
+    }
+    
+    public List<TileData> getTiles() {
+        return tiles;
     }
 }

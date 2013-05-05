@@ -1,5 +1,7 @@
 package com.lukevalenty.rpgforge.edit;
 
+import com.lukevalenty.rpgforge.data.TileData;
+
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -14,8 +16,22 @@ public class MapGestureDetector implements OnTouchListener {
     private float mPreviousY;
     private int pointerId = -1;
 
-    public MapGestureDetector(final ScaleGestureDetector mScaleDetector) {
+    private Tool currentTool = Tool.MOVE;
+    private TileData currentTile = null;
+    
+    public MapGestureDetector(
+        final ScaleGestureDetector mScaleDetector
+    ) {
         this.mScaleDetector = mScaleDetector;
+        eventBus.register(this, ToolSelectedEvent.class, TileSelectedEvent.class);
+    }
+    
+    public void onEvent(final ToolSelectedEvent e) {
+        currentTool = e.tool();
+    }
+    
+    public void onEvent(final TileSelectedEvent e) {
+        currentTile = e.tile();
     }
     
     @Override
@@ -23,30 +39,51 @@ public class MapGestureDetector implements OnTouchListener {
         final View v, 
         final MotionEvent e
     ) {
-        mScaleDetector.onTouchEvent(e);
-        
-        if (e.getAction() == MotionEvent.ACTION_DOWN) {
-            mPreviousX = e.getX();
-            mPreviousY = e.getY();
-            pointerId = e.getPointerId(0);
-            return true;
+        if (currentTool == Tool.MOVE) {
+            mScaleDetector.onTouchEvent(e);
             
-        } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
-            float x = e.getX();
-            float y = e.getY();            
-            
-            float dx = x - mPreviousX;
-            float dy = y - mPreviousY;
-            
-            if (pointerId == e.getPointerId(0) && e.getPointerCount() == 1) {
-                eventBus.post(new PanMapEvent((int) dx, (int) dy)); 
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                mPreviousX = e.getX();
+                mPreviousY = e.getY();
+                pointerId = e.getPointerId(0);
+                return true;
+                
+            } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
+                float x = e.getX();
+                float y = e.getY();            
+                
+                float dx = x - mPreviousX;
+                float dy = y - mPreviousY;
+                
+                if (pointerId == e.getPointerId(0) && e.getPointerCount() == 1) {
+                    eventBus.post(new PanMapEvent((int) dx, (int) dy)); 
+                }
+                
+                mPreviousX = x;
+                mPreviousY = y;
+                pointerId = e.getPointerId(0);
+                
+                return true;
+                
+            } else {
+                return false;
             }
-            
-            mPreviousX = x;
-            mPreviousY = y;
-            pointerId = e.getPointerId(0);
-            
-            return true;
+        } else if (
+            currentTool == Tool.DRAW && 
+            currentTile != null && 
+            e.getPointerCount() == 1
+        ) {
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                eventBus.post(new DrawTileEvent(currentTile, (int) e.getX(), (int) e.getY()));
+                return true;
+                
+            } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
+                eventBus.post(new DrawTileEvent(currentTile, (int) e.getX(), (int) e.getY()));
+                return true;
+                
+            } else {
+                return false;
+            }
             
         } else {
             return false;

@@ -4,11 +4,11 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 
 public abstract class TileData {
-    private TileSetData tileset;
-    private Rect[] src;
-    private int frameDelay;
-    private boolean passable;
-    private int[] frames;
+    protected TileSetData tileset;
+    protected Rect[] src;
+    protected int frameDelay;
+    protected boolean passable;
+    protected int[] frames;
     
     protected TileData() {
         // default constructor needed for serialization
@@ -55,5 +55,9 @@ public abstract class TileData {
     
     public boolean isPassable() {
         return passable;
+    }
+    
+    public Rect getPreview() {
+        return src[0];
     }
 }

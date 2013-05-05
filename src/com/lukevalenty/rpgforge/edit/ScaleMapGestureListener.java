@@ -11,7 +11,7 @@ extends
     private final EventBus eventBus = EventBus.getDefault();
     private float lastFocusX;
     private float lastFocusY;
-
+    
     @Override
     public boolean onScaleBegin(
         final ScaleGestureDetector scaleGestureDetector

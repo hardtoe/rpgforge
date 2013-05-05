@@ -48,4 +48,9 @@ public class AutoTileData extends TileData {
         super.setPassable(passable);
         return this;
     }
+
+    @Override
+    public Rect getPreview() {
+        return new Rect(src[0].left, src[0].top, src[0].left + 32, src[0].top + 32);
+    }
 }

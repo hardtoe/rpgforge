@@ -7,12 +7,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-public class BitmapData {
+public abstract class BitmapData {
     private String bitmapFilePath;
     
     private transient Bitmap bitmap;
     
-    @SuppressWarnings("unused")
     protected BitmapData() {
         // default constructor needed for serialization
     }

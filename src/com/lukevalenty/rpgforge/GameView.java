@@ -16,6 +16,7 @@ import com.lukevalenty.rpgforge.graphics.DrawTileMap;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Canvas.EdgeType;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -141,13 +142,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     
                     for (int x = 0; x < map.getWidth(); x++) {
                         for (int y = 0; y < map.getHeight(); y++) {
-                            final TileData tile =
-                                map.getTile(x, y);
-                            
-                            if (tile instanceof AutoTileData) {
-                                drawAutoTile(map, drawTilemap, (AutoTileData) tile, c, x, y);
-                            } else {
-                                drawTile(drawTilemap, tile, c, x, y);
+                            if (!c.quickReject(x * 32, y * 32, (x * 32) + 32, (y * 32) + 32, EdgeType.AA)) {
+                                
+                                final TileData tile =
+                                    map.getTile(x, y);
+                                
+                                if (tile instanceof AutoTileData) {
+                                    drawAutoTile(map, drawTilemap, (AutoTileData) tile, c, x, y);
+                                } else {
+                                    drawTile(drawTilemap, tile, c, x, y);
+                                }
                             }
                         }
                     }
