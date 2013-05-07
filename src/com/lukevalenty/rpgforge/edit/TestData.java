@@ -12,6 +12,8 @@ public class TestData {
     public static MapData MAP = null;
     public static TileSetData TILESET_A1 = null;
     public static TileSetData TILESET_A2 = null;
+    public static TileSetData TILESET_A3 = null;
+    public static TileSetData TILESET_A4 = null;
     public static TileSetData TILESET_A5 = null;
 
     private static boolean loaded = false;
@@ -20,186 +22,91 @@ public class TestData {
         if (!loaded) {
             loaded = true;
             
-            TILESET_A5 = 
-                new TileSetData("TileA5.png");
-            
-            TILESET_A5.load(context);
-    
-            
-            BasicTileData blank = 
-                new BasicTileData(TILESET_A5, new Rect(0, 0, 32, 32));
-            
-            BasicTileData sand = 
-                new BasicTileData(TILESET_A5, new Rect(32, 64, 64, 96));
+
             
             
             TILESET_A1 = 
                 new TileSetData("TileA1.png");
     
             TILESET_A1.load(context);
+
+            for (int y = 0; y < 4; y++) {
+                for (int x = 0; x < 2; x++) {
+                    autotile(TILESET_A1, 3, x * 256, y * 96)
+                    .setFrameDelay(32)
+                    .setAnimationSequence(0, 1, 2, 1)
+                    .setPassable(false);
+                }
+            }
+            
             
             
             TILESET_A2 = 
                 new TileSetData("TileA2.png");
             
             TILESET_A2.load(context);
-    
-            AutoTileData w = // water
-                autotile(TILESET_A1, 3, 0, 0)
-                .setFrameDelay(32)
-                .setAnimationSequence(0, 1, 2, 1)
-                .setPassable(false);
 
-            AutoTileData W = // other water
-                autotile(TILESET_A1, 3, 256, 0)
-                .setFrameDelay(32)
-                .setAnimationSequence(0, 1, 2, 1)
-                .setPassable(false);
-
-            AutoTileData y = // dirt water
-                autotile(TILESET_A1, 3, 0, 192)
-                .setFrameDelay(32)
-                .setAnimationSequence(0, 1, 2, 1)
-                .setPassable(false);
-
-            AutoTileData c = // cave water
-                autotile(TILESET_A1, 3, 0, 288)
-                .setFrameDelay(32)
-                .setAnimationSequence(0, 1, 2, 1)
-                .setPassable(false);
-
-            AutoTileData t = // temple water
-                autotile(TILESET_A1, 3, 256, 192)
-                .setFrameDelay(32)
-                .setAnimationSequence(0, 1, 2, 1)
-                .setPassable(false);
-
-            AutoTileData L = // lava
-                autotile(TILESET_A1, 3, 256, 288)
-                .setFrameDelay(32)
-                .setAnimationSequence(0, 1, 2, 1)
-                .setPassable(false);
-    
-            AutoTileData g = // grass
-                autotile(TILESET_A2, 1, 0, 0)
-                .setPassable(true);
-    
-            AutoTileData d = // dark grass
-                autotile(TILESET_A2, 1, 0, 192)
-                .setPassable(true);
-    
-            AutoTileData G = // thick grass
-                autotile(TILESET_A2, 1, 64, 96)
-                .setPassable(true);
-    
-            AutoTileData k = // grassy knoll
-                autotile(TILESET_A2, 1, 64, 192)
-                .setPassable(false);
-    
-            AutoTileData h = // hole
-                autotile(TILESET_A2, 1, 128, 192)
-                .setPassable(true);
-    
-            // dirty grass
-            autotile(TILESET_A2, 1, 128, 96)
-            .setPassable(true);
-    
-            // grassy dirt
-            autotile(TILESET_A2, 1, 192, 288)
-            .setPassable(true);
-    
-            // dirt hole
-            autotile(TILESET_A2, 1, 256, 288)
-            .setPassable(true);
-    
-            // stony dirt
-            autotile(TILESET_A2, 1, 256 + 64, 288)
-            .setPassable(true);
-    
-            AutoTileData F = // fence
-                autotile(TILESET_A2, 1, 64, 0)
-                .setPassable(false);
-    
-            AutoTileData P = // picket fence
-                autotile(TILESET_A2, 1, 256, 0)
-                .setPassable(false);
-    
-            AutoTileData S = // stone fence
-                autotile(TILESET_A2, 1, 256, 96)
-                .setPassable(false);
-    
-            AutoTileData p = // cobblestone path
-                autotile(TILESET_A2, 1, 128, 0)
-                .setCompatibleWith(null)
-                .setPassable(true);
+            for (int y = 0; y < 4; y++) {
+                for (int x = 0; x < 8; x++) {
+                    autotile(TILESET_A2, 1, x * 64, y * 96);
+                }
+            }
             
-            AutoTileData b = // brick path
-                autotile(TILESET_A2, 1, 192, 96)
-                .setCompatibleWith(null)
-                .setCompatibleWith(t)
-                .setPassable(true);
-    
-            AutoTileData f = // flowers
-                autotile(TILESET_A2, 1, 0, 96)
-                .setPassable(true);
-    
-    
-            AutoTileData o = // ocean
-                autotile(TILESET_A1, 3, 256, 96)
-                .setCompatibleWith(null)
-                .setFrameDelay(32)
-                .setAnimationSequence(0, 1, 2, 1)
-                .setPassable(false);
             
-            AutoTileData s = // sand
-                autotile(TILESET_A2, 1, 192, 0)
-                .setCompatibleWith(o)
-                .setCompatibleWith(null)
-                .setPassable(true);
             
-            MAP = 
-                new MapData(40, 40,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, 
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, 
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, 
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, 
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, 
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, 
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, 
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, 
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g,
-                    g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g, g
-                );
+            TILESET_A3 = 
+                new TileSetData("TileA3.png");
+            
+            TILESET_A3.load(context);
+
+            for (int y = 0; y < 4; y++) {
+                for (int x = 0; x < 8; x++) {
+                    autotile(TILESET_A3, 1, x * 64, y * 64)
+                    .setPassable(false)
+                    .setConcaveCorners(false);
+                }
+            }
+            
+            
+            
+            TILESET_A4 = 
+                new TileSetData("TileA4.png");
+            
+            TILESET_A4.load(context);
+
+            for (int y = 0; y < 3; y++) {
+                for (int x = 0; x < 8; x++) {
+                    autotile(TILESET_A4, 1, x * 64, y * 160);
+                    
+                    autotile(TILESET_A4, 1, x * 64, y * 160 + 96)
+                    .setPassable(false)
+                    .setConcaveCorners(false);
+                }
+            }
+            
+            
+            
+            TILESET_A5 = 
+                    new TileSetData("TileA5.png");
+            
+            TILESET_A5.load(context);
+
+            for (int y = 0; y < 16; y++) {
+                for (int x = 0; x < 8; x++) {
+                    final BasicTileData tile = 
+                        new BasicTileData(TILESET_A5, new Rect(x * 32, y * 32, x * 32 + 32, y * 32 + 32));
+                    
+                    TILESET_A5.addTile(tile);
+                }
+            }
+    
+            MAP = new MapData(40, 40);
+            
+            for (int x = 0; x < 40; x++) {
+                for (int y = 0; y < 40; y++) {
+                    MAP.setTile(x, y, TILESET_A5.getTiles().get(16));
+                }
+            }
         }
     }
 

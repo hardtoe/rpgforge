@@ -220,13 +220,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             int xCornerOffset = 0;
             int yCornerOffset = 0;
             
+            final int mainTileOffset = 
+                (autoTile.hasConcaveCorners() ? 32 : 0);
+            
             if (
                 autoTile.isCompatibleWith(verticalTile) &&
                 autoTile.isCompatibleWith(horizontalTile)
             ) {
-                if (autoTile.isCompatibleWith(cornerTile)) {
+                if (autoTile.isCompatibleWith(cornerTile) || !autoTile.hasConcaveCorners()) {
                     xCornerOffset = autoTileOffset(1 + (xTargetCornerIndex * 2));
-                    yCornerOffset = autoTileOffset(1 + (yTargetCornerIndex * 2)) + 32;
+                    yCornerOffset = autoTileOffset(1 + (yTargetCornerIndex * 2)) + mainTileOffset;
                             
                 } else {
                     xCornerOffset = (xTargetCornerIndex * 16) + 32;
@@ -238,21 +241,21 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 !autoTile.isCompatibleWith(horizontalTile)
             ) {
                 xCornerOffset = autoTileOffset(1 + (xTargetCornerIndex * 2));
-                yCornerOffset = autoTileOffset(yTargetCornerIndex * 2) + 32;
+                yCornerOffset = autoTileOffset(yTargetCornerIndex * 2) + mainTileOffset;
                 
             } else if (
                 !autoTile.isCompatibleWith(verticalTile) &&
                 autoTile.isCompatibleWith(horizontalTile)
             ) {
                 xCornerOffset = autoTileOffset(xTargetCornerIndex * 2);
-                yCornerOffset = autoTileOffset(1 + (yTargetCornerIndex * 2)) + 32;
+                yCornerOffset = autoTileOffset(1 + (yTargetCornerIndex * 2)) + mainTileOffset;
                 
             } else if (
                 !autoTile.isCompatibleWith(verticalTile) &&
                 !autoTile.isCompatibleWith(horizontalTile)
             ) {
                 xCornerOffset = autoTileOffset(xTargetCornerIndex * 2);
-                yCornerOffset = autoTileOffset(yTargetCornerIndex * 2) + 32;
+                yCornerOffset = autoTileOffset(yTargetCornerIndex * 2) + mainTileOffset;
             }
             
             dst.top = (y * tileSize) + ((tileSize / 2) * yTargetCornerIndex);
@@ -272,7 +275,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             c.drawBitmap(autoTile.bitmap(), src, dst, paint);
         }
 
-        private int autoTileOffset(final int i) {
+        private final int autoTileOffset(final int i) {
             switch (i) {
                 case 0: return 0 * 16;
                 case 1: return 2 * 16;

@@ -63,6 +63,8 @@ public class MapEditActivity extends RoboFragmentActivity {
         
         allTiles.addAll(TestData.TILESET_A1.getTiles());
         allTiles.addAll(TestData.TILESET_A2.getTiles());
+        allTiles.addAll(TestData.TILESET_A3.getTiles());
+        allTiles.addAll(TestData.TILESET_A4.getTiles());
         allTiles.addAll(TestData.TILESET_A5.getTiles());
 
         tilePalette.setOnItemClickListener(new OnItemClickListener() {
