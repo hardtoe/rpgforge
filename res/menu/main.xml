@@ -1,6 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     
+    <item android:id="@+id/menu_new"
+          android:title="New"
+          android:showAsAction="ifRoom|withText" />
     
+    <!-- 
     <item android:id="@+id/menu_undo"
           android:title="Undo"
           android:showAsAction="ifRoom|withText" />
@@ -8,13 +12,18 @@
     <item android:id="@+id/menu_redo"
           android:title="Redo"
           android:showAsAction="ifRoom|withText" />
+    -->
     
     <item android:id="@+id/menu_move"
           android:title="Move"
-          android:showAsAction="ifRoom|withText" />
+          android:showAsAction="always|withText" />
     
     <item android:id="@+id/menu_draw"
           android:title="Draw"
+          android:showAsAction="always|withText" />
+    
+    <item android:id="@+id/menu_fill"
+          android:title="Fill"
           android:showAsAction="ifRoom|withText" />
     
     <item

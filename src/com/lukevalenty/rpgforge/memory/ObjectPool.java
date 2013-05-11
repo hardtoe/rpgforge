@@ -2,13 +2,14 @@ package com.lukevalenty.rpgforge.memory;
 
 import java.util.ArrayList;
 
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 
-public abstract class ObjectPool<T extends PooledObject<T>> implements Provider<PooledObject<T>> {
+public abstract class ObjectPool<T extends PooledObject<T>> implements Provider<T> {
     private final ArrayList<T> objectPool;
-    
+
     public ObjectPool() {
-        objectPool = new ArrayList<T>();
+        this.objectPool = new ArrayList<T>();
     }
     
     public T get() {

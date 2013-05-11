@@ -1,0 +1,53 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <EditText
+        android:id="@+id/mapNameField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:ems="10"
+        android:hint="Map Name"
+        android:lines="1"
+        android:minLines="1"
+        android:maxLines="1"
+        android:scrollHorizontally="false" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/widthField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/mapNameField"
+        android:ems="10"
+        android:hint="Width"
+        android:inputType="number"
+        android:maxLength="3"
+        android:maxLines="1"
+        android:minLines="1"
+        android:scrollHorizontally="false" />
+
+    <EditText
+        android:id="@+id/heightField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/widthField"
+        android:ems="10"
+        android:hint="Height"
+        android:inputType="number"
+        android:lines="1"
+        android:maxLength="3"
+        android:maxLines="1"
+        android:minLines="1"
+        android:scrollHorizontally="false" />
+
+</RelativeLayout>

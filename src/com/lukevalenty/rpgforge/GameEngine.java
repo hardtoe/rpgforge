@@ -21,6 +21,7 @@ import com.lukevalenty.rpgforge.graphics.DrawCommand;
 import com.lukevalenty.rpgforge.graphics.DrawCommandBuffer;
 import com.lukevalenty.rpgforge.graphics.DrawSpritePool;
 import com.lukevalenty.rpgforge.graphics.DrawTileMapPool;
+import com.lukevalenty.rpgforge.graphics.SetMatrixPool;
 
 import de.greenrobot.event.EventBus;
 
@@ -52,6 +53,7 @@ public class GameEngine {
 
     public static class MainLoop implements Runnable {
         private final DrawCommandBuffer drawCommandBuffer;
+        private final SetMatrixPool setMatrixPool;
         private final DrawSpritePool spritePool;
         private final DrawTileMapPool tilemapPool;
         private final EventBus eventBus;
@@ -62,14 +64,17 @@ public class GameEngine {
         
         @Inject MainLoop(
             final DrawCommandBuffer drawCommandBuffer,
+            final SetMatrixPool setMatrixPool,
             final DrawSpritePool spritePool,
             final DrawTileMapPool tilemapPool,
+            final EventBus eventBus,
             final Context context
         ) {
             this.drawCommandBuffer = drawCommandBuffer;
+            this.setMatrixPool = setMatrixPool;
             this.spritePool = spritePool;
             this.tilemapPool = tilemapPool;
-            this.eventBus = EventBus.getDefault();
+            this.eventBus = eventBus;
             
 
             TileSetData tileSetA5 = 
@@ -184,8 +189,9 @@ public class GameEngine {
             while(mRunning){
                 final ArrayList<DrawCommand> backBuffer = 
                     drawCommandBuffer.lockBackBuffer();
-                
-                backBuffer.add(tilemapPool.get().set(map, matrix));
+
+                backBuffer.add(setMatrixPool.get().set(matrix));
+                backBuffer.add(tilemapPool.get().set(map));
                 
                 drawCommandBuffer.unlockBackBuffer();
             }

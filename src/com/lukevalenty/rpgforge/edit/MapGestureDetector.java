@@ -85,6 +85,18 @@ public class MapGestureDetector implements OnTouchListener {
                 return false;
             }
             
+        } else if (
+            currentTool == Tool.FILL && 
+            currentTile != null && 
+            e.getPointerCount() == 1
+        ) {
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                eventBus.post(new FillTileEvent(currentTile, (int) e.getX(), (int) e.getY()));
+                return true;
+                
+            } else {
+                return false;
+            }
         } else {
             return false;
         }

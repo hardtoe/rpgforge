@@ -1,15 +1,9 @@
-package com.lukevalenty.rpgforge.edit;
+package com.lukevalenty.rpgforge.data;
 
 import android.content.Context;
 import android.graphics.Rect;
 
-import com.lukevalenty.rpgforge.data.AutoTileData;
-import com.lukevalenty.rpgforge.data.BasicTileData;
-import com.lukevalenty.rpgforge.data.MapData;
-import com.lukevalenty.rpgforge.data.TileSetData;
-
-public class TestData {
-    public static MapData MAP = null;
+public class BuiltinData {
     public static TileSetData TILESET_A1 = null;
     public static TileSetData TILESET_A2 = null;
     public static TileSetData TILESET_A3 = null;
@@ -18,13 +12,10 @@ public class TestData {
 
     private static boolean loaded = false;
     
-    static public void load(final Context context) {
+    public static void load(final Context context) {
         if (!loaded) {
             loaded = true;
-            
 
-            
-            
             TILESET_A1 = 
                 new TileSetData("TileA1.png");
     
@@ -99,14 +90,6 @@ public class TestData {
                     TILESET_A5.addTile(tile);
                 }
             }
-    
-            MAP = new MapData(40, 40);
-            
-            for (int x = 0; x < 40; x++) {
-                for (int y = 0; y < 40; y++) {
-                    MAP.setTile(x, y, TILESET_A5.getTiles().get(16));
-                }
-            }
         }
     }
 
@@ -130,5 +113,26 @@ public class TestData {
         tileset.addTile(autoTileData);
         
         return autoTileData;
+    }
+
+
+    public static RpgDatabase createNewDatabase(final Context context) {
+        load(context);
+        
+        RpgDatabase db = 
+            new RpgDatabase();
+        
+        db.addTileSet(TILESET_A1);
+        db.addTileSet(TILESET_A2);
+        db.addTileSet(TILESET_A3);
+        db.addTileSet(TILESET_A4);
+        db.addTileSet(TILESET_A5);
+        db.setDefaultTile(TILESET_A5.getTiles().get(16));
+        
+        db.addMap(new MapData(40, 20));
+        db.getMaps().get(0).setName("Home");
+        db.getMaps().get(0).fill(db.getDefaultTile());
+        
+        return db;
     }
 }

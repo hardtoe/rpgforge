@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import roboguice.inject.ContextSingleton;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -16,7 +18,7 @@ import com.google.inject.Singleton;
  * @author luke
  *
  */
-@Singleton
+@ContextSingleton
 public class DrawCommandBuffer {
     private final int SIZE = 2;
     

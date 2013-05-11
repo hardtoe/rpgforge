@@ -11,6 +11,7 @@ import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.edit.ScaleMapEvent;
 import com.lukevalenty.rpgforge.graphics.DrawCommand;
 import com.lukevalenty.rpgforge.graphics.DrawCommandBuffer;
+import com.lukevalenty.rpgforge.graphics.SetMatrix;
 import com.lukevalenty.rpgforge.graphics.DrawSprite;
 import com.lukevalenty.rpgforge.graphics.DrawTileMap;
 
@@ -107,7 +108,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     doDraw(c);
                     mHolder.unlockCanvasAndPost(c);
                     
-                    updateFramerate();
+                    //updateFramerate();
                 }
             }
         }
@@ -134,8 +135,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 } else if (drawCommand instanceof DrawTileMap) {
                     final DrawTileMap drawTilemap =
                         (DrawTileMap) drawCommand;
-
-                    c.setMatrix(drawTilemap.matrix());
                     
                     final MapData map =
                         drawTilemap.map();
@@ -156,6 +155,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                         }
                     }
                     
+                } else if (drawCommand instanceof SetMatrix) {
+                    c.setMatrix(((SetMatrix) drawCommand).matrix());
                 }
             }
             
