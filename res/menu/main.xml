@@ -1,8 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     
     <item android:id="@+id/menu_new"
-          android:title="New"
-          android:showAsAction="ifRoom|withText" />
+          android:title="New Map"
+          android:icon="@drawable/ic_action_new"
+          android:showAsAction="ifRoom" />
     
     <!-- 
     <item android:id="@+id/menu_undo"
@@ -16,20 +17,36 @@
     
     <item android:id="@+id/menu_move"
           android:title="Move"
-          android:showAsAction="always|withText" />
+          android:icon="@drawable/ic_action_move"
+          android:showAsAction="always" />
     
     <item android:id="@+id/menu_draw"
           android:title="Draw"
-          android:showAsAction="always|withText" />
+          android:icon="@drawable/ic_action_draw"
+          android:showAsAction="always" />
     
     <item android:id="@+id/menu_fill"
           android:title="Fill"
-          android:showAsAction="ifRoom|withText" />
+          android:icon="@drawable/ic_action_fill"
+          android:showAsAction="ifRoom" />
     
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/menu_renamemap"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/action_settings" />
+        android:title="Rename" />
+    
+    <item
+        android:id="@+id/menu_resizemap"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Resize" />
+    
+    <item
+        android:id="@+id/menu_deletemap"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:icon="@drawable/ic_action_delete"
+        android:title="Delete" />
  
 </menu>

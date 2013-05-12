@@ -22,8 +22,8 @@ import roboguice.activity.RoboFragmentActivity;
 import roboguice.inject.InjectView;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ActionBar.OnNavigationListener;
 import android.content.DialogInterface;
@@ -33,6 +33,7 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Base64;
@@ -46,7 +47,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -109,7 +109,8 @@ public class MapEditActivity extends RoboFragmentActivity {
             }
               
             RpgForgeApplication.setDb(rpgDatabase);
-            mapEditEngine.setMap(rpgDatabase.getMaps().getFirst()); 
+
+            eventBus.post(new SelectMapEvent(0, rpgDatabase.getMaps().getFirst()));
             
             allTiles = 
                 rpgDatabase.getAllTiles();       
@@ -129,6 +130,10 @@ public class MapEditActivity extends RoboFragmentActivity {
         Log.d(TAG, "== ON CREATE ==" + this.hashCode());
         setContentView(R.layout.mapedit);
 
+        eventBus.register(this, SelectMapEvent.class);
+        
+        mapEditEngine.start();
+        
         handleIntent(getIntent());
 
         mapSelectionAdapter =
@@ -166,13 +171,15 @@ public class MapEditActivity extends RoboFragmentActivity {
             new OnNavigationListener() {
                 @Override
                 public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-                    mapEditEngine.setMap((MapData) mapSelectionAdapter.getItem(itemPosition)); 
+                    eventBus.post(new SelectMapEvent(itemPosition, (MapData) mapSelectionAdapter.getItem(itemPosition)));
                     return true;
                 }
             };
         
         getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         getActionBar().setListNavigationCallbacks(mapSelectionAdapter, mapSelectionListener);
+        
+        
         
         final ScaleGestureDetector mScaleDetector = 
             new ScaleGestureDetector(this, new ScaleMapGestureListener());
@@ -276,7 +283,7 @@ public class MapEditActivity extends RoboFragmentActivity {
                 return true;
                 
             case R.id.menu_new:
-                showNewMapDialog();
+                handleCreateNewMap();
                 return true;
                 
             case R.id.menu_move:   
@@ -293,14 +300,84 @@ public class MapEditActivity extends RoboFragmentActivity {
                 currentTool = Tool.FILL;
                 eventBus.post(new ToolSelectedEvent(currentTool));
                 return true;
+                
+            case R.id.menu_deletemap:
+                handleDeleteCurrentMap();
+                return true;
+                
+            case R.id.menu_renamemap:
+                handleRenameCurrentMap();
+                return true;
+                
+            case R.id.menu_resizemap:
+                showResizeMapDialog();
+                return true;
             
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void showNewMapDialog() {
+    private void handleRenameCurrentMap() {
+        DialogUtil.showStringPrompt(this, "New Name", "Rename Map", "Cancel", new StringPromptListener() {          
+            @Override
+            public void onAccept(final String value) {
+                currentMap.setName(value);
+                eventBus.post(new SelectMapEvent(currentMapIndex, currentMap).setMapListChanged());
+            }
+        });
+    }
+    
+    private void handleDeleteCurrentMap() {
+        final AlertDialog.Builder builder = 
+            new AlertDialog.Builder(MapEditActivity.this);
+         
+        if (RpgForgeApplication.getDb().getMaps().size() == 1) {
+            builder
+                .setMessage("Cannot delete the only map in the project.")
+                .setPositiveButton("Ok", 
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // do nothing
+                        }
+                    });
+
+            builder.create().show();
+            
+        } else {
+            builder
+            .setMessage("Are you sure you want to delete this map?  It cannot be undone.")
+                .setPositiveButton("Delete Map", 
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            final MapData mapToDelete = 
+                                currentMap;
+                            
+                            RpgForgeApplication.getDb().removeMap(mapToDelete);
+                            
+                            final int mapIndexToShow = 
+                                Math.max(currentMapIndex - 1, 0);
+                            
+                            final MapData mapToShow = 
+                                RpgForgeApplication.getDb().getMaps().get(mapIndexToShow);
+                            
+                            eventBus.post(new SelectMapEvent(mapIndexToShow, mapToShow).setMapDeleted()); 
+                        }
+                    })
+                .setNegativeButton("Cancel", 
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // do nothing
+                        }
+                    });
+   
+            builder.create().show();
+        }
+    }
+
+    private void handleCreateNewMap() {
         showNewMapDialog(new NewMapDialogListener() {    
+            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
             public void onAccept(String mapName, int width, int height) {
                 MapData newMap = new MapData(width, height); 
@@ -308,10 +385,29 @@ public class MapEditActivity extends RoboFragmentActivity {
                 
                 newMap.setName(mapName);
                 RpgForgeApplication.getDb().addMap(newMap);
-                mapEditEngine.setMap(newMap); 
-                mapSelectionAdapter.notifyDataSetChanged();
+                
+                eventBus.post(new SelectMapEvent(RpgForgeApplication.getDb().getMaps().size() - 1, newMap).setNewMapAdded());   
             }
         });
+    }
+
+    private MapData currentMap;
+    private int currentMapIndex;
+    
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void onEvent(
+        final SelectMapEvent e
+    ) {
+        currentMap = e.map();
+        currentMapIndex = e.mapIndex();
+        
+        if (e.mapListChanged()) {
+            mapSelectionAdapter.notifyDataSetChanged(); 
+
+            if (android.os.Build.VERSION.SDK_INT >= 11) {
+                getActionBar().setSelectedNavigationItem(e.mapIndex());
+            }
+        }
     }
     
     @Override
@@ -342,6 +438,7 @@ public class MapEditActivity extends RoboFragmentActivity {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "== ON DESTROY ==" + this.hashCode());
+        mapEditEngine.stop();
     }
     
     @Override 
@@ -358,6 +455,55 @@ public class MapEditActivity extends RoboFragmentActivity {
         mapEditEngine.stop();
     }
 
+
+    public void showResizeMapDialog() {
+        final AlertDialog.Builder builder = 
+            new AlertDialog.Builder(this);
+        
+        final LayoutInflater inflater = 
+            this.getLayoutInflater();
+        
+        final View view = 
+            inflater.inflate(R.layout.map_info, null);
+              
+        final TextView mapWidth = 
+            (TextView) view.findViewById(R.id.resizeWidthField);
+        
+        mapWidth.setText(Integer.toString(currentMap.getWidth()));
+        
+        final TextView mapHeight = 
+            (TextView) view.findViewById(R.id.resizeHeightField);
+        
+        mapHeight.setText(Integer.toString(currentMap.getHeight()));
+        
+        builder.setView(view)
+           .setPositiveButton("Resize Map", new DialogInterface.OnClickListener() {
+               @Override
+               public void onClick(DialogInterface dialog, int id) {
+                   final String widthString = 
+                       mapWidth.getText().toString();
+                   
+                   final int width = 
+                       widthString.length() == 0 ? 20 : Integer.parseInt(widthString);
+                   
+                   final String heightString = 
+                       mapHeight.getText().toString();
+                   
+                   final int height =
+                       heightString.length() == 0 ? 20 : Integer.parseInt(heightString);
+                    
+                   currentMap.resize(width, height, RpgForgeApplication.getDb().getDefaultTile());
+               }
+           })
+           .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+               public void onClick(DialogInterface dialog, int id) {
+                   // do nothing
+               }
+           });
+        
+        builder.create().show();
+    }
+    
     public void showNewMapDialog(
         final NewMapDialogListener listener
     ) {
@@ -384,12 +530,24 @@ public class MapEditActivity extends RoboFragmentActivity {
                @Override
                public void onClick(DialogInterface dialog, int id) {
                    final String mapName = 
-                           mapNameField.getText().toString().trim();
+                       mapNameField.getText().toString().trim();
                    
+                   final String widthString = 
+                       mapWidth.getText().toString();
+                   
+                   final int width = 
+                       widthString.length() == 0 ? 20 : Integer.parseInt(widthString);
+                   
+                   final String heightString = 
+                       mapHeight.getText().toString();
+                   
+                   final int height =
+                       heightString.length() == 0 ? 20 : Integer.parseInt(heightString);
+                    
                    listener.onAccept(
                        mapName, 
-                       Integer.parseInt(mapWidth.getText().toString()),
-                       Integer.parseInt(mapHeight.getText().toString()));
+                       width,
+                       height);
                }
            })
            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

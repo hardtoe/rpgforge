@@ -22,6 +22,6 @@ public class RpgForgeApplication extends Application {
         super.onCreate();
         
         RoboGuice.setBaseApplicationInjector(this, RoboGuice.DEFAULT_STAGE, 
-            RoboGuice.newDefaultRoboModule(this), new RpgForgeModule());
+            RoboGuice.newDefaultRoboModule(this), new RpgForgeModule(this));
     }
 }

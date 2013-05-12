@@ -106,27 +106,55 @@ public class MapData {
         final TileData targetTile = 
             getTile(x, y);
         
-        LinkedList<Point> q = 
-            new LinkedList<Point>();
-        
-        q.addLast(new Point(x, y));
-        
-        while (!q.isEmpty()) {
-            final Point n = 
-                q.removeLast();
+        if (targetTile != null && !replacementTile.equals(targetTile)) { 
+            LinkedList<Point> q = 
+                new LinkedList<Point>();
             
-            final TileData nTile = 
-                getTile(n.x, n.y);
+            q.addLast(new Point(x, y));
             
-            if (nTile != null && nTile == targetTile) {
-                setTile(n.x, n.y, replacementTile);
-                q.addLast(new Point(n.x + 1, n.y));
-                q.addLast(new Point(n.x - 1, n.y));
-                q.addLast(new Point(n.x, n.y + 1));
-                q.addLast(new Point(n.x, n.y - 1));
+            while (!q.isEmpty()) {
+                final Point n = 
+                    q.removeLast();
+                
+                final TileData nTile = 
+                    getTile(n.x, n.y);
+                
+                if (nTile != null && nTile == targetTile) {
+                    setTile(n.x, n.y, replacementTile);
+                    q.addLast(new Point(n.x + 1, n.y));
+                    q.addLast(new Point(n.x - 1, n.y));
+                    q.addLast(new Point(n.x, n.y + 1));
+                    q.addLast(new Point(n.x, n.y - 1));
+                }
+            }
+            
+            q = null;
+        }
+    }
+
+    public void resize(
+        final int newWidth, 
+        final int newHeight,
+        final TileData fillTile
+    ) {
+        final MapData resizedMapData = 
+            new MapData(newWidth, newHeight);
+        
+        for (int x = 0; x < newWidth; x++) {
+            for (int y = 0; y < newHeight; y++) {
+                TileData t = 
+                    getTile(x, y);
+                
+                if (t == null) {
+                    t = fillTile;
+                }
+                
+                resizedMapData.setTile(x, y, t);
             }
         }
         
-        q = null;
+        this.tiles = resizedMapData.tiles;
+        this.width = newWidth;
+        this.height = newHeight;
     }
 }

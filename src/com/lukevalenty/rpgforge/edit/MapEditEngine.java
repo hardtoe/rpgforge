@@ -19,34 +19,44 @@ import com.lukevalenty.rpgforge.graphics.SetMatrixPool;
 import de.greenrobot.event.EventBus;
 
 public class MapEditEngine {
+    private final static String TAG = "MapEditEngine";
+    
     private final MainLoop mainLoop;
     private Thread mainLoopThread;
 
+    private final EventBus eventBus;
+
     @Inject MapEditEngine(
-        final MainLoop mainLoop
+        final MainLoop mainLoop,
+        final EventBus eventBus
     ) {
         this.mainLoop = mainLoop;
-    }
-    
-    public void setMap(final MapData map) {
-        mainLoop.setMap(map);
+        this.eventBus = eventBus;
     }
     
     public void start() {
-        mainLoopThread = new Thread(mainLoop);
-        mainLoop.setRunning(true);
-        mainLoopThread.start();
+        if (mainLoop.mRunning == false) {
+            mainLoopThread = new Thread(mainLoop);
+            mainLoop.setRunning(true);
+            mainLoopThread.start();
+            
+            eventBus.register(mainLoop);
+        }
     }
     
     public void stop() {
-        mainLoop.setRunning(false);
-        
-        if (mainLoopThread != null) {
-            try {
-                mainLoopThread.join();
-                mainLoopThread = null;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        if (mainLoop.mRunning) {
+            eventBus.unregister(mainLoop);
+            
+            mainLoop.setRunning(false);
+            
+            if (mainLoopThread != null) {
+                try {
+                    mainLoopThread.join();
+                    mainLoopThread = null;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -58,7 +68,6 @@ public class MapEditEngine {
         private final SetMatrixPool setMatrixPool;
         private final DrawSpritePool spritePool;
         private final DrawTileMapPool tilemapPool;
-        private final EventBus eventBus;
 
         private boolean mRunning;
 
@@ -73,27 +82,23 @@ public class MapEditEngine {
             final SetMatrixPool setMatrixPool,
             final DrawSpritePool spritePool,
             final DrawTileMapPool tilemapPool,
-            final EventBus eventBus,
             final Context context
         ) {
             this.drawCommandBuffer = drawCommandBuffer;
             this.setMatrixPool = setMatrixPool;
             this.spritePool = spritePool;
             this.tilemapPool = tilemapPool;
-            this.eventBus = eventBus;
-            
-            eventBus.register(this, PanMapEvent.class, ScaleMapEvent.class, DrawTileEvent.class, FillTileEvent.class);
             
             BuiltinData.load(context);
 
             viewMatrix.postScale(2, 2);
         }
 
-        
-        public void setMap(final MapData map) {
-            this.currentMap = map;
+        public void onEvent(
+            final SelectMapEvent e
+        ) {
+            currentMap = e.map();
         }
-
 
         private float[] pts = new float[2];
         public void onEvent(
@@ -141,7 +146,6 @@ public class MapEditEngine {
         ) {
             viewMatrix.postScale(e.scale(), e.scale(), e.x(), e.y());
         }
-
         
         @Override
         public void run() {
