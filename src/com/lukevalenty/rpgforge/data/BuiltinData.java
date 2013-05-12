@@ -9,6 +9,11 @@ public class BuiltinData {
     public static TileSetData TILESET_A3 = null;
     public static TileSetData TILESET_A4 = null;
     public static TileSetData TILESET_A5 = null;
+    public static TileSetData DOORS = null;
+    public static TileSetData TILESET_B = null;
+    public static TileSetData TILESET_C = null;
+    public static TileSetData TILESET_D = null;
+    public static TileSetData TILESET_E = null;
 
     private static boolean loaded = false;
     
@@ -90,9 +95,47 @@ public class BuiltinData {
                     TILESET_A5.addTile(tile);
                 }
             }
+            
+            DOORS = 
+                new TileSetData("doors.png");
+            
+            DOORS.load(context);
+            
+            DOORS.addTile(new BasicTileData(DOORS, new Rect(7 * 32, 0, 7 * 32 + 32, 32)).setLayer(1));
+            
+            DOORS.addTile(new BasicTileData(DOORS, new Rect(7 * 32, 32, 7 * 32 + 32, 32 + 32)).setLayer(1));
+            
+            TILESET_B = load(context, "TileB.png", 1);
+            TILESET_C = load(context, "TileC.png", 1);
+            TILESET_D = load(context, "TileD.png", 1);
+            TILESET_E = load(context, "TileE.png", 1);
+            
+            
         }
     }
-
+   
+    private static TileSetData load(final Context context, final String assetName, final int layer) {
+        final TileSetData tileSet = 
+            new TileSetData(assetName);
+        
+        tileSet.load(context);
+        
+        int width = tileSet.bitmap().getWidth() / 32;
+        int height = tileSet.bitmap().getHeight() / 32;
+        
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                final BasicTileData tile =
+                    new BasicTileData(tileSet, new Rect(x * 32, y * 32, x * 32 + 32, y * 32 + 32));
+                
+                tile.setLayer(layer);
+                
+                tileSet.addTile(tile);
+            }
+        }
+        
+        return tileSet;
+    }
     
     private static AutoTileData autotile(
         final TileSetData tileset,
@@ -127,6 +170,11 @@ public class BuiltinData {
         db.addTileSet(TILESET_A3);
         db.addTileSet(TILESET_A4);
         db.addTileSet(TILESET_A5);
+        db.addTileSet(DOORS);
+        db.addTileSet(TILESET_B);
+        db.addTileSet(TILESET_C);
+        db.addTileSet(TILESET_D);
+        db.addTileSet(TILESET_E);
         db.setDefaultTile(TILESET_A5.getTiles().get(16));
         
         db.addMap(new MapData(40, 20));

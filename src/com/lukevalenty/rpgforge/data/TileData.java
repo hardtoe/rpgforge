@@ -10,6 +10,8 @@ public abstract class TileData {
     protected boolean passable;
     protected int[] frames;
     
+    protected int layer = 0;
+    
     protected TileData() {
         // default constructor needed for serialization
         this.frameDelay = 16;
@@ -53,11 +55,20 @@ public abstract class TileData {
         return this;
     }
     
+    public TileData setLayer(final int layer) {
+        this.layer = layer;
+        return this;
+    }
+    
     public boolean isPassable() {
         return passable;
     }
     
     public Rect getPreview() {
         return src[0];
+    }
+    
+    public int getLayer() {
+        return layer;
     }
 }

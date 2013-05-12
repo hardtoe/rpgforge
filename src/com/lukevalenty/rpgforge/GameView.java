@@ -1,6 +1,7 @@
 package com.lukevalenty.rpgforge;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import roboguice.RoboGuice;
 
@@ -149,7 +150,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                 if (tile instanceof AutoTileData) {
                                     drawAutoTile(map, drawTilemap, (AutoTileData) tile, c, x, y);
                                 } else {
-                                    drawTile(drawTilemap, tile, c, x, y);
+                                    drawTile(tile, c, x, y);
+                                }
+                                
+                                final List<TileData> sparseTiles =
+                                    map.getSparseTiles(x, y);
+                                
+                                if (sparseTiles != null) {
+                                    for (final TileData sparseTile : sparseTiles) {
+                                        drawTile(sparseTile, c, x, y);
+                                    }
                                 }
                             }
                         }
@@ -166,7 +176,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         private void drawTile(
-            final DrawTileMap cmd,
             final TileData tile,
             final Canvas c, 
             final int x,

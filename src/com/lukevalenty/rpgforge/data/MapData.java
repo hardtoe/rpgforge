@@ -1,8 +1,11 @@
 package com.lukevalenty.rpgforge.data;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import android.graphics.Point;
+import android.util.SparseArray;
 
 public class MapData {
     private int width;
@@ -11,6 +14,9 @@ public class MapData {
     private TileData[] tiles;
     
     private String name;
+    
+    private SparseArray<List<TileData>> sparseTiles = 
+        new SparseArray<List<TileData>>();
     
     @SuppressWarnings("unused")
     private MapData() {
@@ -71,6 +77,18 @@ public class MapData {
         }
     }
     
+    public List<TileData> getSparseTiles(
+        final int x,
+        final int y
+    ) {
+        if (x < 0 || y < 0 || x >= width || y >= height) {
+            return null;
+            
+        } else {
+            return sparseTiles.get(x + (y * width));
+        }
+    }
+    
     public void setTile(
         final int x,
         final int y,
@@ -80,7 +98,23 @@ public class MapData {
             // out of bounds, do nothing
             
         } else {
-            tiles[x + (y * width)] = tile;
+            final int tileIndex = x + (y * width);
+            
+            if (tile.getLayer() == 0) {
+                tiles[tileIndex] = tile;
+                sparseTiles.put(tileIndex, null);
+                
+            } else {
+                List<TileData> sparseTileList = 
+                    sparseTiles.get(tileIndex);
+                
+                if (sparseTileList == null) {
+                    sparseTileList = new ArrayList<TileData>();
+                    sparseTiles.put(tileIndex, sparseTileList);
+                }
+                
+                sparseTileList.add(tile);
+            }
         }
     }
 
