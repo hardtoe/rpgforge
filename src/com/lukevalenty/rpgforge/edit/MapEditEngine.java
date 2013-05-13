@@ -99,6 +99,24 @@ public class MapEditEngine {
         ) {
             currentMap = e.map();
         }
+        
+        public void onEvent(
+            final EyedropEvent e
+        ) {
+            viewMatrix.invert(inverseViewMatrix);
+            
+            pts[0] = e.x();
+            pts[1] = e.y();
+            inverseViewMatrix.mapPoints(pts);
+            float x = pts[0];
+            float y = pts[1];
+            
+            int tileX = (int) (x / 32);
+            int tileY = (int) (y / 32);
+            
+            e.setTile(currentMap.getTile(tileX, tileY));
+            e.setSparseTiles(currentMap.getSparseTiles(tileX, tileY));
+        }
 
         private float[] pts = new float[2];
         public void onEvent(

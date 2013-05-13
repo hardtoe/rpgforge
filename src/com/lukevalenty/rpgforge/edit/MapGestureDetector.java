@@ -23,7 +23,7 @@ public class MapGestureDetector implements OnTouchListener {
         final ScaleGestureDetector mScaleDetector
     ) {
         this.mScaleDetector = mScaleDetector;
-        eventBus.register(this, ToolSelectedEvent.class, TileSelectedEvent.class);
+        eventBus.register(this);
     }
     
     public void onEvent(final ToolSelectedEvent e) {
@@ -79,6 +79,28 @@ public class MapGestureDetector implements OnTouchListener {
                 
             } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
                 eventBus.post(new DrawTileEvent(currentTile, (int) e.getX(), (int) e.getY()));
+                return true;
+                
+            } else {
+                return false;
+            }
+            
+        } else if (
+            currentTool == Tool.EYEDROP && 
+            currentTile != null && 
+            e.getPointerCount() == 1
+        ) {
+            final EyedropEvent event = 
+                new EyedropEvent((int) e.getX(), (int) e.getY());
+            
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                eventBus.post(event);
+                currentTile = event.tile();
+                return true;
+                
+            } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
+                eventBus.post(event);
+                currentTile = event.tile();
                 return true;
                 
             } else {

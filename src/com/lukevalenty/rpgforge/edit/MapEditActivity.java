@@ -42,9 +42,12 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
@@ -71,6 +74,8 @@ public class MapEditActivity extends RoboFragmentActivity {
 
     private ArrayList<TileData> allTiles;
     private BaseAdapter mapSelectionAdapter;
+
+    private int tilePaletteTileSize = 64;
     
     // FIXME: this should be moved to RpgForgeApplication
              
@@ -136,6 +141,11 @@ public class MapEditActivity extends RoboFragmentActivity {
         
         handleIntent(getIntent());
 
+        tilePaletteTileSize = 
+            (int) (getResources().getDisplayMetrics().density * 48);
+        
+        
+        
         mapSelectionAdapter =
             new BaseAdapter() {
                 
@@ -232,12 +242,21 @@ public class MapEditActivity extends RoboFragmentActivity {
                 final TileData tileData =
                     allTiles.get(position);
                 
-                final ImageView tileView =
-                    new ImageView(MapEditActivity.this);
                 
-                tileView.setLayoutParams(new GridView.LayoutParams(96, 96));
+                ImageView tileView;
+                
+                if (convertView == null) {
+                    tileView = 
+                        new ImageView(MapEditActivity.this);
+                    
+                } else {
+                    tileView = 
+                        (ImageView) convertView;
+                }
+                
+                tileView.setLayoutParams(new GridView.LayoutParams(tilePaletteTileSize, tilePaletteTileSize));
                 tileView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                tileView.setPadding(4, 4, 4, 4);
+                tileView.setPadding(2, 2, 2, 2);
                 
                 tileView.setImageDrawable(new Drawable() {
                     @Override
@@ -261,11 +280,79 @@ public class MapEditActivity extends RoboFragmentActivity {
                     }
                 });
                 
-                
                 return tileView;
             }
         };
+        
         tilePalette.setAdapter(tilePaletteAdapter);
+        
+        tilePalette.setNumColumns(4);
+        LayoutParams layoutParams = tilePalette.getLayoutParams();
+        layoutParams.width = 4 * tilePaletteTileSize;
+        tilePalette.setLayoutParams(layoutParams);
+        
+        tilePalette.setOnTouchListener(new OnTouchListener() {
+            private float lastX;
+            private float lastY;
+            private float startX;
+            private float startY;
+
+            private boolean paletteSwipeDetected = false;
+            private boolean paletteSwipeImpossible = false;
+            
+            @Override
+            public boolean onTouch(
+                final View v, 
+                final MotionEvent e
+            ) {
+                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    startX = e.getX();
+                    startY = e.getY();
+                    lastX = e.getX();
+                    lastY = e.getY();
+                    paletteSwipeDetected = false;
+                    paletteSwipeImpossible = false;
+                    return false;
+                    
+                } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
+                    
+                    float dx = Math.abs(startX - e.getX());
+                    float dy = Math.abs(startY - e.getY());
+                    
+                    if (paletteSwipeDetected == false){
+                        if (dx > tilePaletteTileSize && dx > dy) {
+                            paletteSwipeDetected = true;
+                        
+                        } else if (dy > tilePaletteTileSize && dy > dx) {
+                            paletteSwipeImpossible = true;
+                        }
+                        
+                    } else if (paletteSwipeImpossible == true) {
+                        return false;
+                        
+                    } 
+                    
+                    if (paletteSwipeDetected) {
+                        final float resizeDx = (e.getX() - lastX);
+                        
+                        LayoutParams layoutParams = tilePalette.getLayoutParams();
+                        layoutParams.width = Math.max(Math.min((int) (layoutParams.width + resizeDx), tilePaletteTileSize * 16), tilePaletteTileSize);
+                        tilePalette.setLayoutParams(layoutParams);
+                        tilePalette.setNumColumns(Math.max(Math.min(layoutParams.width / tilePaletteTileSize, 16), 1));
+
+                        lastX = e.getX();
+                        lastY = e.getY();
+                        
+                        return true;
+                    }
+
+                    return false;
+                    
+                } else {
+                    return false;
+                }
+            }
+        });
     }
     
     @Override
@@ -288,6 +375,11 @@ public class MapEditActivity extends RoboFragmentActivity {
                 
             case R.id.menu_move:   
                 currentTool = Tool.MOVE;
+                eventBus.post(new ToolSelectedEvent(currentTool));
+                return true;
+                
+            case R.id.menu_eyedrop:
+                currentTool = Tool.EYEDROP;
                 eventBus.post(new ToolSelectedEvent(currentTool));
                 return true;
                 

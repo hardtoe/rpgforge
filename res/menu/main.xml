@@ -20,6 +20,11 @@
           android:icon="@drawable/ic_action_move"
           android:showAsAction="always" />
     
+    <item android:id="@+id/menu_eyedrop"
+          android:title="Eyedrop"
+          android:icon="@drawable/ic_action_eyedrop"
+          android:showAsAction="always" />
+    
     <item android:id="@+id/menu_draw"
           android:title="Draw"
           android:icon="@drawable/ic_action_draw"
@@ -28,7 +33,7 @@
     <item android:id="@+id/menu_fill"
           android:title="Fill"
           android:icon="@drawable/ic_action_fill"
-          android:showAsAction="ifRoom" />
+          android:showAsAction="always" />
     
     <item
         android:id="@+id/menu_renamemap"
