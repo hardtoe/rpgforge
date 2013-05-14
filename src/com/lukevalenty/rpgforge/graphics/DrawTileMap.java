@@ -1,5 +1,7 @@
 package com.lukevalenty.rpgforge.graphics;
 
+import android.graphics.Bitmap;
+
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.memory.ObjectPool;
 
@@ -9,6 +11,19 @@ public class DrawTileMap extends DrawCommand<DrawTileMap> {
     }
     
     private MapData map;
+    private Bitmap bitmap;
+    
+    public DrawTileMap set(
+        final MapData map, 
+        final Bitmap bitmap
+    ) {
+        super.init();
+        
+        this.map = map;
+        this.bitmap = bitmap;
+        
+        return this;
+    }
     
     public DrawTileMap set(
         final MapData map
@@ -16,12 +31,17 @@ public class DrawTileMap extends DrawCommand<DrawTileMap> {
         super.init();
         
         this.map = map;
+        this.bitmap = null;
         
         return this;
     }
     
     public MapData map() {
         return map;
+    }
+    
+    public Bitmap bitmap() {
+        return bitmap;
     }
     
     @Override

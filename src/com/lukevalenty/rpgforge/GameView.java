@@ -87,6 +87,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private float[] pts = new float[2];
         private Matrix matrix;
         private final Matrix inverseMatrix = new Matrix();
+        private int numTiles;
 
         
         
@@ -162,26 +163,42 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     inverseMatrix.mapPoints(pts);
                     float xMax = pts[0];
                     float yMax = pts[1];
-                    
+          
                     int xMaxTile = Math.min((int) (xMax / 32) + 1, map.getWidth());
                     int yMaxTile = Math.min((int) (yMax / 32) + 1, map.getHeight());
                     
-                    for (int y = yMinTile; y < yMaxTile; y++) {
-                        for (int x = xMinTile; x < xMaxTile; x++) {
-                            final TileData tile =
-                                map.getTile(x, y);
-                            
-                            if (tile instanceof AutoTileData) {
-                                drawAutoTile(map, drawTilemap, (AutoTileData) tile, c, x, y);
-                            } else {
-                                drawTile(tile, c, x, y);
-                            }
-                            
-                            final TileData sparseTile =
-                                map.getSparseTile(x, y);
-                            
-                            if (sparseTile != null) {
-                                drawTile(sparseTile, c, x, y);
+                    numTiles = (xMaxTile - xMinTile) * (yMaxTile - yMinTile);
+                    
+                    if (numTiles > 5000) {
+                        src.left = 0;
+                        src.top = 0;
+                        src.right = drawTilemap.bitmap().getWidth();
+                        src.bottom = drawTilemap.bitmap().getHeight();
+                        
+                        dst.left = src.left;
+                        dst.top = src.top;
+                        dst.right = src.right * tileSize;
+                        dst.bottom = src.bottom * tileSize;
+                        c.drawBitmap(drawTilemap.bitmap(), src, dst, null);
+                        
+                    } else {
+                        for (int y = yMinTile; y < yMaxTile; y++) {
+                            for (int x = xMinTile; x < xMaxTile; x++) {
+                                final TileData tile =
+                                    map.getTile(x, y);
+                                
+                                if (tile instanceof AutoTileData) {
+                                    drawAutoTile(map, drawTilemap, (AutoTileData) tile, c, x, y);
+                                } else {
+                                    drawTile(tile, c, x, y);
+                                }
+                                
+                                final TileData sparseTile =
+                                    map.getSparseTile(x, y);
+                                
+                                if (sparseTile != null) {
+                                    drawTile(sparseTile, c, x, y);
+                                }
                             }
                         }
                     }
@@ -211,6 +228,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             dst.right = dst.left + tileSize;
             
             c.drawBitmap(tile.bitmap(), tile.src(frameIndex), dst, paint);
+            
         }
 
         private void drawAutoTile(
@@ -221,16 +239,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             final int x,
             final int y
         ) {
-            TileData topLeft =  map.getTile(x - 1, y - 1);
-            TileData top =      map.getTile(x    , y - 1);
-            TileData topRight = map.getTile(x + 1, y - 1);
+            final TileData topLeft =  map.getTile(x - 1, y - 1);
+            final TileData top =      map.getTile(x    , y - 1);
+            final TileData topRight = map.getTile(x + 1, y - 1);
             
-            TileData left =     map.getTile(x - 1, y);
-            TileData right =    map.getTile(x + 1, y);
+            final TileData left =     map.getTile(x - 1, y);
+            final TileData right =    map.getTile(x + 1, y);
             
-            TileData botLeft =  map.getTile(x - 1, y + 1);
-            TileData bot =      map.getTile(x    , y + 1);
-            TileData botRight = map.getTile(x + 1, y + 1);
+            final TileData botLeft =  map.getTile(x - 1, y + 1);
+            final TileData bot =      map.getTile(x    , y + 1);
+            final TileData botRight = map.getTile(x + 1, y + 1);
             
             drawAutoTileCorner(cmd, tile, c, 0, 0, x, y, left,  topLeft,  top);
             drawAutoTileCorner(cmd, tile, c, 1, 0, x, y, right, topRight, top);

@@ -1,6 +1,7 @@
 package com.lukevalenty.rpgforge.data;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Rect;
 
 public abstract class TileData {
@@ -11,6 +12,8 @@ public abstract class TileData {
     protected int[] frames;
     
     protected int layer = 0;
+    
+    protected transient int avgColor = 0;
     
     protected TileData() {
         // default constructor needed for serialization
@@ -70,5 +73,32 @@ public abstract class TileData {
     
     public int getLayer() {
         return layer;
+    }
+    
+    public int getAvgColor() {
+        final int width = src[0].right - src[0].left;
+        final int height = src[0].bottom - src[0].top;
+        final int numPixels = width * height;
+        
+        int r = 0;
+        int g = 0;
+        int b = 0;
+        
+        if (avgColor == 0) {
+            for (int y = src[0].top; y < src[0].bottom; y++) {
+                for (int x = src[0].left; x < src[0].right; x++) {
+                    int pixel = 
+                        bitmap().getPixel(x, y);
+                    
+                    r += (pixel >> 16) & 0xff;
+                    g += (pixel >> 8) & 0xff;
+                    b += (pixel) & 0xff;
+                }
+            }
+            
+            avgColor = Color.rgb(r / numPixels, g / numPixels, b / numPixels);
+        }
+        
+        return avgColor;
     }
 }

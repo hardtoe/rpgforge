@@ -1,9 +1,13 @@
 package com.lukevalenty.rpgforge.edit;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.util.Log;
 
 import com.google.inject.Inject;
@@ -72,7 +76,7 @@ public class MapEditEngine {
         private boolean mRunning;
 
         private MapData currentMap;
-        
+        private Bitmap currentMapBitmap;
 
         private Matrix viewMatrix = new Matrix();
         private Matrix inverseViewMatrix = new Matrix();
@@ -102,6 +106,17 @@ public class MapEditEngine {
             final SelectMapEvent e
         ) {
             currentMap = e.map();
+            currentMapBitmap = Bitmap.createBitmap(currentMap.getWidth(), currentMap.getHeight(), Bitmap.Config.ARGB_8888);
+            
+            updateMapBitmap();
+        }
+
+        private void updateMapBitmap() {
+            for (int y = 0; y < currentMap.getHeight(); y++) {
+                for (int x = 0; x < currentMap.getWidth(); x++) {
+                    currentMapBitmap.setPixel(x, y, currentMap.getTile(x, y).getAvgColor());
+                }
+            }
         }
         
         public void onEvent(
@@ -137,6 +152,7 @@ public class MapEditEngine {
             int tileY = (int) (y / 32);
             
             currentMap.setTile(tileX, tileY, e.tile());
+            currentMapBitmap.setPixel(tileX, tileY, e.tile().getAvgColor());
         }
         
         public void onEvent(
@@ -157,11 +173,75 @@ public class MapEditEngine {
                 
                 @Override
                 public void run() {
-                    currentMap.fill(e.tile(), tileX, tileY);
+                    fill(e.tile(), tileX, tileY);
                 }
             }).start();
         }
         
+
+        /**
+         * Algorithm from: http://en.wikipedia.org/wiki/Flood_fill
+         * @param replacementTile
+         * @param x
+         * @param y
+         */
+        private void fill(
+            final TileData replacementTile, 
+            final int x, 
+            final int y
+        ) {
+            if (replacementTile.getLayer() == 0) {
+                final int color = 
+                    replacementTile.getAvgColor();
+                
+                final TileData targetTile = 
+                    currentMap.getTile(x, y);
+                
+                if (targetTile != null && !replacementTile.equals(targetTile)) { 
+                    LinkedHashSet<Point> q = 
+                        new LinkedHashSet<Point>();
+                    
+                    q.add(new Point(x, y));
+                    
+                    while (!q.isEmpty()) {
+                        final Iterator<Point> i = q.iterator();
+                        
+                        final Point n = 
+                            i.next();
+
+                        i.remove();
+                        
+                        final TileData nTile = 
+                                currentMap.getTile(n.x, n.y);
+                        
+                        if (nTile != null && nTile == targetTile) {
+                            currentMap.setTile(n.x, n.y, replacementTile);
+                            currentMapBitmap.setPixel(n.x, n.y, color);
+                            addPoint(targetTile, q, new Point(n.x + 1, n.y));
+                            addPoint(targetTile, q, new Point(n.x - 1, n.y));
+                            addPoint(targetTile, q, new Point(n.x, n.y + 1));
+                            addPoint(targetTile, q, new Point(n.x, n.y - 1));
+                        }
+                    }
+                    
+                    q = null;
+                }
+            }
+        }
+
+
+        private void addPoint(
+            final TileData targetTile, 
+            final LinkedHashSet<Point> q, 
+            final Point p
+        ) {
+            final TileData tile = 
+                currentMap.getTile(p.x, p.y);
+            
+            if (tile != null && tile.equals(targetTile)) {
+                q.add(p);
+            }
+        }
         public void onEvent(
             final PanMapEvent e
         ) {   
@@ -181,7 +261,7 @@ public class MapEditEngine {
                     drawCommandBuffer.lockBackBuffer();
                 
                 backBuffer.add(setMatrixPool.get().set(viewMatrix));
-                backBuffer.add(tilemapPool.get().set(currentMap));
+                backBuffer.add(tilemapPool.get().set(currentMap, currentMapBitmap));
                 
                 drawCommandBuffer.unlockBackBuffer();
             }

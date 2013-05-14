@@ -57,6 +57,7 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class MapEditActivity extends RoboFragmentActivity {
     private String activeDatabaseFilename = "defaultRpgDatabase";
     
