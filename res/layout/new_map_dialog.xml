@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/resizeWidthField"
+        android:layout_below="@+id/widthField"
         android:ems="10"
         android:hint="Height"
         android:inputType="number"

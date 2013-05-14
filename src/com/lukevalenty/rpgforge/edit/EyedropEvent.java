@@ -8,9 +8,6 @@ public class EyedropEvent {
     private final int x;
     private final int y;
     
-    private TileData tile;
-    private List<TileData> sparseTiles;
-    
     public EyedropEvent(
         final int x,
         final int y
@@ -25,21 +22,5 @@ public class EyedropEvent {
     
     public int y() {
         return y;
-    }
-    
-    public void setTile(final TileData tile) {
-        this.tile = tile;
-    }
-    
-    public TileData tile() {
-        return tile;
-    }
-
-    public void setSparseTiles(final List<TileData> sparseTiles) {
-        this.sparseTiles = sparseTiles;
-    }
-    
-    public List<TileData> sparseTiles() {
-        return sparseTiles;
     }
 }

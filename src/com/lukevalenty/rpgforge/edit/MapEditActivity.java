@@ -55,6 +55,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MapEditActivity extends RoboFragmentActivity {
     private String activeDatabaseFilename = "defaultRpgDatabase";
@@ -135,7 +136,7 @@ public class MapEditActivity extends RoboFragmentActivity {
         Log.d(TAG, "== ON CREATE ==" + this.hashCode());
         setContentView(R.layout.mapedit);
 
-        eventBus.register(this, SelectMapEvent.class);
+        eventBus.register(this);
         
         mapEditEngine.start();
         
@@ -348,11 +349,33 @@ public class MapEditActivity extends RoboFragmentActivity {
 
                     return false;
                     
+
+                } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                    if (paletteSwipeDetected) {
+                        return true;
+                        
+                    } else {
+                        return false;
+                    }
+                    
                 } else {
                     return false;
                 }
             }
         });
+    }
+    
+    public void onEvent(final TileSelectedEvent e) {
+        /*
+        Toast t = new Toast(this);
+        ImageView tileView = new ImageView(this);
+        tileView.setImageBitmap(e.tile().bitmap());
+        t.setView(tileView);
+        t.setDuration(Toast.LENGTH_SHORT);
+        t.show();
+*/
+        currentTool = Tool.DRAW;
+        eventBus.post(new ToolSelectedEvent(currentTool));
     }
     
     @Override

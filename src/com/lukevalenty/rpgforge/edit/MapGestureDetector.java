@@ -95,12 +95,10 @@ public class MapGestureDetector implements OnTouchListener {
             
             if (e.getAction() == MotionEvent.ACTION_DOWN) {
                 eventBus.post(event);
-                currentTile = event.tile();
                 return true;
                 
             } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
                 eventBus.post(event);
-                currentTile = event.tile();
                 return true;
                 
             } else {

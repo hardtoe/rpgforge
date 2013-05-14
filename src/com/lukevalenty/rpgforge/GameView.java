@@ -153,13 +153,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                     drawTile(tile, c, x, y);
                                 }
                                 
-                                final List<TileData> sparseTiles =
-                                    map.getSparseTiles(x, y);
+                                final TileData sparseTile =
+                                    map.getSparseTile(x, y);
                                 
-                                if (sparseTiles != null) {
-                                    for (final TileData sparseTile : sparseTiles) {
-                                        drawTile(sparseTile, c, x, y);
-                                    }
+                                if (sparseTile != null) {
+                                    drawTile(sparseTile, c, x, y);
                                 }
                             }
                         }

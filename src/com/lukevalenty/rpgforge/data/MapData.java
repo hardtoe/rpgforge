@@ -1,8 +1,6 @@
 package com.lukevalenty.rpgforge.data;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 import android.graphics.Point;
 import android.util.SparseArray;
@@ -12,11 +10,10 @@ public class MapData {
     private int height;
     
     private TileData[] tiles;
+    private SparseArray<TileData> sparseTiles = new SparseArray<TileData>();
     
     private String name;
     
-    private SparseArray<List<TileData>> sparseTiles = 
-        new SparseArray<List<TileData>>();
     
     @SuppressWarnings("unused")
     private MapData() {
@@ -77,7 +74,7 @@ public class MapData {
         }
     }
     
-    public List<TileData> getSparseTiles(
+    public TileData getSparseTile(
         final int x,
         final int y
     ) {
@@ -105,15 +102,7 @@ public class MapData {
                 sparseTiles.put(tileIndex, null);
                 
             } else {
-                List<TileData> sparseTileList = 
-                    sparseTiles.get(tileIndex);
-                
-                if (sparseTileList == null) {
-                    sparseTileList = new ArrayList<TileData>();
-                    sparseTiles.put(tileIndex, sparseTileList);
-                }
-                
-                sparseTileList.add(tile);
+                sparseTiles.put(tileIndex, tile);
             }
         }
     }
@@ -137,32 +126,34 @@ public class MapData {
         final int x, 
         final int y
     ) {
-        final TileData targetTile = 
-            getTile(x, y);
-        
-        if (targetTile != null && !replacementTile.equals(targetTile)) { 
-            LinkedList<Point> q = 
-                new LinkedList<Point>();
+        if (replacementTile.getLayer() == 0) {
+            final TileData targetTile = 
+                getTile(x, y);
             
-            q.addLast(new Point(x, y));
-            
-            while (!q.isEmpty()) {
-                final Point n = 
-                    q.removeLast();
+            if (targetTile != null && !replacementTile.equals(targetTile)) { 
+                LinkedList<Point> q = 
+                    new LinkedList<Point>();
                 
-                final TileData nTile = 
-                    getTile(n.x, n.y);
+                q.addLast(new Point(x, y));
                 
-                if (nTile != null && nTile == targetTile) {
-                    setTile(n.x, n.y, replacementTile);
-                    q.addLast(new Point(n.x + 1, n.y));
-                    q.addLast(new Point(n.x - 1, n.y));
-                    q.addLast(new Point(n.x, n.y + 1));
-                    q.addLast(new Point(n.x, n.y - 1));
+                while (!q.isEmpty()) {
+                    final Point n = 
+                        q.removeLast();
+                    
+                    final TileData nTile = 
+                        getTile(n.x, n.y);
+                    
+                    if (nTile != null && nTile == targetTile) {
+                        setTile(n.x, n.y, replacementTile);
+                        q.addLast(new Point(n.x + 1, n.y));
+                        q.addLast(new Point(n.x - 1, n.y));
+                        q.addLast(new Point(n.x, n.y + 1));
+                        q.addLast(new Point(n.x, n.y - 1));
+                    }
                 }
+                
+                q = null;
             }
-            
-            q = null;
         }
     }
 

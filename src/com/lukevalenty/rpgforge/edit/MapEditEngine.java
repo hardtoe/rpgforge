@@ -76,18 +76,22 @@ public class MapEditEngine {
 
         private Matrix viewMatrix = new Matrix();
         private Matrix inverseViewMatrix = new Matrix();
+
+        private EventBus eventBus;
         
         @Inject MainLoop(
             final DrawCommandBuffer drawCommandBuffer,
             final SetMatrixPool setMatrixPool,
             final DrawSpritePool spritePool,
             final DrawTileMapPool tilemapPool,
-            final Context context
+            final Context context,
+            final EventBus eventBus
         ) {
             this.drawCommandBuffer = drawCommandBuffer;
             this.setMatrixPool = setMatrixPool;
             this.spritePool = spritePool;
             this.tilemapPool = tilemapPool;
+            this.eventBus = eventBus;
             
             BuiltinData.load(context);
 
@@ -114,8 +118,7 @@ public class MapEditEngine {
             int tileX = (int) (x / 32);
             int tileY = (int) (y / 32);
             
-            e.setTile(currentMap.getTile(tileX, tileY));
-            e.setSparseTiles(currentMap.getSparseTiles(tileX, tileY));
+            eventBus.post(new TileSelectedEvent(currentMap.getTile(tileX, tileY)));
         }
 
         private float[] pts = new float[2];
