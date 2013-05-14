@@ -83,6 +83,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         private int tileSize = 32;
         private float mapScale;
+        
+        private float[] pts = new float[2];
+        private Matrix matrix;
+        private final Matrix inverseMatrix = new Matrix();
 
         
         
@@ -140,31 +144,51 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     final MapData map =
                         drawTilemap.map();
                     
-                    for (int x = 0; x < map.getWidth(); x++) {
-                        for (int y = 0; y < map.getHeight(); y++) {
-                            if (!c.quickReject(x * 32, y * 32, (x * 32) + 32, (y * 32) + 32, EdgeType.AA)) {
-                                
-                                final TileData tile =
-                                    map.getTile(x, y);
-                                
-                                if (tile instanceof AutoTileData) {
-                                    drawAutoTile(map, drawTilemap, (AutoTileData) tile, c, x, y);
-                                } else {
-                                    drawTile(tile, c, x, y);
-                                }
-                                
-                                final TileData sparseTile =
-                                    map.getSparseTile(x, y);
-                                
-                                if (sparseTile != null) {
-                                    drawTile(sparseTile, c, x, y);
-                                }
+                    
+                    matrix.invert(inverseMatrix);
+                    
+                    pts[0] = 0;
+                    pts[1] = 0;
+                    inverseMatrix.mapPoints(pts);
+                    float xMin = pts[0];
+                    float yMin = pts[1];
+                    
+                    int xMinTile = Math.max((int) (xMin / 32), 0);
+                    int yMinTile = Math.max((int) (yMin / 32), 0);
+                    
+
+                    pts[0] = c.getWidth();
+                    pts[1] = c.getHeight();
+                    inverseMatrix.mapPoints(pts);
+                    float xMax = pts[0];
+                    float yMax = pts[1];
+                    
+                    int xMaxTile = Math.min((int) (xMax / 32) + 1, map.getWidth());
+                    int yMaxTile = Math.min((int) (yMax / 32) + 1, map.getHeight());
+                    
+                    for (int y = yMinTile; y < yMaxTile; y++) {
+                        for (int x = xMinTile; x < xMaxTile; x++) {
+                            final TileData tile =
+                                map.getTile(x, y);
+                            
+                            if (tile instanceof AutoTileData) {
+                                drawAutoTile(map, drawTilemap, (AutoTileData) tile, c, x, y);
+                            } else {
+                                drawTile(tile, c, x, y);
+                            }
+                            
+                            final TileData sparseTile =
+                                map.getSparseTile(x, y);
+                            
+                            if (sparseTile != null) {
+                                drawTile(sparseTile, c, x, y);
                             }
                         }
                     }
                     
                 } else if (drawCommand instanceof SetMatrix) {
-                    c.setMatrix(((SetMatrix) drawCommand).matrix());
+                    matrix = ((SetMatrix) drawCommand).matrix();
+                    c.setMatrix(matrix);
                 }
             }
             
@@ -173,6 +197,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             drawCommandBuffer.unlockFrontBuffer();
         }
 
+       
+        
         private void drawTile(
             final TileData tile,
             final Canvas c, 

@@ -1,6 +1,10 @@
 package com.lukevalenty.rpgforge.data;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.TreeSet;
 
 import android.graphics.Point;
 import android.util.SparseArray;
@@ -99,7 +103,7 @@ public class MapData {
             
             if (tile.getLayer() == 0) {
                 tiles[tileIndex] = tile;
-                sparseTiles.put(tileIndex, null);
+                sparseTiles.delete(tileIndex);
                 
             } else {
                 sparseTiles.put(tileIndex, tile);
@@ -108,11 +112,9 @@ public class MapData {
     }
 
     public void fill(final TileData tile) {
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                setTile(x, y, tile);
-            }
-        } 
+        for (int i = 0; i < tiles.length; i++) {
+            tiles[i] = tile;
+        }
     }
 
     /**
@@ -121,6 +123,7 @@ public class MapData {
      * @param x
      * @param y
      */
+    /*
     public void fill(
         final TileData replacementTile, 
         final int x, 
@@ -145,7 +148,7 @@ public class MapData {
                     
                     if (nTile != null && nTile == targetTile) {
                         setTile(n.x, n.y, replacementTile);
-                        q.addLast(new Point(n.x + 1, n.y));
+                        addPoint(q, n);
                         q.addLast(new Point(n.x - 1, n.y));
                         q.addLast(new Point(n.x, n.y + 1));
                         q.addLast(new Point(n.x, n.y - 1));
@@ -154,6 +157,61 @@ public class MapData {
                 
                 q = null;
             }
+        }
+    }
+    */
+
+    /**
+     * Algorithm from: http://en.wikipedia.org/wiki/Flood_fill
+     * @param replacementTile
+     * @param x
+     * @param y
+     */
+    public void fill(
+        final TileData replacementTile, 
+        final int x, 
+        final int y
+    ) {
+        if (replacementTile.getLayer() == 0) {
+            final TileData targetTile = 
+                getTile(x, y);
+            
+            if (targetTile != null && !replacementTile.equals(targetTile)) { 
+                LinkedHashSet<Point> q = 
+                    new LinkedHashSet<Point>();
+                
+                q.add(new Point(x, y));
+                
+                while (!q.isEmpty()) {
+                    final Iterator<Point> i = q.iterator();
+                    
+                    final Point n = 
+                        i.next();
+
+                    i.remove();
+                    
+                    final TileData nTile = 
+                        getTile(n.x, n.y);
+                    
+                    if (nTile != null && nTile == targetTile) {
+                        setTile(n.x, n.y, replacementTile);
+                        addPoint(targetTile, q, new Point(n.x + 1, n.y));
+                        addPoint(targetTile, q, new Point(n.x - 1, n.y));
+                        addPoint(targetTile, q, new Point(n.x, n.y + 1));
+                        addPoint(targetTile, q, new Point(n.x, n.y - 1));
+                    }
+                }
+                
+                q = null;
+            }
+        }
+    }
+
+    private void addPoint(TileData targetTile, LinkedHashSet<Point> q, final Point p) {
+        final TileData tile = getTile(p.x, p.y);
+        
+        if (tile != null && tile.equals(targetTile)) {
+            q.add(p);
         }
     }
 

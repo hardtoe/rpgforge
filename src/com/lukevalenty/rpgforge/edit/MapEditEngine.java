@@ -150,10 +150,16 @@ public class MapEditEngine {
             float x = pts[0];
             float y = pts[1];
             
-            int tileX = (int) (x / 32);
-            int tileY = (int) (y / 32);
-            
-            currentMap.fill(e.tile(), tileX, tileY);
+            final int tileX = (int) (x / 32);
+            final int tileY = (int) (y / 32);
+           
+            new Thread(new Runnable() {
+                
+                @Override
+                public void run() {
+                    currentMap.fill(e.tile(), tileX, tileY);
+                }
+            }).start();
         }
         
         public void onEvent(
