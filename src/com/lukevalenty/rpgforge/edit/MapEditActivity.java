@@ -607,8 +607,8 @@ public class MapEditActivity extends RoboFragmentActivity {
                    
                    final int height =
                        heightString.length() == 0 ? 20 : Integer.parseInt(heightString);
-                    
-                   currentMap.resize(width, height, RpgForgeApplication.getDb().getDefaultTile());
+                   
+                   eventBus.post(new ResizeMapEvent(width, height));
                }
            })
            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

@@ -11,6 +11,7 @@ import android.graphics.Point;
 import android.util.Log;
 
 import com.google.inject.Inject;
+import com.lukevalenty.rpgforge.RpgForgeApplication;
 import com.lukevalenty.rpgforge.data.BuiltinData;
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.data.TileData;
@@ -137,6 +138,8 @@ public class MapEditEngine {
         }
 
         private float[] pts = new float[2];
+
+        private boolean fillInProgress;
         public void onEvent(
             final DrawTileEvent e
         ) {
@@ -156,29 +159,42 @@ public class MapEditEngine {
         }
         
         public void onEvent(
-            final FillTileEvent e
+            final ResizeMapEvent e
         ) {
-            viewMatrix.invert(inverseViewMatrix);
-            
-            pts[0] = e.x();
-            pts[1] = e.y();
-            inverseViewMatrix.mapPoints(pts);
-            float x = pts[0];
-            float y = pts[1];
-            
-            final int tileX = (int) (x / 32);
-            final int tileY = (int) (y / 32);
-           
-            new Thread(new Runnable() {
-                
-                @Override
-                public void run() {
-                    fill(e.tile(), tileX, tileY);
-                }
-            }).start();
+            currentMap.resize(e.width(), e.height(), RpgForgeApplication.getDb().getDefaultTile());
+            currentMapBitmap = Bitmap.createBitmap(currentMap.getWidth(), currentMap.getHeight(), Bitmap.Config.ARGB_8888);
+            updateMapBitmap();
         }
         
-
+        public void onEvent(
+            final FillTileEvent e
+        ) {
+            if (fillInProgress == false) {
+                viewMatrix.invert(inverseViewMatrix);
+                
+                pts[0] = e.x();
+                pts[1] = e.y();
+                inverseViewMatrix.mapPoints(pts);
+                float x = pts[0];
+                float y = pts[1];
+                
+                final int tileX = (int) (x / 32);
+                final int tileY = (int) (y / 32);
+               
+                fillInProgress = true;
+                
+                new Thread(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        fill(e.tile(), tileX, tileY);
+                        fillInProgress = false;
+                    }
+                }).start();
+            }
+        }
+        
+        
         /**
          * Algorithm from: http://en.wikipedia.org/wiki/Flood_fill
          * @param replacementTile
