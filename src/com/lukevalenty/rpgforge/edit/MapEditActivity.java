@@ -28,10 +28,13 @@ import android.app.AlertDialog;
 import android.app.ActionBar.OnNavigationListener;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -53,11 +56,11 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class MapEditActivity extends RoboFragmentActivity {
     private String activeDatabaseFilename = "defaultRpgDatabase";
     
@@ -108,11 +111,9 @@ public class MapEditActivity extends RoboFragmentActivity {
             
             if (databaseFile.exists()) {
                 rpgDatabase = loader.load(this, activeDatabaseFilename);
-                Log.d(TAG, "FILE EXISTS: " + activeDatabaseFilename);
                 
             } else {
                 rpgDatabase = BuiltinData.createNewDatabase(this);
-                Log.d(TAG, "FILE DOES NOT EXIST: " + activeDatabaseFilename);
             }
               
             RpgForgeApplication.setDb(rpgDatabase);
@@ -126,6 +127,8 @@ public class MapEditActivity extends RoboFragmentActivity {
                 mapSelectionAdapter.notifyDataSetChanged();
             }
         }
+
+        Log.d(TAG, "HANDLE INTENT FINISHED");
     }
     
     
@@ -364,6 +367,8 @@ public class MapEditActivity extends RoboFragmentActivity {
                 }
             }
         });
+
+        Log.d(TAG, "ONCREATE FINISHED");
     }
     
     public void onEvent(final TileSelectedEvent e) {
@@ -379,10 +384,71 @@ public class MapEditActivity extends RoboFragmentActivity {
         eventBus.post(new ToolSelectedEvent(currentTool));
     }
     
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void onEvent(final ToolSelectedEvent e) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            invalidateOptionsMenu();
+        }
+    }
+    
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+        
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            if (currentTool == Tool.MOVE) {
+                setActiveActionIcon(menu, R.id.menu_move, R.drawable.ic_action_move);
+                
+            } else if (currentTool == Tool.DRAW) {
+                setActiveActionIcon(menu, R.id.menu_draw, R.drawable.ic_action_draw);
+                
+            } else if (currentTool == Tool.FILL) {
+                setActiveActionIcon(menu, R.id.menu_fill, R.drawable.ic_action_fill);
+                
+            } else if (currentTool == Tool.EYEDROP) {
+                setActiveActionIcon(menu, R.id.menu_eyedrop, R.drawable.ic_action_eyedrop);
+            }
+        }
+        
         return true;
+    }
+
+    private void setActiveActionIcon(
+        final Menu menu, 
+        final int menuItemId,
+        final int iconId
+    ) {
+        final MenuItem moveButton = 
+            menu.findItem(menuItemId);
+
+        final Bitmap activeMoveBitmap = 
+            createActiveActionIcon(iconId);
+        
+        moveButton.setIcon(new BitmapDrawable(getResources(), activeMoveBitmap));
+    }
+
+    private Bitmap createActiveActionIcon(final int resourceId) {
+        final Bitmap src = 
+            BitmapFactory.decodeResource(getResources(), resourceId);
+        
+        final Bitmap dst = 
+            Bitmap.createBitmap(
+                src.getWidth(), 
+                src.getHeight(), 
+                Bitmap.Config.ARGB_8888);
+        
+        for (int x = 0; x < dst.getWidth(); x++) {
+            for (int y = 0; y < dst.getHeight(); y++) {
+                final int srcPixel = src.getPixel(x, y);
+                
+                if (srcPixel != 0) {
+                    dst.setPixel(x, y, (srcPixel & 0xff000000) | 0xFFBB33);
+                }
+            }
+        }
+        
+        return dst;
     }
     
     @Override
