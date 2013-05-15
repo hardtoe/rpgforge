@@ -1,12 +1,5 @@
 package com.lukevalenty.rpgforge.data;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.TreeSet;
-
-import android.graphics.Point;
 import android.util.SparseArray;
 
 public class MapData {
@@ -86,7 +79,11 @@ public class MapData {
             return null;
             
         } else {
-            return sparseTiles.get(x + (y * width));
+            if (sparseTiles.get(x + (y * width)) instanceof TileData) {
+                return sparseTiles.get(x + (y * width));
+            } else {
+                return null;
+            }
         }
     }
     

@@ -87,7 +87,6 @@ public class MapGestureDetector implements OnTouchListener {
             
         } else if (
             currentTool == Tool.EYEDROP && 
-            currentTile != null && 
             e.getPointerCount() == 1
         ) {
             final EyedropEvent event = 

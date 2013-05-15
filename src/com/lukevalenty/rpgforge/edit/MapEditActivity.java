@@ -204,23 +204,6 @@ public class MapEditActivity extends RoboFragmentActivity {
 
         
 
-        tilePalette.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(
-                final AdapterView<?> parent, 
-                final View view, 
-                final int position,
-                final long row
-            ) {
-                final ListAdapter adapter = 
-                    (ListAdapter) parent.getAdapter();
-                
-                final TileData tile =
-                    (TileData) adapter.getItem(position);
-                
-                eventBus.post(new TileSelectedEvent(tile));
-            }
-        });
             
         tilePaletteAdapter = new BaseAdapter() {
             @Override
@@ -246,8 +229,7 @@ public class MapEditActivity extends RoboFragmentActivity {
             ) {
                 final TileData tileData =
                     allTiles.get(position);
-                
-                
+
                 ImageView tileView;
                 
                 if (convertView == null) {
@@ -261,7 +243,7 @@ public class MapEditActivity extends RoboFragmentActivity {
                 
                 tileView.setLayoutParams(new GridView.LayoutParams(tilePaletteTileSize, tilePaletteTileSize));
                 tileView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                tileView.setPadding(2, 2, 2, 2);
+                tileView.setPadding(4, 4, 4, 4);
                 
                 tileView.setImageDrawable(new Drawable() {
                     @Override
@@ -288,6 +270,7 @@ public class MapEditActivity extends RoboFragmentActivity {
                 return tileView;
             }
         };
+
         
         tilePalette.setAdapter(tilePaletteAdapter);
         
@@ -304,6 +287,8 @@ public class MapEditActivity extends RoboFragmentActivity {
 
             private boolean paletteSwipeDetected = false;
             private boolean paletteSwipeImpossible = false;
+            
+            private int focusPosition;
             
             @Override
             public boolean onTouch(
@@ -327,7 +312,9 @@ public class MapEditActivity extends RoboFragmentActivity {
                     if (paletteSwipeDetected == false){
                         if (dx > tilePaletteTileSize && dx > dy) {
                             paletteSwipeDetected = true;
-                        
+
+                            focusPosition = tilePalette.getFirstVisiblePosition();
+                            
                         } else if (dy > tilePaletteTileSize && dy > dx) {
                             paletteSwipeImpossible = true;
                         }
@@ -343,10 +330,13 @@ public class MapEditActivity extends RoboFragmentActivity {
                         LayoutParams layoutParams = tilePalette.getLayoutParams();
                         layoutParams.width = Math.max(Math.min((int) (layoutParams.width + resizeDx), tilePaletteTileSize * 16), tilePaletteTileSize);
                         tilePalette.setLayoutParams(layoutParams);
-                        tilePalette.setNumColumns(Math.max(Math.min(layoutParams.width / tilePaletteTileSize, 16), 1));
+                        final int newColumnCount = Math.max(Math.min(layoutParams.width / tilePaletteTileSize, 16), 1);
+                        tilePalette.setNumColumns(newColumnCount);
 
                         lastX = e.getX();
                         lastY = e.getY();
+                        
+                        tilePalette.setSelection(focusPosition);
                         
                         return true;
                     }
@@ -368,7 +358,34 @@ public class MapEditActivity extends RoboFragmentActivity {
             }
         });
 
-        Log.d(TAG, "ONCREATE FINISHED");
+        tilePalette.setOnItemClickListener(new OnItemClickListener() {
+            private ImageView previousTileView;
+            
+            @Override
+            public void onItemClick(
+                final AdapterView<?> parent, 
+                final View view, 
+                final int position,
+                final long row
+            ) {
+                final ListAdapter adapter = 
+                    (ListAdapter) parent.getAdapter();
+                
+                final TileData tile =
+                    (TileData) adapter.getItem(position);
+                
+                eventBus.post(new TileSelectedEvent(tile));
+                
+                if (previousTileView != null) {
+                    previousTileView.setBackgroundColor(Color.TRANSPARENT);
+                }
+                
+                ImageView tileView = (ImageView) view;
+                tileView.setBackgroundColor(Color.WHITE);
+                previousTileView = tileView;
+            }
+        });
+        
     }
     
     public void onEvent(final TileSelectedEvent e) {

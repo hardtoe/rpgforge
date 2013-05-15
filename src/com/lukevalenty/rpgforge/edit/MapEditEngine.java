@@ -115,7 +115,14 @@ public class MapEditEngine {
         private void updateMapBitmap() {
             for (int y = 0; y < currentMap.getHeight(); y++) {
                 for (int x = 0; x < currentMap.getWidth(); x++) {
-                    currentMapBitmap.setPixel(x, y, currentMap.getTile(x, y).getAvgColor());
+                    final TileData sparseTile = 
+                        currentMap.getSparseTile(x, y);
+                    
+                    if (sparseTile == null) {
+                        currentMapBitmap.setPixel(x, y, currentMap.getTile(x, y).getAvgColor());
+                    } else {
+                        currentMapBitmap.setPixel(x, y, sparseTile.getAvgColor());
+                    }
                 }
             }
         }
