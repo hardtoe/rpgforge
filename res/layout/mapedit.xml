@@ -22,9 +22,7 @@
 	    android:horizontalSpacing="2dp"
 	    android:stretchMode="columnWidth"
 	    android:gravity="center"
-        android:background="#555555"
-        android:choiceMode="singleChoice" 
-        android:listSelector="#ffffff">
+        android:background="#555555">
 
     </GridView>
     
