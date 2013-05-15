@@ -81,6 +81,8 @@ public class MapEditActivity extends RoboFragmentActivity {
     private BaseAdapter mapSelectionAdapter;
 
     private int tilePaletteTileSize = 64;
+
+    private int currentSelectedPositionInTilePalette = -1;
     
     // FIXME: this should be moved to RpgForgeApplication
              
@@ -241,6 +243,12 @@ public class MapEditActivity extends RoboFragmentActivity {
                         (ImageView) convertView;
                 }
                 
+                if (currentSelectedPositionInTilePalette == position) {
+                    tileView.setBackgroundColor(Color.WHITE);
+                } else {
+                    tileView.setBackgroundColor(Color.TRANSPARENT);
+                }
+                
                 tileView.setLayoutParams(new GridView.LayoutParams(tilePaletteTileSize, tilePaletteTileSize));
                 tileView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 tileView.setPadding(4, 4, 4, 4);
@@ -368,6 +376,8 @@ public class MapEditActivity extends RoboFragmentActivity {
                 final int position,
                 final long row
             ) {
+                currentSelectedPositionInTilePalette = position;
+                
                 final ListAdapter adapter = 
                     (ListAdapter) parent.getAdapter();
                 
@@ -376,6 +386,7 @@ public class MapEditActivity extends RoboFragmentActivity {
                 
                 eventBus.post(new TileSelectedEvent(tile));
                 
+                
                 if (previousTileView != null) {
                     previousTileView.setBackgroundColor(Color.TRANSPARENT);
                 }
@@ -383,9 +394,11 @@ public class MapEditActivity extends RoboFragmentActivity {
                 ImageView tileView = (ImageView) view;
                 tileView.setBackgroundColor(Color.WHITE);
                 previousTileView = tileView;
+                
             }
         });
         
+        Log.d(TAG, "ONCREATE FINISHED");
     }
     
     public void onEvent(final TileSelectedEvent e) {
