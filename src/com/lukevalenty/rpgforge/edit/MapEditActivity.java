@@ -367,8 +367,6 @@ public class MapEditActivity extends RoboFragmentActivity {
         });
 
         tilePalette.setOnItemClickListener(new OnItemClickListener() {
-            private ImageView previousTileView;
-            
             @Override
             public void onItemClick(
                 final AdapterView<?> parent, 
@@ -377,6 +375,7 @@ public class MapEditActivity extends RoboFragmentActivity {
                 final long row
             ) {
                 currentSelectedPositionInTilePalette = position;
+                tilePaletteAdapter.notifyDataSetChanged();
                 
                 final ListAdapter adapter = 
                     (ListAdapter) parent.getAdapter();
@@ -384,17 +383,7 @@ public class MapEditActivity extends RoboFragmentActivity {
                 final TileData tile =
                     (TileData) adapter.getItem(position);
                 
-                eventBus.post(new TileSelectedEvent(tile));
-                
-                
-                if (previousTileView != null) {
-                    previousTileView.setBackgroundColor(Color.TRANSPARENT);
-                }
-                
-                ImageView tileView = (ImageView) view;
-                tileView.setBackgroundColor(Color.WHITE);
-                previousTileView = tileView;
-                
+                eventBus.post(new TileSelectedEvent(tile));                
             }
         });
         
