@@ -7,7 +7,7 @@
     android:orientation="horizontal" 
     android:divider="#ff0000">
 
-	<com.lukevalenty.rpgforge.GameView
+	<com.lukevalenty.rpgforge.engine.GameView
 	    android:id="@+id/mapView"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"/>

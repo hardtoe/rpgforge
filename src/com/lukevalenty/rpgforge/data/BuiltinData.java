@@ -16,6 +16,7 @@ public class BuiltinData {
     public static TileSetData TILESET_E = null;
 
     private static boolean loaded = false;
+    private static CharacterSetData CHARSET_1A;
     
     public static void load(final Context context) {
         if (!loaded) {
@@ -111,6 +112,14 @@ public class BuiltinData {
             TILESET_E = load(context, "TileE.png", 1);
             
             
+            CHARSET_1A = new CharacterSetData("vx_chara01_a.png");
+            CHARSET_1A.load(context);
+            
+            for (int x = 0; x < 4; x++) {
+                for (int y = 0; y < 2; y++) {
+                    CHARSET_1A.addCharacter(new CharacterData(CHARSET_1A, new Rect(x * 32, y * 48, x * 32 + 32, y * 48 + 48)));
+                }
+            }
         }
     }
    
@@ -180,6 +189,8 @@ public class BuiltinData {
         db.addMap(new MapData(40, 20));
         db.getMaps().get(0).setName("Home");
         db.getMaps().get(0).fill(db.getDefaultTile());
+        
+        db.addCharacterSet(CHARSET_1A);
         
         return db;
     }

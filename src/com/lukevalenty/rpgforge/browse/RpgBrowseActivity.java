@@ -11,7 +11,6 @@ import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer;
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.DialogUtil;
 import com.lukevalenty.rpgforge.DialogUtil.StringPromptListener;
-import com.lukevalenty.rpgforge.GameView;
 import com.lukevalenty.rpgforge.R;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
 import com.lukevalenty.rpgforge.data.BuiltinData;
@@ -20,6 +19,7 @@ import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.data.RpgList;
 import com.lukevalenty.rpgforge.edit.MapEditActivity;
+import com.lukevalenty.rpgforge.engine.GameView;
 
 import de.greenrobot.event.EventBus;
 

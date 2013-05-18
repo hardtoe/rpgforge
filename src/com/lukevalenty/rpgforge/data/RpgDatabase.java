@@ -14,9 +14,26 @@ public class RpgDatabase {
     private ArrayList<TileSetData> tileSets;
     private TileData defaultTile;
     
+    private ArrayList<CharacterSetData> characterSets;
+    
     public RpgDatabase() {
         this.maps = new ArrayList<MapData>();
         this.tileSets = new ArrayList<TileSetData>();
+        this.characterSets = new ArrayList<CharacterSetData>();
+    }
+    
+    public void addCharacterSet(final CharacterSetData characterSet) {
+        this.characterSets.add(characterSet);
+    }
+    
+    public LinkedList<CharacterSetData> getCharacterSets() {
+        final LinkedList<CharacterSetData> characterSetsCopy = new LinkedList<CharacterSetData>();
+        characterSetsCopy.addAll(characterSets);
+        return characterSetsCopy;
+    }
+    
+    public void removeCharacterSet(final CharacterSetData characterSet) {
+        this.characterSets.remove(characterSet);
     }
     
     public void setDefaultTile(final TileData newDefaultTile) {
@@ -74,6 +91,10 @@ public class RpgDatabase {
     public void load(final Context context) {
         for (final TileSetData tileSet : tileSets) {
             tileSet.load(context);
+        }
+        
+        for (final CharacterSetData charSet : characterSets) {
+            charSet.load(context);
         }
     }
 }

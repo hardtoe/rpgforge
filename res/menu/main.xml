@@ -15,6 +15,11 @@
           android:showAsAction="ifRoom|withText" />
     -->
     
+    <item android:id="@+id/menu_playtest"
+          android:title="Move"
+          android:icon="@drawable/ic_action_playtest"
+          android:showAsAction="always" />
+    
     <item android:id="@+id/menu_move"
           android:title="Move"
           android:icon="@drawable/ic_action_move"

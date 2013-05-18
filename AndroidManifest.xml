@@ -39,10 +39,12 @@
 
         </activity>
         <activity
-            android:name="com.lukevalenty.rpgforge.GameActivity"
+            android:name="com.lukevalenty.rpgforge.engine.GameActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:parentActivityName="com.lukevalenty.rpgforge.RpgBrowseActivity">
+            android:parentActivityName="com.lukevalenty.rpgforge.RpgBrowseActivity"
+            android:screenOrientation="landscape"
+    		android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
             <!-- 
             <intent-filter>
              

@@ -6,15 +6,17 @@ import java.util.ArrayList;
 
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.DialogUtil;
-import com.lukevalenty.rpgforge.GameView;
 import com.lukevalenty.rpgforge.R;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
 import com.lukevalenty.rpgforge.DialogUtil.StringPromptListener;
+import com.lukevalenty.rpgforge.browse.RpgBrowseActivity;
 import com.lukevalenty.rpgforge.data.BuiltinData;
 import com.lukevalenty.rpgforge.data.RpgDatabase;
 import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.data.MapData;
+import com.lukevalenty.rpgforge.engine.GameActivity;
+import com.lukevalenty.rpgforge.engine.GameView;
 
 import de.greenrobot.event.EventBus;
 
@@ -56,10 +58,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.ListAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MapEditActivity extends RoboFragmentActivity {
     private String activeDatabaseFilename = "defaultRpgDatabase";
@@ -478,6 +478,12 @@ public class MapEditActivity extends RoboFragmentActivity {
                 overridePendingTransition(R.anim.left_slide_in, R.anim.right_slide_out);
                 return true;
                 
+            case R.id.menu_playtest:
+                Intent intent = new Intent(this, GameActivity.class);
+                //intent.putExtra("PROJECT_NAME", projectName);
+                startActivity(intent);
+                return true;
+                
             case R.id.menu_new:
                 handleCreateNewMap();
                 return true;
@@ -621,15 +627,12 @@ public class MapEditActivity extends RoboFragmentActivity {
     @Override 
     public void onResume() {
         super.onResume();
-
-        Log.d(TAG, "== ON RESUME ==" + this.hashCode());
         mapEditEngine.start();
     }
     
     @Override 
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "== ON PAUSE ==" + this.hashCode());
         mapEditEngine.stop();
         Log.d(TAG, "SAVING FILE: " + activeDatabaseFilename);
         loader.save(this, activeDatabaseFilename, RpgForgeApplication.getDb());
@@ -638,21 +641,17 @@ public class MapEditActivity extends RoboFragmentActivity {
     @Override 
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "== ON DESTROY ==" + this.hashCode());
         mapEditEngine.stop();
     }
     
     @Override 
     public void onRestart() {
         super.onRestart();
-        Log.d(TAG, "== ON RESTART ==" + this.hashCode());
     }
     
     @Override 
     public void onStop() {
         super.onStop();
-
-        Log.d(TAG, "== ON STOP ==" + this.hashCode());
         mapEditEngine.stop();
     }
 

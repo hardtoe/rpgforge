@@ -11,7 +11,7 @@ import android.util.Log;
 public abstract class BitmapData {
     private String bitmapFilePath;
     
-    private transient Bitmap bitmap;
+    protected transient Bitmap bitmap;
     
     protected BitmapData() {
         // default constructor needed for serialization

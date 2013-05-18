@@ -1,4 +1,4 @@
-package com.lukevalenty.rpgforge;
+package com.lukevalenty.rpgforge.engine;
 
 import java.util.ArrayList;
 import java.util.List;

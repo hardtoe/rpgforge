@@ -1,22 +1,31 @@
-package com.lukevalenty.rpgforge;
+package com.lukevalenty.rpgforge.engine;
 
 
 import com.google.inject.Inject;
+import com.lukevalenty.rpgforge.R;
+import com.lukevalenty.rpgforge.R.menu;
+import com.lukevalenty.rpgforge.engine.input.OnScreenDPad;
+
 import roboguice.activity.RoboFragmentActivity;
+import roboguice.inject.InjectView;
 
 
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
+import android.widget.RelativeLayout;
 
 public class GameActivity extends RoboFragmentActivity {
-    @Inject private GameView gameView;
     @Inject private GameEngine gameEngine;
+    @InjectView(R.id.gameView) private GameView gameView;
+    @InjectView(R.id.onScreenDPad) private OnScreenDPad onScreenDPad;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.gameview);
         
-        setContentView(gameView);
+        gameEngine.addGameInput(onScreenDPad);
     }
 
     @Override public void onResume() {
