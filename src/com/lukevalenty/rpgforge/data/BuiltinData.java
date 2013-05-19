@@ -49,6 +49,21 @@ public class BuiltinData {
                 }
             }
             
+            TILESET_A2.getTiles().get(1).setPassable(false);
+            TILESET_A2.getTiles().get(4).setPassable(false);
+            TILESET_A2.getTiles().get(7).setPassable(false);
+            TILESET_A2.getTiles().get(12).setPassable(false);
+            TILESET_A2.getTiles().get(13).setPassable(false);
+            TILESET_A2.getTiles().get(15).setPassable(false);
+            TILESET_A2.getTiles().get(17).setPassable(false);
+            TILESET_A2.getTiles().get(18).setPassable(false);
+            TILESET_A2.getTiles().get(20).setPassable(false);
+            TILESET_A2.getTiles().get(21).setPassable(false);
+            TILESET_A2.getTiles().get(23).setPassable(false);
+            TILESET_A2.getTiles().get(25).setPassable(false);
+            TILESET_A2.getTiles().get(28).setPassable(false);
+            TILESET_A2.getTiles().get(31).setPassable(false);
+            
             
             
             TILESET_A3 = 
@@ -92,6 +107,10 @@ public class BuiltinData {
                 for (int x = 0; x < 8; x++) {
                     final BasicTileData tile = 
                         new BasicTileData(TILESET_A5, new Rect(x * 32, y * 32, x * 32 + 32, y * 32 + 32));
+                    
+                    if (y > 8) {
+                        tile.setPassable(false);
+                    }
                     
                     TILESET_A5.addTile(tile);
                 }
