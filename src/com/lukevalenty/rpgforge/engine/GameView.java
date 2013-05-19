@@ -71,7 +71,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
     
     public class Renderer implements Runnable {
-        private static final float DEFRING_CORRECTION = 1f / 1024f;
+        private static final float DEFRINGE_CORRECTION = 1f / 2f;
         
         private SurfaceHolder mHolder;
         private boolean mRunning;
@@ -116,7 +116,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     doDraw(c);
                     mHolder.unlockCanvasAndPost(c);
                     
-                    updateFramerate();
+                    //updateFramerate();
                 }
             }
         }
@@ -179,8 +179,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                         
                         dst.left = src.left;
                         dst.top = src.top;
-                        dst.right = src.right * tileSize + DEFRING_CORRECTION;
-                        dst.bottom = src.bottom * tileSize + DEFRING_CORRECTION;
+                        dst.right = src.right * tileSize + DEFRINGE_CORRECTION;
+                        dst.bottom = src.bottom * tileSize + DEFRINGE_CORRECTION;
                         c.drawBitmap(drawTilemap.bitmap(), src, dst, null);
                         
                     } else {
@@ -225,9 +225,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             final int y
         ) {
             dst.top = (y * tileSize);
-            dst.bottom = dst.top + tileSize + DEFRING_CORRECTION;
+            dst.bottom = dst.top + tileSize + DEFRINGE_CORRECTION;
             dst.left = (x * tileSize);
-            dst.right = dst.left + tileSize + DEFRING_CORRECTION;
+            dst.right = dst.left + tileSize + DEFRINGE_CORRECTION;
             
             c.drawBitmap(tile.bitmap(), tile.src(frameIndex), dst, paint);
         }
@@ -312,9 +312,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             }
             
             dst.top = (y * tileSize) + ((tileSize / 2) * yTargetCornerIndex);
-            dst.bottom = dst.top + (tileSize / 2) + DEFRING_CORRECTION;
+            dst.bottom = dst.top + (tileSize / 2) + DEFRINGE_CORRECTION;
             dst.left = (x * tileSize) + ((tileSize / 2) * xTargetCornerIndex);
-            dst.right = dst.left + (tileSize / 2) + DEFRING_CORRECTION;
+            dst.right = dst.left + (tileSize / 2) + DEFRINGE_CORRECTION;
             
             final Rect autoTileSrc = 
                 autoTile.src(frameIndex);

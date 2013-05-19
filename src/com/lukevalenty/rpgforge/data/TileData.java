@@ -8,7 +8,7 @@ public abstract class TileData {
     protected TileSetData tileset;
     protected Rect[] src;
     protected int frameDelay;
-    protected boolean passable;
+    protected boolean passable = true;
     protected int[] frames;
     
     protected int layer = 0;
