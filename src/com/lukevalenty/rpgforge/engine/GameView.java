@@ -23,6 +23,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -68,8 +69,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         holder.addCallback(this);
         renderer = new Renderer(holder, context);
     }
-
+    
     public class Renderer implements Runnable {
+        private static final float DEFRING_CORRECTION = 1f / 1024f;
         
         private SurfaceHolder mHolder;
         private boolean mRunning;
@@ -77,7 +79,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private long duration;
 
         private Rect src;
-        private Rect dst;
+        private RectF dst;
 
         private long frameIndex;
 
@@ -102,7 +104,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             paint.setStrokeWidth(1);
             
             src = new Rect();
-            dst = new Rect();
+            dst = new RectF();
         }
 
         @Override
@@ -114,7 +116,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     doDraw(c);
                     mHolder.unlockCanvasAndPost(c);
                     
-                    //updateFramerate();
+                    updateFramerate();
                 }
             }
         }
@@ -177,8 +179,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                         
                         dst.left = src.left;
                         dst.top = src.top;
-                        dst.right = src.right * tileSize;
-                        dst.bottom = src.bottom * tileSize;
+                        dst.right = src.right * tileSize + DEFRING_CORRECTION;
+                        dst.bottom = src.bottom * tileSize + DEFRING_CORRECTION;
                         c.drawBitmap(drawTilemap.bitmap(), src, dst, null);
                         
                     } else {
@@ -223,12 +225,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             final int y
         ) {
             dst.top = (y * tileSize);
-            dst.bottom = dst.top + tileSize;
+            dst.bottom = dst.top + tileSize + DEFRING_CORRECTION;
             dst.left = (x * tileSize);
-            dst.right = dst.left + tileSize;
+            dst.right = dst.left + tileSize + DEFRING_CORRECTION;
             
             c.drawBitmap(tile.bitmap(), tile.src(frameIndex), dst, paint);
-            
         }
 
         private void drawAutoTile(
@@ -311,9 +312,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             }
             
             dst.top = (y * tileSize) + ((tileSize / 2) * yTargetCornerIndex);
-            dst.bottom = dst.top + (tileSize / 2);
+            dst.bottom = dst.top + (tileSize / 2) + DEFRING_CORRECTION;
             dst.left = (x * tileSize) + ((tileSize / 2) * xTargetCornerIndex);
-            dst.right = dst.left + (tileSize / 2);
+            dst.right = dst.left + (tileSize / 2) + DEFRING_CORRECTION;
             
             final Rect autoTileSrc = 
                 autoTile.src(frameIndex);

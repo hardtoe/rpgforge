@@ -82,8 +82,9 @@ public class GameEngine {
             gameTree = 
                 new GameObjectContainer(); 
 
-            final float scaleFactor = 
-                (float) (context.getResources().getDisplayMetrics().density * 1.5);
+            // 512 x 384 effective resolution
+            final float scaleFactor =
+                (float) (context.getResources().getDisplayMetrics().heightPixels / 384.0);
             
             gameTree.add(new CameraObject(scaleFactor));
             gameTree.add(new MapObject());
@@ -111,6 +112,9 @@ public class GameEngine {
                 frameState.timeDelta = 
                     (float) ((System.nanoTime() - lastFrameTimestamp) / 1000000.0);
                 
+                lastFrameTimestamp =
+                    System.nanoTime();
+                
                 for (final GamePhase phase : GamePhase.values()) {
                     frameState.phase = phase;
                     gameTree.update(frameState);
@@ -118,8 +122,7 @@ public class GameEngine {
                 
                 drawCommandBuffer.unlockBackBuffer();
                 
-                lastFrameTimestamp =
-                    System.nanoTime();
+
             }
         }
 

@@ -26,7 +26,6 @@ public class PlayerCharacter extends GameObject {
                     final float timeDelta =
                         frameState.timeDelta;
                     
-                    // FIXME: need to account for frame length instead
                     if (g.up()) {
                         dy = -timeDelta * 0.1;
                     
@@ -65,6 +64,8 @@ public class PlayerCharacter extends GameObject {
                 if (frameState.phase == GamePhase.MOVE) {
                     x += dx;
                     y += dy;
+                    
+                    frameState.globalState.setFocus((int) x, (int) y);
                 }
             }
         });

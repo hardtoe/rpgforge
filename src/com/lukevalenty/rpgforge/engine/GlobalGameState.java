@@ -6,6 +6,8 @@ import com.lukevalenty.rpgforge.engine.input.GameInput;
 public class GlobalGameState {
     private MapData map;
     private GameInput gameInput;
+    private int xFocus;
+    private int yFocus;
 
     public void setMap(final MapData map) {
         this.map = map;
@@ -21,5 +23,18 @@ public class GlobalGameState {
 
     public void setGameInput(final GameInput gameInput) {
         this.gameInput = gameInput;
+    }
+
+    public void setFocus(int x, int y) {
+        this.xFocus = x;
+        this.yFocus = y;
+    }
+    
+    public int getXFocus() {
+        return xFocus;
+    }
+    
+    public int getYFocus() {
+        return yFocus;
     }
 }
