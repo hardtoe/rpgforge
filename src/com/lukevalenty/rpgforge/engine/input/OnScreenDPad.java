@@ -12,7 +12,8 @@ import android.view.View;
 public class OnScreenDPad extends View implements GameInput {
     private Paint defaultPaint;
     private Paint activePaint;
-    private Rect upRect, downRect, leftRect, rightRect;
+    private Rect upDrawRect, downDrawRect, leftDrawRect, rightDrawRect;
+    private Rect upHitRect, downHitRect, leftHitRect, rightHitRect;
     private boolean up, down, left, right;
     
     public OnScreenDPad(
@@ -56,39 +57,64 @@ public class OnScreenDPad extends View implements GameInput {
     ) {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
         
-        upRect = new Rect(
+        upDrawRect = new Rect(
             (int) (width * 0.33f), 
             0, 
             (int) (width * 0.67f), 
             (int) (height * 0.33f));
         
-        downRect = new Rect(
+        downDrawRect = new Rect(
             (int) (width * 0.33f), 
             (int) (height * 0.67f), 
             (int) (width * 0.67f), 
             (int) (height));
         
-        leftRect = new Rect(
+        leftDrawRect = new Rect(
             (int) (0), 
             (int) (height * 0.33f), 
             (int) (width * 0.33f), 
             (int) (height * 0.67f));
         
-        rightRect = new Rect(
+        rightDrawRect = new Rect(
             (int) (width * 0.67f), 
             (int) (height * 0.33f), 
             (int) (width), 
             (int) (height * 0.67f));
+        
+        
+        upHitRect = new Rect(
+            0, 
+            0, 
+            width, 
+            (int) (height * 0.33f));
+        
+        downHitRect = new Rect(
+            0, 
+            (int) (height * 0.67f), 
+            width, 
+            height);
+        
+        leftHitRect = new Rect(
+            0, 
+            0, 
+            (int) (width * 0.33f), 
+            height);
+        
+        rightHitRect = new Rect(
+            (int) (width * 0.67f), 
+            0, 
+            width, 
+            height);
     }
     
     @Override
     protected void onDraw(Canvas c) {
         super.onDraw(c);
      
-        c.drawRect(upRect, getPaint(up));
-        c.drawRect(downRect, getPaint(down));
-        c.drawRect(leftRect, getPaint(left));
-        c.drawRect(rightRect, getPaint(right));
+        c.drawRect(upDrawRect, getPaint(up));
+        c.drawRect(downDrawRect, getPaint(down));
+        c.drawRect(leftDrawRect, getPaint(left));
+        c.drawRect(rightDrawRect, getPaint(right));
     }
     
     private Paint getPaint(boolean active) {
@@ -109,10 +135,10 @@ public class OnScreenDPad extends View implements GameInput {
             e.getAction() == MotionEvent.ACTION_DOWN ||
             e.getAction() == MotionEvent.ACTION_MOVE;
         
-        up = upRect.contains(x, y) & active;
-        down = downRect.contains(x, y) & active;
-        left = leftRect.contains(x, y) & active;
-        right = rightRect.contains(x, y) & active;
+        up = upHitRect.contains(x, y) & active;
+        down = downHitRect.contains(x, y) & active;
+        left = leftHitRect.contains(x, y) & active;
+        right = rightHitRect.contains(x, y) & active;
         
         this.invalidate();
         
