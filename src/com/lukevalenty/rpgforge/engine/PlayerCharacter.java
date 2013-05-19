@@ -69,7 +69,12 @@ public class PlayerCharacter extends GameObject {
             }
         });
         
-        // RENDER COMPONENT
+        /**
+         * RENDER COMPONENT
+         * 
+         * Draws the appropriate character with animation depending on 
+         * direction of travel.
+         */
         addComponent(new GameObjectComponent() {
             private static final float FRAME_LENGTH_MS = 200;
             
@@ -90,7 +95,16 @@ public class PlayerCharacter extends GameObject {
                         
                     } else {
                         if (frameTimer >= FRAME_LENGTH_MS) {
-                            frameTimer = frameTimer - FRAME_LENGTH_MS;
+                            if (frameTimer >= (FRAME_LENGTH_MS * 2)) {
+                                // if a frame has been skipped, reset the frame
+                                // timer.  this will ensure we don't have a ton
+                                // of frames displayed quickly if we skipped a
+                                // bunch of frames while sleeping.
+                                frameTimer = 0;
+                                
+                            } else {
+                                frameTimer = frameTimer - FRAME_LENGTH_MS;
+                            }
                             
                             if (xOffset == 0) {
                                 xOffset = 64;

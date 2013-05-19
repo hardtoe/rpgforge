@@ -76,18 +76,21 @@ public abstract class TileData {
     }
     
     public int getAvgColor() {
-        final int width = src[0].right - src[0].left;
-        final int height = src[0].bottom - src[0].top;
-        
         int numPixels = 0;
         
         int r = 0;
         int g = 0;
         int b = 0;
         
+        final int yMax = 
+            Math.min(src[0].bottom, bitmap().getHeight());
+        
+        final int xMax =
+            Math.min(src[0].right, bitmap().getWidth());
+        
         if (avgColor == 0) {
-            for (int y = src[0].top; y < src[0].bottom; y++) {
-                for (int x = src[0].left; x < src[0].right; x++) {
+            for (int y = src[0].top; y < yMax; y++) {
+                for (int x = src[0].left; x < xMax; x++) {
 
                     final int pixel = 
                         bitmap().getPixel(x, y);
