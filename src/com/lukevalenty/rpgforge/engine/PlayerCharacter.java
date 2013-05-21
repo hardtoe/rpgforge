@@ -76,9 +76,14 @@ public class PlayerCharacter extends GameObject {
                     (int) ((x + p.x + dx) / 32), 
                     (int) ((y + p.y + dy) / 32));
                 
+                final TileData sparseTile = map.getSparseTile(
+                    (int) ((x + p.x + dx) / 32), 
+                    (int) ((y + p.y + dy) / 32));
+                
                 return 
                     tile == null || 
-                    !tile.isPassable();
+                    !tile.isPassable() ||
+                    (sparseTile != null && !sparseTile.isPassable());
             }
             
             @Override

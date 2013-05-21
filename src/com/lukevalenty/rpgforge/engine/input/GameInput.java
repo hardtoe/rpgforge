@@ -5,4 +5,7 @@ public interface GameInput {
     public boolean down();
     public boolean left();
     public boolean right();
+    
+    public boolean action();
+    public boolean back();
 }

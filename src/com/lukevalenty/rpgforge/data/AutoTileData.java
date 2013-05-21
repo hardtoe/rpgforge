@@ -2,7 +2,11 @@ package com.lukevalenty.rpgforge.data;
 
 import java.util.HashSet;
 
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 
 public class AutoTileData extends TileData {
     private HashSet<TileData> compatibleTiles = new HashSet<TileData>();
@@ -60,7 +64,32 @@ public class AutoTileData extends TileData {
     }
     
     @Override
-    public Rect getPreview() {
-        return new Rect(src[0].left, src[0].top, src[0].left + 32, src[0].top + 32);
+    public Drawable getPreview() {
+        if (preview == null) {
+            preview = 
+                new Drawable() {
+                    @Override
+                    public void draw(final Canvas canvas) {
+                        canvas.drawBitmap(bitmap(), new Rect(src[0].left, src[0].top, src[0].left + 32, src[0].top + 32), getBounds(), null);
+                    }
+    
+                    @Override
+                    public int getOpacity() {
+                        return PixelFormat.OPAQUE;
+                    }
+    
+                    @Override
+                    public void setAlpha(final int alpha) {
+                        // do nothing
+                    }
+    
+                    @Override
+                    public void setColorFilter(final ColorFilter cf) {
+                        // do nothing
+                    }
+                };
+        }
+        
+        return preview;
     }
 }

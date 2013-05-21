@@ -59,6 +59,20 @@ public class MapData {
         return height;
     }
     
+
+    
+    public TileData getTile(
+        final int x,
+        final int y,
+        final int layer
+    ) {
+        if (layer == 0) {
+            return getTile(x, y);
+        } else {
+            return getSparseTile(x, y);
+        }
+    }
+    
     public TileData getTile(
         final int x,
         final int y

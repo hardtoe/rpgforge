@@ -199,7 +199,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                     map.getSparseTile(x, y);
                                 
                                 if (sparseTile != null) {
-                                    drawTile(sparseTile, c, x, y);
+                                    if (sparseTile instanceof AutoTileData) {
+                                        drawAutoTile(map, drawTilemap, (AutoTileData) sparseTile, c, x, y);
+                                    } else {
+                                        drawTile(sparseTile, c, x, y);
+                                    }
                                 }
                             }
                         }
@@ -240,16 +244,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             final int x,
             final int y
         ) {
-            final TileData topLeft =  map.getTile(x - 1, y - 1);
-            final TileData top =      map.getTile(x    , y - 1);
-            final TileData topRight = map.getTile(x + 1, y - 1);
+            final int layer = tile.getLayer();
             
-            final TileData left =     map.getTile(x - 1, y);
-            final TileData right =    map.getTile(x + 1, y);
+            final TileData topLeft =  map.getTile(x - 1, y - 1, layer);
+            final TileData top =      map.getTile(x    , y - 1, layer);
+            final TileData topRight = map.getTile(x + 1, y - 1, layer);
             
-            final TileData botLeft =  map.getTile(x - 1, y + 1);
-            final TileData bot =      map.getTile(x    , y + 1);
-            final TileData botRight = map.getTile(x + 1, y + 1);
+            final TileData left =     map.getTile(x - 1, y, layer);
+            final TileData right =    map.getTile(x + 1, y, layer);
+            
+            final TileData botLeft =  map.getTile(x - 1, y + 1, layer);
+            final TileData bot =      map.getTile(x    , y + 1, layer);
+            final TileData botRight = map.getTile(x + 1, y + 1, layer);
             
             drawAutoTileCorner(cmd, tile, c, 0, 0, x, y, left,  topLeft,  top);
             drawAutoTileCorner(cmd, tile, c, 1, 0, x, y, right, topRight, top);

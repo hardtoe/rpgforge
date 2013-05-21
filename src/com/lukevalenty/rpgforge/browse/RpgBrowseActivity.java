@@ -9,6 +9,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer;
 import com.google.inject.Inject;
+import com.lukevalenty.rpgforge.BaseActivity;
 import com.lukevalenty.rpgforge.DialogUtil;
 import com.lukevalenty.rpgforge.DialogUtil.StringPromptListener;
 import com.lukevalenty.rpgforge.R;
@@ -58,7 +59,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class RpgBrowseActivity extends RoboFragmentActivity {
+public class RpgBrowseActivity extends BaseActivity {
     public static final String TAG = RpgBrowseActivity.class.getName();
 
     private static final String RPG_LIST_FILENAME = "rpgListFile";

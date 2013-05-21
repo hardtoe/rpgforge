@@ -32,10 +32,12 @@ public class BuiltinData {
                     autotile(TILESET_A1, 3, x * 256, y * 96)
                     .setFrameDelay(32)
                     .setAnimationSequence(0, 1, 2, 1)
-                    .setPassable(false);
+                    .setPassable(false)
+                    .setCompatibleWith(null);
                 }
             }
             
+            TILESET_A1.getTiles().get(2).setLayer(1);
             
             
             TILESET_A2 = 
@@ -45,24 +47,29 @@ public class BuiltinData {
 
             for (int y = 0; y < 4; y++) {
                 for (int x = 0; x < 8; x++) {
-                    autotile(TILESET_A2, 1, x * 64, y * 96);
+                    AutoTileData tile = 
+                        autotile(TILESET_A2, 1, x * 64, y * 96);
                 }
             }
             
             TILESET_A2.getTiles().get(1).setPassable(false);
             TILESET_A2.getTiles().get(4).setPassable(false);
-            TILESET_A2.getTiles().get(7).setPassable(false);
+            TILESET_A2.getTiles().get(7).setPassable(false).setLayer(1);
             TILESET_A2.getTiles().get(12).setPassable(false);
             TILESET_A2.getTiles().get(13).setPassable(false);
-            TILESET_A2.getTiles().get(15).setPassable(false);
+            TILESET_A2.getTiles().get(15).setPassable(false).setLayer(1);
             TILESET_A2.getTiles().get(17).setPassable(false);
             TILESET_A2.getTiles().get(18).setPassable(false);
             TILESET_A2.getTiles().get(20).setPassable(false);
             TILESET_A2.getTiles().get(21).setPassable(false);
-            TILESET_A2.getTiles().get(23).setPassable(false);
+            TILESET_A2.getTiles().get(23).setPassable(false).setLayer(1);
             TILESET_A2.getTiles().get(25).setPassable(false);
             TILESET_A2.getTiles().get(28).setPassable(false);
-            TILESET_A2.getTiles().get(31).setPassable(false);
+            TILESET_A2.getTiles().get(31).setPassable(false).setLayer(1);
+            
+            TILESET_A2.getTiles().get(4).setLayer(1);
+            TILESET_A2.getTiles().get(5).setLayer(1);
+            TILESET_A2.getTiles().get(12).setLayer(1);
             
             
             
@@ -115,6 +122,9 @@ public class BuiltinData {
                     TILESET_A5.addTile(tile);
                 }
             }
+            
+            // sand is compatible with beach
+            ((AutoTileData) TILESET_A2.getTiles().get(3)).setCompatibleWith(TILESET_A1.getTiles().get(3));
             
             DOORS = 
                 new TileSetData("doors.png");

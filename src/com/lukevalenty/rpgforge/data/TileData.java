@@ -1,19 +1,28 @@
 package com.lukevalenty.rpgforge.data;
 
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Rect;
+import com.lukevalenty.rpgforge.edit.PaletteItem;
 
-public abstract class TileData {
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+
+// TODO: need universal compatibility flag
+// TODO: convert boolean to int flags
+public abstract class TileData implements PaletteItem {
     protected TileSetData tileset;
     protected Rect[] src;
     protected int frameDelay;
     protected boolean passable = true;
     protected int[] frames;
-    
     protected int layer = 0;
     
+    
     protected transient int avgColor = 0;
+    protected transient Drawable preview = null;
     
     protected TileData() {
         // default constructor needed for serialization
@@ -31,7 +40,6 @@ public abstract class TileData {
     
     public Rect src(long frameIndex) {
         if (frames != null) {
-
             return src[frames[(int) ((frameIndex / frameDelay) % frames.length)]];
             
         } else {
@@ -67,8 +75,33 @@ public abstract class TileData {
         return passable;
     }
     
-    public Rect getPreview() {
-        return src[0];
+    public Drawable getPreview() {
+        if (preview == null) {
+            preview = 
+                new Drawable() {
+                    @Override
+                    public void draw(final Canvas canvas) {
+                        canvas.drawBitmap(bitmap(), src[0], getBounds(), null);
+                    }
+    
+                    @Override
+                    public int getOpacity() {
+                        return PixelFormat.OPAQUE;
+                    }
+    
+                    @Override
+                    public void setAlpha(final int alpha) {
+                        // do nothing
+                    }
+    
+                    @Override
+                    public void setColorFilter(final ColorFilter cf) {
+                        // do nothing
+                    }
+                };
+        }
+        
+        return preview;
     }
     
     public int getLayer() {

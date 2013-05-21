@@ -13,18 +13,33 @@
 	    android:layout_height="fill_parent"/>
 	
     	<!-- android:columnWidth="48dp" -->
-    <GridView
-        android:id="@+id/gridView1"
+    	
+	<LinearLayout 
+	    android:id="@+id/tilePalette"
+    	android:orientation="vertical"
         android:layout_width="256px"
         android:layout_height="fill_parent"
-	    android:numColumns="4"
-	    android:verticalSpacing="2dp"
-	    android:horizontalSpacing="2dp"
-	    android:stretchMode="columnWidth"
-	    android:gravity="center"
-        android:background="#555555">
+	    android:gravity="center" 
+	    android:background="#ffffff" >
+	
+	    <Spinner
+	        android:id="@+id/tileDrawerSpinner"
+	        android:layout_width="match_parent"
+	        android:layout_height="48sp"/>
+	    
+	    <GridView
+			android:id="@+id/gridView1"
+		    android:numColumns="4"
+		    android:verticalSpacing="2dp"
+		    android:horizontalSpacing="2dp"
+		    android:stretchMode="columnWidth"
+		    android:gravity="center"
+	        android:background="#555555"
+        	android:layout_width="match_parent"
+        	android:layout_height="fill_parent" >
+	    </GridView>
+	</LinearLayout>
 
-    </GridView>
     
 
 </RelativeLayout>

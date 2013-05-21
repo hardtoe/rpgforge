@@ -5,11 +5,11 @@ import java.io.File;
 import java.util.ArrayList;
 
 import com.google.inject.Inject;
+import com.lukevalenty.rpgforge.BaseActivity;
 import com.lukevalenty.rpgforge.DialogUtil;
 import com.lukevalenty.rpgforge.R;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
 import com.lukevalenty.rpgforge.DialogUtil.StringPromptListener;
-import com.lukevalenty.rpgforge.browse.RpgBrowseActivity;
 import com.lukevalenty.rpgforge.data.BuiltinData;
 import com.lukevalenty.rpgforge.data.RpgDatabase;
 import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
@@ -23,50 +23,36 @@ import de.greenrobot.event.EventBus;
 import roboguice.activity.RoboFragmentActivity;
 import roboguice.inject.InjectView;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.ActionBar.OnNavigationListener;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Base64;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
-public class MapEditActivity extends RoboFragmentActivity {
+public class MapEditActivity extends BaseActivity {
     private String activeDatabaseFilename = "defaultRpgDatabase";
     
     public static final String TAG = MapEditActivity.class.getName();
     
-    @InjectView(R.id.gridView1) private GridView tilePalette;
+    @InjectView(R.id.tilePalette) private View tilePalette; 
+    @InjectView(R.id.gridView1) private GridView tileList;
+    @InjectView(R.id.tileDrawerSpinner) private Spinner tileDrawerSpinner; 
     @InjectView(R.id.mapView) private GameView mapView;
     @Inject private MapEditEngine mapEditEngine;
     
@@ -77,15 +63,14 @@ public class MapEditActivity extends RoboFragmentActivity {
     private Tool currentTool = Tool.MOVE;
     private BaseAdapter tilePaletteAdapter;
 
-    private ArrayList<TileData> allTiles;
+    private ArrayList<? extends PaletteItem> allTiles;
     private BaseAdapter mapSelectionAdapter;
 
-    private int tilePaletteTileSize = 64;
+    private MapSelectionPresenter mapSelectionPresenter;
 
-    private int currentSelectedPositionInTilePalette = -1;
+    private TilePalettePresenter tilePalettePresenter;
+
     
-    // FIXME: this should be moved to RpgForgeApplication
-             
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -135,7 +120,7 @@ public class MapEditActivity extends RoboFragmentActivity {
     
     
     
-    @SuppressLint("NewApi")
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,55 +133,17 @@ public class MapEditActivity extends RoboFragmentActivity {
         
         handleIntent(getIntent());
 
-        tilePaletteTileSize = 
-            (int) (getResources().getDisplayMetrics().density * 48);
         
+        tilePalettePresenter =
+            new TilePalettePresenter(this, eventBus, tilePalette, tileDrawerSpinner, tileList);
         
+        tilePalettePresenter.setTiles(allTiles);
         
-        mapSelectionAdapter =
-            new BaseAdapter() {
-                
-                @Override
-                public View getView(int position, View convertView, ViewGroup parent) {
-                    TextView label = new TextView(MapEditActivity.this);
-                    label.setGravity(Gravity.HORIZONTAL_GRAVITY_MASK | Gravity.LEFT);
-                    label.setTextSize(18);
-                    label.setPadding(8, 16, 8, 16);
-                    label.setText(RpgForgeApplication.getDb().getMaps().get(position).getName());
-                    label.setTextColor(Color.WHITE);
-                    return label;
-                }
-                
-                @Override
-                public long getItemId(int position) {
-                    return System.identityHashCode(getItem(position));
-                }
-                
-                @Override
-                public Object getItem(int position) {
-                    return RpgForgeApplication.getDb().getMaps().get(position);
-                }
-                
-                @Override
-                public int getCount() {
-                    return RpgForgeApplication.getDb().getMaps().size();
-                }
-            };
-            
-                    
-        final OnNavigationListener mapSelectionListener =
-            new OnNavigationListener() {
-                @Override
-                public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-                    eventBus.post(new SelectMapEvent(itemPosition, (MapData) mapSelectionAdapter.getItem(itemPosition)));
-                    return true;
-                }
-            };
-        
-        getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        getActionBar().setListNavigationCallbacks(mapSelectionAdapter, mapSelectionListener);
-        
-        
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {     
+            mapSelectionPresenter =
+                new MapSelectionPresenter(this, eventBus, getActionBar());
+        }      
         
         final ScaleGestureDetector mScaleDetector = 
             new ScaleGestureDetector(this, new ScaleMapGestureListener());
@@ -206,186 +153,6 @@ public class MapEditActivity extends RoboFragmentActivity {
 
         
 
-            
-        tilePaletteAdapter = new BaseAdapter() {
-            @Override
-            public int getCount() {
-                return allTiles.size();
-            }
-
-            @Override
-            public Object getItem(int position) {
-                return allTiles.get(position);
-            }
-
-            @Override
-            public long getItemId(int position) {
-                return 0;
-            }
-
-            @Override
-            public View getView(
-                final int position, 
-                final View convertView, 
-                final ViewGroup parent
-            ) {
-                final TileData tileData =
-                    allTiles.get(position);
-
-                ImageView tileView;
-                
-                if (convertView == null) {
-                    tileView = 
-                        new ImageView(MapEditActivity.this);
-                    
-                } else {
-                    tileView = 
-                        (ImageView) convertView;
-                }
-                
-                if (currentSelectedPositionInTilePalette == position) {
-                    tileView.setBackgroundColor(Color.WHITE);
-                } else {
-                    tileView.setBackgroundColor(Color.TRANSPARENT);
-                }
-                
-                tileView.setLayoutParams(new GridView.LayoutParams(tilePaletteTileSize, tilePaletteTileSize));
-                tileView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                tileView.setPadding(4, 4, 4, 4);
-                
-                tileView.setImageDrawable(new Drawable() {
-                    @Override
-                    public void draw(final Canvas canvas) {
-                        canvas.drawBitmap(tileData.bitmap(), tileData.getPreview(), getBounds(), null);
-                    }
-
-                    @Override
-                    public int getOpacity() {
-                        return PixelFormat.OPAQUE;
-                    }
-
-                    @Override
-                    public void setAlpha(final int alpha) {
-                        // do nothing
-                    }
-
-                    @Override
-                    public void setColorFilter(final ColorFilter cf) {
-                        // do nothing
-                    }
-                });
-                
-                return tileView;
-            }
-        };
-
-        
-        tilePalette.setAdapter(tilePaletteAdapter);
-        
-        tilePalette.setNumColumns(4);
-        LayoutParams layoutParams = tilePalette.getLayoutParams();
-        layoutParams.width = 4 * tilePaletteTileSize;
-        tilePalette.setLayoutParams(layoutParams);
-        
-        tilePalette.setOnTouchListener(new OnTouchListener() {
-            private float lastX;
-            private float lastY;
-            private float startX;
-            private float startY;
-
-            private boolean paletteSwipeDetected = false;
-            private boolean paletteSwipeImpossible = false;
-            
-            private int focusPosition;
-            
-            @Override
-            public boolean onTouch(
-                final View v, 
-                final MotionEvent e
-            ) {
-                if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                    startX = e.getX();
-                    startY = e.getY();
-                    lastX = e.getX();
-                    lastY = e.getY();
-                    paletteSwipeDetected = false;
-                    paletteSwipeImpossible = false;
-                    return false;
-                    
-                } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
-                    
-                    float dx = Math.abs(startX - e.getX());
-                    float dy = Math.abs(startY - e.getY());
-                    
-                    if (paletteSwipeDetected == false){
-                        if (dx > tilePaletteTileSize && dx > dy) {
-                            paletteSwipeDetected = true;
-
-                            focusPosition = tilePalette.getFirstVisiblePosition();
-                            
-                        } else if (dy > tilePaletteTileSize && dy > dx) {
-                            paletteSwipeImpossible = true;
-                        }
-                        
-                    } else if (paletteSwipeImpossible == true) {
-                        return false;
-                        
-                    } 
-                    
-                    if (paletteSwipeDetected) {
-                        final float resizeDx = (e.getX() - lastX);
-                        
-                        LayoutParams layoutParams = tilePalette.getLayoutParams();
-                        layoutParams.width = Math.max(Math.min((int) (layoutParams.width + resizeDx), tilePaletteTileSize * 16), tilePaletteTileSize);
-                        tilePalette.setLayoutParams(layoutParams);
-                        final int newColumnCount = Math.max(Math.min(layoutParams.width / tilePaletteTileSize, 16), 1);
-                        tilePalette.setNumColumns(newColumnCount);
-
-                        lastX = e.getX();
-                        lastY = e.getY();
-                        
-                        tilePalette.setSelection(focusPosition);
-                        
-                        return true;
-                    }
-
-                    return false;
-                    
-
-                } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                    if (paletteSwipeDetected) {
-                        return true;
-                        
-                    } else {
-                        return false;
-                    }
-                    
-                } else {
-                    return false;
-                }
-            }
-        });
-
-        tilePalette.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(
-                final AdapterView<?> parent, 
-                final View view, 
-                final int position,
-                final long row
-            ) {
-                currentSelectedPositionInTilePalette = position;
-                tilePaletteAdapter.notifyDataSetChanged();
-                
-                final ListAdapter adapter = 
-                    (ListAdapter) parent.getAdapter();
-                
-                final TileData tile =
-                    (TileData) adapter.getItem(position);
-                
-                eventBus.post(new TileSelectedEvent(tile));                
-            }
-        });
         
         Log.d(TAG, "ONCREATE FINISHED");
     }
