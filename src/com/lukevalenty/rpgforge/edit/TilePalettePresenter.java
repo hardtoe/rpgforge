@@ -56,20 +56,6 @@ public class TilePalettePresenter {
 
         tileDrawerSpinner.setAdapter(spinnerAdapter);
         
-        tileDrawerSpinner.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(
-                final AdapterView<?> parent, 
-                final View view, 
-                final int position,
-                final long row
-            ) {
-                final String selection = 
-                    spinnerAdapter.getItem(position);
-                
-                //selection
-            }
-        });
         
         this.tilePaletteTileSize = 
             (int) (context.getResources().getDisplayMetrics().density * 48);
