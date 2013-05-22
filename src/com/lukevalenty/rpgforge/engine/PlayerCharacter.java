@@ -9,8 +9,18 @@ import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.engine.input.GameInput;
 
 public class PlayerCharacter extends GameObject {
+    private static final double WALK_SPEED = 0.15;
     private double x, y;
     private double dx, dy;
+    
+    public enum Direction {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT;
+    }
+    
+    private Direction charDir = Direction.DOWN;
     
     public PlayerCharacter() {
         final CharacterData charData = 
@@ -30,21 +40,22 @@ public class PlayerCharacter extends GameObject {
                     final float timeDelta =
                         frameState.timeDelta;
                     
+                    // COMPUTE MOVEMENT DIRECTION AND MAGNITUDE
                     if (g.up()) {
-                        dy = -timeDelta * 0.1;
-                    
+                        dy = -timeDelta * WALK_SPEED;
+
                     } else if (g.down()) {
-                        dy = timeDelta * 0.1;
+                        dy = timeDelta * WALK_SPEED;
                         
                     } else {
                         dy = 0;
                     }
                     
                     if (g.left()) {
-                        dx = -timeDelta * 0.1;
+                        dx = -timeDelta * WALK_SPEED;
                         
                     } else if (g.right()) {
-                        dx = timeDelta * 0.1;
+                        dx = timeDelta * WALK_SPEED;
                     
                     } else {
                         dx = 0;
@@ -53,6 +64,55 @@ public class PlayerCharacter extends GameObject {
                     if (dx != 0 && dy != 0) {
                         dx = dx * 0.7071;
                         dy = dy * 0.7071;
+                    }
+                    
+                    // COMPUTE DIRECTION CHARACTER IS FACING
+                    if (g.up()) {
+                        if (charDir == Direction.DOWN) {
+                            charDir = Direction.UP;
+                            
+                        } else if (g.left()) {
+                            if (charDir == Direction.RIGHT) {
+                                charDir = Direction.LEFT;
+                            }
+                            
+                        } else if (g.right()) {
+                            if (charDir == Direction.LEFT) {
+                                charDir = Direction.RIGHT;
+                            }
+                        
+                        } else {
+                            charDir = Direction.UP;
+                        }
+                        
+                    } else if (g.down()) {
+                        if (charDir == Direction.UP) {
+                            charDir = Direction.DOWN;
+                            
+                        } else if (g.left()) {
+                            if (charDir == Direction.RIGHT) {
+                                charDir = Direction.LEFT;
+                            }
+                            
+                        } else if (g.right()) {
+                            if (charDir == Direction.LEFT) {
+                                charDir = Direction.RIGHT;
+                            }
+                            
+                        } else {
+                            charDir = Direction.DOWN;
+                        }
+                        
+                    } else {
+                        if (g.left()) {
+                            charDir = Direction.LEFT;
+                            
+                        } else if (g.right()) {
+                            charDir = Direction.RIGHT;
+                            
+                        } else {
+                            // keep facing previous direction
+                        }
                     }
                 }
             }
@@ -186,24 +246,19 @@ public class PlayerCharacter extends GameObject {
                         }
                     }
                     
-                    if (g.left()) {
-                        // moving left
+                    if (charDir == Direction.LEFT) {
                         yOffset = 48;
                         
-                    } else if (g.right()) {
-                        // moving right
+                    } else if (charDir == Direction.RIGHT) {
                         yOffset = 96;
                         
+                    } else if (charDir == Direction.UP) {
+                        yOffset = 144;
+                        
                     } else {
-                        if (g.up()) {
-                            // moving up
-                            yOffset = 144;
-                            
-                        } else if (g.down()) {
-                            // moving down
-                            yOffset = 0;
-                        }
+                        yOffset = 0;
                     }
+
                     
                     frameState.drawBuffer.add(frameState.spritePool.get().set(
                         charData.bitmap(), 
