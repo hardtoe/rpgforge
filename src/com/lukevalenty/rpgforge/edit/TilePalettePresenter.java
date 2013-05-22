@@ -35,6 +35,29 @@ public class TilePalettePresenter {
     private int currentSelectedPositionInTilePalette = -1;
     private BaseAdapter tilePaletteAdapter;
     private Spinner tileDrawerSpinner;
+    private View tilePalette;
+    
+    private void setWidth(final int width) {
+        LayoutParams layoutParams = this.gridView.getLayoutParams();
+        layoutParams.width = width;
+        this.gridView.setLayoutParams(layoutParams);
+
+        layoutParams = this.tilePalette.getLayoutParams();
+        layoutParams.width = width;
+        this.tilePalette.setLayoutParams(layoutParams);
+    }
+    
+    private int resizeWidth(final int dx) {
+        LayoutParams layoutParams = TilePalettePresenter.this.tilePalette.getLayoutParams();
+        layoutParams.width = Math.max(Math.min((int) (layoutParams.width + dx), tilePaletteTileSize * 16), tilePaletteTileSize);
+        TilePalettePresenter.this.tilePalette.setLayoutParams(layoutParams);
+        
+        layoutParams = TilePalettePresenter.this.gridView.getLayoutParams();
+        layoutParams.width = Math.max(Math.min((int) (layoutParams.width + dx), tilePaletteTileSize * 16), tilePaletteTileSize);
+        TilePalettePresenter.this.gridView.setLayoutParams(layoutParams);
+        
+        return layoutParams.width;
+    }
     
     public TilePalettePresenter(
         final Context context, 
@@ -44,6 +67,7 @@ public class TilePalettePresenter {
         final GridView gridView
     ) {
         this.gridView = gridView;
+        this.tilePalette = tilePalette;
         this.tileDrawerSpinner = tileDrawerSpinner;
         
         final ArrayAdapter<String> spinnerAdapter = 
@@ -115,10 +139,8 @@ public class TilePalettePresenter {
         
         gridView.setAdapter(tilePaletteAdapter);
         
-        gridView.setNumColumns(4);
-        LayoutParams layoutParams = gridView.getLayoutParams();
-        layoutParams.width = 4 * tilePaletteTileSize;
-        gridView.setLayoutParams(layoutParams);
+        this.gridView.setNumColumns(4);
+        setWidth(4 * tilePaletteTileSize);
         
         gridView.setOnTouchListener(new OnTouchListener() {
             private float lastX;
@@ -168,16 +190,10 @@ public class TilePalettePresenter {
                     if (paletteSwipeDetected) {
                         final float resizeDx = (e.getX() - lastX);
                         
-                        LayoutParams layoutParams = tilePalette.getLayoutParams();
-                        layoutParams.width = Math.max(Math.min((int) (layoutParams.width + resizeDx), tilePaletteTileSize * 16), tilePaletteTileSize);
-                        tilePalette.setLayoutParams(layoutParams);
                         
-
-                        layoutParams = gridView.getLayoutParams();
-                        layoutParams.width = Math.max(Math.min((int) (layoutParams.width + resizeDx), tilePaletteTileSize * 16), tilePaletteTileSize);
-                        gridView.setLayoutParams(layoutParams);
+                        int width = resizeWidth((int) resizeDx);
                         
-                        final int newColumnCount = Math.max(Math.min(layoutParams.width / tilePaletteTileSize, 16), 1);
+                        final int newColumnCount = Math.max(Math.min(width / tilePaletteTileSize, 16), 1);
                         gridView.setNumColumns(newColumnCount);
 
                         lastX = e.getX();
