@@ -247,10 +247,10 @@ public class PlayerCharacter extends GameObject {
                 final GameObject gameObject
             ) {
                 if (frameState.phase == GamePhase.MOVE) {
-                    x += dx;
-                    y += dy;
+                    x = Math.max(0, x + dx);
+                    y = Math.max(-16, y + dy);
                     
-                    frameState.globalState.setFocus((int) x, (int) y);
+                    frameState.globalState.setFocus((int) x + 16, (int) y + 32);
                 }
             }
         });

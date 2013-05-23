@@ -16,11 +16,16 @@ public class CameraObject extends GameObject {
             ) {
                 if (frameState.phase == GamePhase.PRERENDER) {
                     m.reset();
+
+                    final GlobalGameState global = frameState.globalState;
                     
                     // center of 512 x 384 screen
+                    final int xFocus = 256 - global.getXFocus();
+                    final int yFocus = 192 - global.getYFocus();
+                    
                     m.postTranslate(
-                        (256 - 16) - frameState.globalState.getXFocus(), 
-                        (192 - 32) - frameState.globalState.getYFocus());
+                        Math.max(Math.min(xFocus, 0), 512 - (global.getMap().getWidth() * 32)), 
+                        Math.max(Math.min(yFocus, 0), 384 - (global.getMap().getHeight() * 32)));
                     
                     m.postScale(scaleFactor, scaleFactor);
                     
