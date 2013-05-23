@@ -152,31 +152,89 @@ public class PlayerCharacter extends GameObject {
                 final GameObject gameObject
             ) {
                 if (frameState.phase == GamePhase.COLLISION) {
+                    double pushDx = 0;
+                    double pushDy = 0;
+                    
+                    double outDx = dx;
+                    double outDy = dy;
+                    
                     if (dx != 0 || dy != 0) {
                         final MapData map = 
                             frameState.globalState.getMap();
 
                         if (dx > 0) {
-                            if (hit(map, upperRight, dx, 0) || hit(map, bottomRight, dx, 0)) {
-                                dx = NO_MOVEMENT;
+                            final boolean upperRightHit = hit(map, upperRight, dx, 0);
+                            final boolean bottomRightHit = hit(map, bottomRight, dx, 0);
+                            
+                            if (upperRightHit || bottomRightHit) {
+                                outDx = NO_MOVEMENT;
+                                
+                                if (dy == 0) {
+                                    if (!upperRightHit) {
+                                        pushDy = -dx * 0.7;
+                                    
+                                    } else if (!bottomRightHit) {
+                                        pushDy = dx * 0.7;
+                                    }      
+                                }
                             }
                             
                         } else if (dx < 0) {
-                            if (hit(map, upperLeft, dx, 0) || hit(map, bottomLeft, dx, 0)) {
-                                dx = NO_MOVEMENT;
+                            final boolean upperLeftHit = hit(map, upperLeft, dx, 0);
+                            final boolean bottomLeftHit = hit(map, bottomLeft, dx, 0);
+                            
+                            if (upperLeftHit || bottomLeftHit) {
+                                outDx = NO_MOVEMENT;
+                                
+                                if (dy == 0) {
+                                    if (!upperLeftHit) {
+                                        pushDy = dx * 0.7;
+                                    
+                                    } else if (!bottomLeftHit) {
+                                        pushDy = -dx * 0.7;
+                                    }      
+                                }
                             }
                         }
                         
                         if (dy > 0) {
-                            if (hit(map, bottomRight, 0, dy) || hit(map, bottomLeft, 0, dy)) {
-                                dy = NO_MOVEMENT;
+                            final boolean bottomRightHit = hit(map, bottomRight, 0, dy);
+                            final boolean bottomLeftHit = hit(map, bottomLeft, 0, dy);
+                            
+                            if (bottomRightHit || bottomLeftHit) {
+                                outDy = NO_MOVEMENT;
+                                
+                                if (dx == 0) {
+                                    if (!bottomRightHit) {
+                                        pushDx = dy * 0.7;
+                                    
+                                    } else if (!bottomLeftHit) {
+                                        pushDx = -dy * 0.7;
+                                    }      
+                                } 
                             }
+                            
                         } else if (dy < 0) {
-                            if (hit(map, upperRight, 0, dy) || hit(map, upperLeft, 0, dy)) {
-                                dy = NO_MOVEMENT;
+                            final boolean upperRightHit = hit(map, upperRight, 0, dy);
+                            final boolean upperLeftHit = hit(map, upperLeft, 0, dy);
+                            
+                            if (upperRightHit || upperLeftHit) {
+                                outDy = NO_MOVEMENT;
+                                
+                                if (dx == 0) {
+                                    if (!upperRightHit) {
+                                        pushDx = -dy * 0.7;
+                                    
+                                    } else if (!upperLeftHit) {
+                                        pushDx = dy * 0.7;
+                                    }      
+                                }
                             }
                         }
                     }
+                    
+                    dx = outDx + pushDx;
+                    dy = outDy + pushDy;
                 }
             }
         });
