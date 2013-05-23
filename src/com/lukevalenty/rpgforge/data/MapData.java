@@ -147,9 +147,16 @@ public class MapData {
                 }
                 
                 resizedMapData.setTile(x, y, t);
+                
+                t = getSparseTile(x, y);
+                
+                if (t != null) {
+                    resizedMapData.setTile(x, y, t);
+                }
             }
         }
         
+        this.sparseTiles = resizedMapData.sparseTiles;
         this.tiles = resizedMapData.tiles;
         this.width = newWidth;
         this.height = newHeight;
