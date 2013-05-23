@@ -11,15 +11,15 @@
 
     <com.lukevalenty.rpgforge.engine.input.OnScreenDPad
         android:id="@+id/onScreenDPad"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true" />
 
     <com.lukevalenty.rpgforge.engine.input.OnScreenActionPad
         android:id="@+id/onScreenActionPad"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true" />
 
