@@ -1,5 +1,7 @@
 package com.lukevalenty.rpgforge.engine;
 
+import android.util.Log;
+
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.engine.input.GameInput;
 
@@ -36,5 +38,12 @@ public class GlobalGameState {
     
     public int getYFocus() {
         return yFocus;
+    }
+
+    public void activate(
+        final int x, 
+        final int y
+    ) {
+        Log.d("GlobalGameState", "ACTION: " + x + ", " + y);
     }
 }

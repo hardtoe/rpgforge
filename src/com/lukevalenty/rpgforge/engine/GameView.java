@@ -110,20 +110,29 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         @Override
         public void run() {
             while(mRunning){
-                Canvas c = mHolder.lockCanvas(null);
+                final Canvas c = 
+                    mHolder.lockCanvas();
                 
-                if (c != null) {             
-                    doDraw(c);
-                    mHolder.unlockCanvasAndPost(c);
+                if (c != null) {      
+                    final ArrayList<DrawCommand> frontBuffer = 
+                        drawCommandBuffer.lockFrontBuffer();
+                    
+                    if (frontBuffer != null) {
+                        doDraw(c, frontBuffer);
+                    }
+                    
+                    drawCommandBuffer.unlockFrontBuffer();
+                    
+                    if (mRunning) {
+                        mHolder.unlockCanvasAndPost(c);
+                    }
                     
                     //updateFramerate();
                 }
             }
         }
 
-        private void doDraw(final Canvas c) {
-            final ArrayList<DrawCommand> frontBuffer = 
-                drawCommandBuffer.lockFrontBuffer();
+        private void doDraw(final Canvas c, final ArrayList<DrawCommand> frontBuffer) {
           
             long startTime = System.nanoTime();
             frameIndex = startTime / 16000000L;
@@ -147,71 +156,71 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     final MapData map =
                         drawTilemap.map();
                     
-                    
-                    matrix.invert(inverseMatrix);
-                    
-                    pts[0] = 0;
-                    pts[1] = 0;
-                    inverseMatrix.mapPoints(pts);
-                    float xMin = pts[0];
-                    float yMin = pts[1];
-                    
-                    int xMinTile = Math.max((int) (xMin / 32), 0);
-                    int yMinTile = Math.max((int) (yMin / 32), 0);
-                    
-
-                    pts[0] = c.getWidth();
-                    pts[1] = c.getHeight();
-                    inverseMatrix.mapPoints(pts);
-                    float xMax = pts[0];
-                    float yMax = pts[1];
-          
-                    int xMaxTile = Math.min((int) (xMax / 32) + 1, map.getWidth());
-                    int yMaxTile = Math.min((int) (yMax / 32) + 1, map.getHeight());
-                    
-                    numTiles = (xMaxTile - xMinTile) * (yMaxTile - yMinTile);
-                    
-                    if (numTiles > 5000) {
-                        src.left = 0;
-                        src.top = 0;
-                        src.right = drawTilemap.bitmap().getWidth();
-                        src.bottom = drawTilemap.bitmap().getHeight();
+                    if (map != null) {
+                        matrix.invert(inverseMatrix);
                         
-                        dst.left = src.left;
-                        dst.top = src.top;
-                        dst.right = src.right * tileSize + DEFRINGE_CORRECTION;
-                        dst.bottom = src.bottom * tileSize + DEFRINGE_CORRECTION;
-                        c.drawBitmap(drawTilemap.bitmap(), src, dst, null);
+                        pts[0] = 0;
+                        pts[1] = 0;
+                        inverseMatrix.mapPoints(pts);
+                        float xMin = pts[0];
+                        float yMin = pts[1];
                         
-                    } else {
-                        for (int y = yMinTile; y < yMaxTile; y++) {
-                            for (int x = xMinTile; x < xMaxTile; x++) {
-                                final TileData tile =
-                                    map.getTile(x, y);
-                                
-                                if (tile != null) {
-                                    if (tile instanceof AutoTileData) {
-                                        drawAutoTile(map, drawTilemap, (AutoTileData) tile, c, x, y);
-                                    } else {
-                                        drawTile(tile, c, x, y);
+                        int xMinTile = Math.max((int) (xMin / 32), 0);
+                        int yMinTile = Math.max((int) (yMin / 32), 0);
+                        
+    
+                        pts[0] = c.getWidth();
+                        pts[1] = c.getHeight();
+                        inverseMatrix.mapPoints(pts);
+                        float xMax = pts[0];
+                        float yMax = pts[1];
+              
+                        int xMaxTile = Math.min((int) (xMax / 32) + 1, map.getWidth());
+                        int yMaxTile = Math.min((int) (yMax / 32) + 1, map.getHeight());
+                        
+                        numTiles = (xMaxTile - xMinTile) * (yMaxTile - yMinTile);
+                        
+                        if (numTiles > 5000) {
+                            src.left = 0;
+                            src.top = 0;
+                            src.right = drawTilemap.bitmap().getWidth();
+                            src.bottom = drawTilemap.bitmap().getHeight();
+                            
+                            dst.left = src.left;
+                            dst.top = src.top;
+                            dst.right = src.right * tileSize + DEFRINGE_CORRECTION;
+                            dst.bottom = src.bottom * tileSize + DEFRINGE_CORRECTION;
+                            c.drawBitmap(drawTilemap.bitmap(), src, dst, null);
+                            
+                        } else {
+                            for (int y = yMinTile; y < yMaxTile; y++) {
+                                for (int x = xMinTile; x < xMaxTile; x++) {
+                                    final TileData tile =
+                                        map.getTile(x, y);
+                                    
+                                    if (tile != null) {
+                                        if (tile instanceof AutoTileData) {
+                                            drawAutoTile(map, drawTilemap, (AutoTileData) tile, c, x, y);
+                                        } else {
+                                            drawTile(tile, c, x, y);
+                                        }
                                     }
-                                }
-                                
-                                
-                                final TileData sparseTile =
-                                    map.getSparseTile(x, y);
-                                
-                                if (sparseTile != null) {
-                                    if (sparseTile instanceof AutoTileData) {
-                                        drawAutoTile(map, drawTilemap, (AutoTileData) sparseTile, c, x, y);
-                                    } else {
-                                        drawTile(sparseTile, c, x, y);
+                                    
+                                    
+                                    final TileData sparseTile =
+                                        map.getSparseTile(x, y);
+                                    
+                                    if (sparseTile != null) {
+                                        if (sparseTile instanceof AutoTileData) {
+                                            drawAutoTile(map, drawTilemap, (AutoTileData) sparseTile, c, x, y);
+                                        } else {
+                                            drawTile(sparseTile, c, x, y);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                    
                 } else if (drawCommand instanceof SetMatrix) {
                     matrix = ((SetMatrix) drawCommand).matrix();
                     c.setMatrix(matrix);
@@ -219,8 +228,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             }
             
             duration = System.nanoTime() - startTime;
-            
-            drawCommandBuffer.unlockFrontBuffer();
         }
 
        

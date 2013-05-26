@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.graphics.Matrix;
+import android.util.Log;
 
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
@@ -121,8 +122,6 @@ public class GameEngine {
                 }
                 
                 drawCommandBuffer.unlockBackBuffer();
-                
-
             }
         }
 

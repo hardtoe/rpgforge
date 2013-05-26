@@ -5,8 +5,7 @@ public class MapObject extends GameObject {
         addComponent(new GameObjectComponent() {
             @Override
             public void update(
-                final FrameState frameState, 
-                final GameObject gameObject
+                final FrameState frameState
             ) {
                 if (frameState.phase == GamePhase.RENDER) {
                     frameState.drawBuffer.add(frameState.tilemapPool.get().set(frameState.globalState.getMap()));

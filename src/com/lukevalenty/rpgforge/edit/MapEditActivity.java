@@ -41,7 +41,9 @@ import android.view.MenuItem;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -135,9 +137,7 @@ public class MapEditActivity extends BaseActivity {
 
         
         tilePalettePresenter =
-            new TilePalettePresenter(this, eventBus, tilePalette, tileDrawerSpinner, tileList);
-        
-        tilePalettePresenter.setTiles(allTiles);
+            new TilePalettePresenter(this, eventBus, tilePalette, tileDrawerSpinner, tileList, allTiles);
         
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {     

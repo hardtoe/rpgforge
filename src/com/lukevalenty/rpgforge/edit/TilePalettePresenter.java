@@ -18,19 +18,25 @@ import android.view.ViewGroup;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Spinner;
 
 public class TilePalettePresenter {
-    private GridView gridView;
-    private ArrayList<? extends PaletteItem> allTiles = new ArrayList<PaletteItem>();
+    private GridView tileGridView;
+    private ArrayList<? extends PaletteItem> activePaletteItems;
 
-    private int tilePaletteTileSize = 64;
+    private ArrayList<? extends PaletteItem> eventPaletteItems = new ArrayList<PaletteItem>();
+    
+    private int paletteItemWidth;
+    private int paletteItemHeight;
 
     private int currentSelectedPositionInTilePalette = -1;
     private BaseAdapter tilePaletteAdapter;
@@ -38,9 +44,9 @@ public class TilePalettePresenter {
     private View tilePalette;
     
     private void setWidth(final int width) {
-        LayoutParams layoutParams = this.gridView.getLayoutParams();
+        LayoutParams layoutParams = this.tileGridView.getLayoutParams();
         layoutParams.width = width;
-        this.gridView.setLayoutParams(layoutParams);
+        this.tileGridView.setLayoutParams(layoutParams);
 
         layoutParams = this.tilePalette.getLayoutParams();
         layoutParams.width = width;
@@ -49,12 +55,12 @@ public class TilePalettePresenter {
     
     private int resizeWidth(final int dx) {
         LayoutParams layoutParams = TilePalettePresenter.this.tilePalette.getLayoutParams();
-        layoutParams.width = Math.max(Math.min((int) (layoutParams.width + dx), tilePaletteTileSize * 16), tilePaletteTileSize);
+        layoutParams.width = Math.max(Math.min((int) (layoutParams.width + dx), paletteItemWidth * 16), paletteItemWidth);
         TilePalettePresenter.this.tilePalette.setLayoutParams(layoutParams);
         
-        layoutParams = TilePalettePresenter.this.gridView.getLayoutParams();
-        layoutParams.width = Math.max(Math.min((int) (layoutParams.width + dx), tilePaletteTileSize * 16), tilePaletteTileSize);
-        TilePalettePresenter.this.gridView.setLayoutParams(layoutParams);
+        layoutParams = TilePalettePresenter.this.tileGridView.getLayoutParams();
+        layoutParams.width = Math.max(Math.min((int) (layoutParams.width + dx), paletteItemWidth * 16), paletteItemWidth);
+        TilePalettePresenter.this.tileGridView.setLayoutParams(layoutParams);
         
         return layoutParams.width;
     }
@@ -64,11 +70,13 @@ public class TilePalettePresenter {
         final EventBus eventBus, 
         final View tilePalette,
         final Spinner tileDrawerSpinner, 
-        final GridView gridView
+        final GridView tileGridView,
+        final ArrayList<? extends PaletteItem> tilesetPaletteItems
     ) {
-        this.gridView = gridView;
+        this.tileGridView = tileGridView;
         this.tilePalette = tilePalette;
         this.tileDrawerSpinner = tileDrawerSpinner;
+        this.activePaletteItems = tilesetPaletteItems;
         
         final ArrayAdapter<String> spinnerAdapter = 
             new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item);
@@ -80,19 +88,59 @@ public class TilePalettePresenter {
 
         tileDrawerSpinner.setAdapter(spinnerAdapter);
         
+        tileDrawerSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(
+                final AdapterView<?> parent, 
+                final View view, 
+                final int position,
+                final long id
+            ) {
+                if (id == 0) {
+                    activePaletteItems = tilesetPaletteItems;
+
+                    paletteItemWidth = 
+                        dpToPx(context, 48);
+                    
+                    paletteItemHeight = 
+                        dpToPx(context, 48);
+                    
+                } else if (id == 1) {
+                    activePaletteItems = eventPaletteItems;
+                    paletteItemWidth = 
+                        dpToPx(context, 128);
+                    
+                    paletteItemHeight = 
+                        dpToPx(context, 48);
+                }
+                
+                tilePaletteAdapter.notifyDataSetChanged();
+                updateNumColumns();
+            }
+
+            @Override
+            public void onNothingSelected(
+                final AdapterView<?> parent
+            ) {
+                // do nothing
+            }
+        });
         
-        this.tilePaletteTileSize = 
-            (int) (context.getResources().getDisplayMetrics().density * 48);
+        this.paletteItemWidth = 
+            dpToPx(context, 48);
+        
+        this.paletteItemHeight = 
+            dpToPx(context, 48);
         
         this.tilePaletteAdapter = new BaseAdapter() {
             @Override
             public int getCount() {
-                return allTiles.size();
+                return activePaletteItems.size();
             }
 
             @Override
             public Object getItem(int position) {
-                return allTiles.get(position);
+                return activePaletteItems.get(position);
             }
 
             @Override
@@ -107,7 +155,7 @@ public class TilePalettePresenter {
                 final ViewGroup parent
             ) {
                 final PaletteItem tileData =
-                    allTiles.get(position);
+                    activePaletteItems.get(position);
 
                 ImageView tileView;
                 
@@ -126,7 +174,7 @@ public class TilePalettePresenter {
                     tileView.setBackgroundColor(Color.TRANSPARENT);
                 }
                 
-                tileView.setLayoutParams(new GridView.LayoutParams(tilePaletteTileSize, tilePaletteTileSize));
+                tileView.setLayoutParams(new GridView.LayoutParams(paletteItemWidth, paletteItemHeight));
                 tileView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 tileView.setPadding(4, 4, 4, 4);
                 
@@ -137,12 +185,12 @@ public class TilePalettePresenter {
         };
 
         
-        gridView.setAdapter(tilePaletteAdapter);
+        tileGridView.setAdapter(tilePaletteAdapter);
         
-        this.gridView.setNumColumns(4);
-        setWidth(4 * tilePaletteTileSize);
+        this.tileGridView.setNumColumns(4);
+        setWidth(4 * paletteItemWidth);
         
-        gridView.setOnTouchListener(new OnTouchListener() {
+        tileGridView.setOnTouchListener(new OnTouchListener() {
             private float lastX;
             private float lastY;
             private float startX;
@@ -173,33 +221,31 @@ public class TilePalettePresenter {
                     float dy = Math.abs(startY - e.getY());
                     
                     if (paletteSwipeDetected == false){
-                        if (dx > tilePaletteTileSize && dx > dy) {
+                        if (dx > paletteItemWidth && dx > dy) {
                             paletteSwipeDetected = true;
 
-                            focusPosition = gridView.getFirstVisiblePosition();
+                            focusPosition = tileGridView.getFirstVisiblePosition();
                             
-                        } else if (dy > tilePaletteTileSize && dy > dx) {
+                        } else if (dy > paletteItemWidth && dy > dx) {
                             paletteSwipeImpossible = true;
                         }
                         
                     } else if (paletteSwipeImpossible == true) {
                         return false;
                         
-                    } 
+                    }
                     
                     if (paletteSwipeDetected) {
                         final float resizeDx = (e.getX() - lastX);
                         
+                        resizeWidth((int) resizeDx);
                         
-                        int width = resizeWidth((int) resizeDx);
-                        
-                        final int newColumnCount = Math.max(Math.min(width / tilePaletteTileSize, 16), 1);
-                        gridView.setNumColumns(newColumnCount);
+                        updateNumColumns();
 
                         lastX = e.getX();
                         lastY = e.getY();
                         
-                        gridView.setSelection(focusPosition);
+                        tileGridView.setSelection(focusPosition);
                         
                         return true;
                     }
@@ -221,7 +267,7 @@ public class TilePalettePresenter {
             }
         });
 
-        gridView.setOnItemClickListener(new OnItemClickListener() {
+        tileGridView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(
                 final AdapterView<?> parent, 
@@ -248,8 +294,12 @@ public class TilePalettePresenter {
         });
     }
 
-    public void setTiles(final ArrayList<? extends PaletteItem> allTiles) {
-        this.allTiles = allTiles;
-        tilePaletteAdapter.notifyDataSetChanged();
+    private int dpToPx(final Context context, int dp) {
+        return (int) (context.getResources().getDisplayMetrics().density * dp);
+    }
+
+    private void updateNumColumns() {
+        final int newColumnCount = Math.max(Math.min(TilePalettePresenter.this.tileGridView.getWidth() / paletteItemWidth, 16), 1);
+        TilePalettePresenter.this.tileGridView.setNumColumns(newColumnCount);
     }
 }

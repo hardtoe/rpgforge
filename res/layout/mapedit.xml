@@ -26,7 +26,7 @@
 	        android:id="@+id/tileDrawerSpinner"
 	        android:layout_width="match_parent"
 	        android:layout_height="48sp"/>
-	    
+
 	    <GridView
 			android:id="@+id/gridView1"
 		    android:numColumns="4"
@@ -36,8 +36,7 @@
 		    android:gravity="center"
 	        android:background="#555555"
         	android:layout_width="match_parent"
-        	android:layout_height="fill_parent" >
-	    </GridView>
+        	android:layout_height="fill_parent" />
 	</LinearLayout>
 
     

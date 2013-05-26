@@ -1,6 +1,8 @@
 package com.lukevalenty.rpgforge.graphics;
 
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -8,6 +10,9 @@ import roboguice.inject.ContextSingleton;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.lukevalenty.rpgforge.memory.AbstractPooledObject;
+import com.lukevalenty.rpgforge.memory.ObjectPool;
+import com.lukevalenty.rpgforge.memory.PooledObject;
 
 /**
  * Double buffer for DrawCommands.
@@ -20,6 +25,77 @@ import com.google.inject.Singleton;
  */
 @ContextSingleton
 public class DrawCommandBuffer {
+    private final ArrayBlockingQueue<ArrayList<DrawCommand>> pool;
+    private final ArrayBlockingQueue<ArrayList<DrawCommand>> queue;
+    private ArrayList<DrawCommand> backBuffer;
+    private ArrayList<DrawCommand> frontBuffer;
+    
+    @Inject DrawCommandBuffer() {
+        pool = new ArrayBlockingQueue<ArrayList<DrawCommand>>(2);
+        queue = new ArrayBlockingQueue<ArrayList<DrawCommand>>(1);
+        
+        try {
+            pool.put(new ArrayList<DrawCommand>(128));
+            pool.put(new ArrayList<DrawCommand>(128));
+            
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public ArrayList<DrawCommand> lockFrontBuffer() {
+        try {
+            frontBuffer = queue.poll(100, TimeUnit.MILLISECONDS);
+            
+        } catch (InterruptedException e) {
+            // do nothing
+        }
+        
+        return frontBuffer;
+    }
+    
+    public void unlockFrontBuffer() {
+        if (frontBuffer != null) {
+            for (int i = 0; i < frontBuffer.size(); i++) {
+                frontBuffer.get(i).recycle();
+            }
+            
+            frontBuffer.clear();
+            
+            try {
+                pool.put(frontBuffer);
+                
+            } catch (InterruptedException e) {
+                // do nothing
+            }
+        }
+    }
+    
+    public ArrayList<DrawCommand> lockBackBuffer() {
+        try {
+            backBuffer = pool.take();
+            
+        } catch (InterruptedException e) {
+            // do nothing
+        } 
+        
+        return backBuffer;
+    }
+    
+    public void unlockBackBuffer() {
+        try {
+            //while (!queue.offer(backBuffer)) {
+            //    Thread.sleep(1);
+            //}
+            
+            queue.put(backBuffer);
+            
+        } catch (InterruptedException e) {
+            // do nothing
+        }
+    }
+    
+    /*
     private final int SIZE = 2;
     
     private ArrayList<DrawCommand>[] buffers;
@@ -67,4 +143,5 @@ public class DrawCommandBuffer {
         bufferLocks[backBufferPointer].unlock();
         backBufferPointer = (backBufferPointer + 1) % SIZE;
     }
+    */
 }

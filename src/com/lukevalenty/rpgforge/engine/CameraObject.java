@@ -16,8 +16,7 @@ public class CameraObject extends GameObject {
             
             @Override
             public void update(
-                final FrameState frameState, 
-                final GameObject gameObject
+                final FrameState frameState
             ) {
                 if (frameState.phase == GamePhase.PRERENDER) {
                     m.reset();

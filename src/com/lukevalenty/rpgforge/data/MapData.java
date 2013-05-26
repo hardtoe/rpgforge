@@ -8,6 +8,7 @@ public class MapData {
     
     private TileData[] tiles;
     private SparseArray<TileData> sparseTiles = new SparseArray<TileData>();
+    private SparseArray<EventData> events = new SparseArray<EventData>();
     
     private String name;
     
@@ -153,12 +154,52 @@ public class MapData {
                 if (t != null) {
                     resizedMapData.setTile(x, y, t);
                 }
+                
+                EventData e = 
+                    getEvent(x, y);
+                
+                if (e != null) {
+                    resizedMapData.setEvent(x, y, e);
+                }
             }
         }
         
         this.sparseTiles = resizedMapData.sparseTiles;
+        this.events = resizedMapData.events;
         this.tiles = resizedMapData.tiles;
         this.width = newWidth;
         this.height = newHeight;
+    }
+
+    public EventData getEvent(
+        final int x, 
+        final int y
+    ) {
+        if (x < 0 || y < 0 || x >= width || y >= height) {
+            return null;
+            
+        } else {
+            final Object event = 
+                events.get(x + (y * width));
+            
+            if (event instanceof EventData) {
+                return (EventData) event;
+                
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public void setEvent(
+        final int x, 
+        final int y,
+        final EventData event
+    ) {
+        if (x < 0 || y < 0 || x >= width || y >= height) {
+            // out of bounds, do nothing
+        } else {
+            events.put(x + (y * width), event);
+        }
     }
 }
