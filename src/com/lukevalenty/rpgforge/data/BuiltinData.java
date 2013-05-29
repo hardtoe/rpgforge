@@ -146,7 +146,7 @@ public class BuiltinData {
             
             for (int x = 0; x < 4; x++) {
                 for (int y = 0; y < 2; y++) {
-                    CHARSET_1A.addCharacter(new CharacterData(CHARSET_1A, new Rect(x * 32, y * 48, x * 32 + 32, y * 48 + 48)));
+                    CHARSET_1A.addCharacter(new CharacterData(CHARSET_1A, new Rect(x * 96, y * 192, x * 96 + 96, y * 192 + 192)));
                 }
             }
         }
@@ -220,6 +220,8 @@ public class BuiltinData {
         db.getMaps().get(0).fill(db.getDefaultTile());
         
         db.addCharacterSet(CHARSET_1A);
+        
+        db.addEvent(new DoorEventData());
         
         return db;
     }

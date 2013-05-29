@@ -1,14 +1,20 @@
 package com.lukevalenty.rpgforge.edit;
 
+import com.lukevalenty.rpgforge.data.EventData;
 import com.lukevalenty.rpgforge.data.TileData;
 
+import android.annotation.SuppressLint;
+import android.util.Log;
+import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.View.OnGenericMotionListener;
 import android.view.View.OnTouchListener;
 import de.greenrobot.event.EventBus;
 
-public class MapGestureDetector implements OnTouchListener {
+@SuppressLint("NewApi")
+public class MapGestureDetector implements OnTouchListener, OnGenericMotionListener {
     private final ScaleGestureDetector mScaleDetector;
     private final EventBus eventBus = EventBus.getDefault();
     
@@ -17,7 +23,7 @@ public class MapGestureDetector implements OnTouchListener {
     private int pointerId = -1;
 
     private Tool currentTool = Tool.MOVE;
-    private TileData currentTile = null;
+    private PaletteItem currentTile = null;
     
     public MapGestureDetector(
         final ScaleGestureDetector mScaleDetector
@@ -30,16 +36,24 @@ public class MapGestureDetector implements OnTouchListener {
         currentTool = e.tool();
     }
     
-    public void onEvent(final TileSelectedEvent e) {
-        currentTile = e.tile();
+    public void onEvent(final PaletteItemSelectedEvent e) {
+        if (e.tile() instanceof EventData) {
+            currentTile = ((EventData) e.tile()).create();
+        } else {
+            currentTile = e.tile();
+        }
     }
     
+    @SuppressLint("NewApi")
     @Override
     public boolean onTouch(
         final View v, 
         final MotionEvent e
     ) {
-        if (currentTool == Tool.MOVE) {
+        if (
+            currentTool == Tool.MOVE || 
+            ((e.getButtonState() & MotionEvent.BUTTON_SECONDARY) != 0) // right-click and drag to move
+        ) {
             mScaleDetector.onTouchEvent(e);
             
             if (e.getAction() == MotionEvent.ACTION_DOWN) {
@@ -68,6 +82,7 @@ public class MapGestureDetector implements OnTouchListener {
             } else {
                 return false;
             }
+            
         } else if (
             currentTool == Tool.DRAW && 
             currentTile != null && 
@@ -107,10 +122,11 @@ public class MapGestureDetector implements OnTouchListener {
         } else if (
             currentTool == Tool.FILL && 
             currentTile != null && 
+            currentTile instanceof TileData &&
             e.getPointerCount() == 1
         ) {
             if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                eventBus.post(new FillTileEvent(currentTile, (int) e.getX(), (int) e.getY()));
+                eventBus.post(new FillTileEvent((TileData) currentTile, (int) e.getX(), (int) e.getY()));
                 return true;
                 
             } else {
@@ -118,6 +134,31 @@ public class MapGestureDetector implements OnTouchListener {
             }
         } else {
             return false;
+        } 
+    }
+
+
+    
+    @SuppressLint("NewApi")
+    @Override
+    public boolean onGenericMotion(View v, MotionEvent event) {
+        if (0 != (event.getSource() & InputDevice.SOURCE_CLASS_POINTER)) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_SCROLL:
+                    float scaleFactor;
+                    if (event.getAxisValue(MotionEvent.AXIS_VSCROLL) < 0.0f) {
+                        scaleFactor = 0.8f;
+                        
+                    } else {
+                        scaleFactor = 1.25f;
+                    }
+
+                    eventBus.post(new ScaleMapEvent(scaleFactor, event.getX(), event.getY()));
+                    
+                    return true;
+            }
         }
+
+        return false;
     }
 }

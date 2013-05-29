@@ -2,6 +2,7 @@ package com.lukevalenty.rpgforge.edit;
 
 import java.util.ArrayList;
 
+import com.lukevalenty.rpgforge.data.EventData;
 import com.lukevalenty.rpgforge.data.TileData;
 
 import de.greenrobot.event.EventBus;
@@ -71,12 +72,14 @@ public class TilePalettePresenter {
         final View tilePalette,
         final Spinner tileDrawerSpinner, 
         final GridView tileGridView,
-        final ArrayList<? extends PaletteItem> tilesetPaletteItems
+        final ArrayList<? extends PaletteItem> tilesetPaletteItems,
+        final ArrayList<? extends PaletteItem> eventPaletteItems
     ) {
         this.tileGridView = tileGridView;
         this.tilePalette = tilePalette;
         this.tileDrawerSpinner = tileDrawerSpinner;
         this.activePaletteItems = tilesetPaletteItems;
+        this.eventPaletteItems = eventPaletteItems;
         
         final ArrayAdapter<String> spinnerAdapter = 
             new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item);
@@ -281,15 +284,10 @@ public class TilePalettePresenter {
                 final ListAdapter adapter = 
                     (ListAdapter) parent.getAdapter();
                 
-                final Object paletteItem = 
-                    adapter.getItem(position);
+                final PaletteItem paletteItem = 
+                    (PaletteItem) adapter.getItem(position);
                 
-                if (paletteItem instanceof TileData) {
-                    final TileData tile =
-                        (TileData) paletteItem;
-                    
-                    eventBus.post(new TileSelectedEvent(tile));   
-                }             
+                eventBus.post(new PaletteItemSelectedEvent(paletteItem));   
             }
         });
     }

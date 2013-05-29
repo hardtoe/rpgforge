@@ -11,7 +11,8 @@ public class PlayerCharacter extends GameObject {
         
         addComponent(new PlayerControlComponent(this));
         addComponent(new CollisionComponent(this));
-        addComponent(new MovementComponent(this));
+        addComponent(new MovementComponent(this)); 
+        addComponent(new CameraFocusComponent(this));
         addComponent(new CharacterRenderComponent(this, charData));
     }
 }

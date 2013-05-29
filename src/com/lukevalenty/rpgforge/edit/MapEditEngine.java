@@ -13,6 +13,7 @@ import android.util.Log;
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
 import com.lukevalenty.rpgforge.data.BuiltinData;
+import com.lukevalenty.rpgforge.data.EventData;
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.graphics.DrawCommand;
@@ -141,7 +142,7 @@ public class MapEditEngine {
             int tileX = (int) (x / 32);
             int tileY = (int) (y / 32);
             
-            eventBus.post(new TileSelectedEvent(currentMap.getTile(tileX, tileY)));
+            eventBus.post(new PaletteItemSelectedEvent(currentMap.getTile(tileX, tileY)));
         }
 
         private float[] pts = new float[2];
@@ -161,8 +162,18 @@ public class MapEditEngine {
             int tileX = (int) (x / 32);
             int tileY = (int) (y / 32);
             
-            currentMap.setTile(tileX, tileY, e.tile());
-            currentMapBitmap.setPixel(tileX, tileY, e.tile().getAvgColor());
+            final PaletteItem paletteItem = e.tile();
+            
+            if (paletteItem instanceof TileData) {
+                TileData tile = (TileData) paletteItem;
+                if (currentMap.setTile(tileX, tileY, tile)) {
+                    currentMapBitmap.setPixel(tileX, tileY, tile.getAvgColor());
+                }
+                
+            } else if (paletteItem instanceof EventData) {
+                EventData event = (EventData) paletteItem;
+                currentMap.setEvent(tileX, tileY, event);
+            }
         }
         
         public void onEvent(

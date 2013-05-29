@@ -5,10 +5,11 @@ public class MapObject extends GameObject {
         addComponent(new GameObjectComponent() {
             @Override
             public void update(
-                final FrameState frameState
+                final FrameState frameState,
+                final GlobalGameState globalState
             ) {
                 if (frameState.phase == GamePhase.RENDER) {
-                    frameState.drawBuffer.add(frameState.tilemapPool.get().set(frameState.globalState.getMap()));
+                    frameState.drawBuffer.add(frameState.tilemapPool.get().set(globalState.getMap()));
                 }
             }
         });

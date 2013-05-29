@@ -10,7 +10,6 @@ import com.lukevalenty.rpgforge.graphics.SetMatrixPool;
 public class FrameState {
     public float timeDelta;
     public GamePhase phase;
-    public GlobalGameState globalState;
     public ArrayList<DrawCommand> drawBuffer;
     public SetMatrixPool setMatrixPool;
     public DrawSpritePool spritePool;

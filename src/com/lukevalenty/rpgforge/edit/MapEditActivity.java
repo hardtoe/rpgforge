@@ -11,6 +11,8 @@ import com.lukevalenty.rpgforge.R;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
 import com.lukevalenty.rpgforge.DialogUtil.StringPromptListener;
 import com.lukevalenty.rpgforge.data.BuiltinData;
+import com.lukevalenty.rpgforge.data.DoorEventData;
+import com.lukevalenty.rpgforge.data.EventData;
 import com.lukevalenty.rpgforge.data.RpgDatabase;
 import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 import com.lukevalenty.rpgforge.data.TileData;
@@ -23,6 +25,7 @@ import de.greenrobot.event.EventBus;
 import roboguice.activity.RoboFragmentActivity;
 import roboguice.inject.InjectView;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -55,7 +58,7 @@ public class MapEditActivity extends BaseActivity {
     @InjectView(R.id.tilePalette) private View tilePalette; 
     @InjectView(R.id.gridView1) private GridView tileList;
     @InjectView(R.id.tileDrawerSpinner) private Spinner tileDrawerSpinner; 
-    @InjectView(R.id.mapView) private GameView mapView;
+    @InjectView(R.id.mapView) private MapView mapView;
     @Inject private MapEditEngine mapEditEngine;
     
     @Inject private EventBus eventBus;
@@ -71,6 +74,8 @@ public class MapEditActivity extends BaseActivity {
     private MapSelectionPresenter mapSelectionPresenter;
 
     private TilePalettePresenter tilePalettePresenter;
+
+    private ArrayList<EventData> eventTilePalette;
 
     
 
@@ -112,6 +117,8 @@ public class MapEditActivity extends BaseActivity {
             allTiles = 
                 rpgDatabase.getAllTiles();       
             
+            eventTilePalette = rpgDatabase.getEvents();
+            
             if (mapSelectionAdapter != null) {
                 mapSelectionAdapter.notifyDataSetChanged();
             }
@@ -122,6 +129,7 @@ public class MapEditActivity extends BaseActivity {
     
     
     
+    @SuppressLint("NewApi")
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,35 +145,19 @@ public class MapEditActivity extends BaseActivity {
 
         
         tilePalettePresenter =
-            new TilePalettePresenter(this, eventBus, tilePalette, tileDrawerSpinner, tileList, allTiles);
+            new TilePalettePresenter(this, eventBus, tilePalette, tileDrawerSpinner, tileList, allTiles, eventTilePalette);
         
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {     
             mapSelectionPresenter =
                 new MapSelectionPresenter(this, eventBus, getActionBar());
         }      
-        
-        final ScaleGestureDetector mScaleDetector = 
-            new ScaleGestureDetector(this, new ScaleMapGestureListener());
-                
-        
-        mapView.setOnTouchListener(new MapGestureDetector(mScaleDetector)); 
-
-        
 
         
         Log.d(TAG, "ONCREATE FINISHED");
     }
     
-    public void onEvent(final TileSelectedEvent e) {
-        /*
-        Toast t = new Toast(this);
-        ImageView tileView = new ImageView(this);
-        tileView.setImageBitmap(e.tile().bitmap());
-        t.setView(tileView);
-        t.setDuration(Toast.LENGTH_SHORT);
-        t.show();
-*/
+    public void onEvent(final PaletteItemSelectedEvent e) {
         currentTool = Tool.DRAW;
         eventBus.post(new ToolSelectedEvent(currentTool));
     }
@@ -174,6 +166,56 @@ public class MapEditActivity extends BaseActivity {
     public void onEvent(final ToolSelectedEvent e) {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             invalidateOptionsMenu();
+        }
+    }
+    
+    public void onEvent(final DrawTileEvent e) {
+        if (e.tile() instanceof DoorEventData) {
+            final DoorEventData doorEvent = 
+                (DoorEventData) e.tile();
+
+            final AlertDialog.Builder builder = 
+                    new AlertDialog.Builder(this);
+                
+                final LayoutInflater inflater = 
+                    this.getLayoutInflater();
+                
+                final View view = 
+                    inflater.inflate(R.layout.new_map_dialog, null);
+                
+                final TextView mapNameField = 
+                    (TextView) view.findViewById(R.id.mapNameField);
+                
+                final TextView mapWidth = 
+                    (TextView) view.findViewById(R.id.widthField);
+                
+                final TextView mapHeight = 
+                    (TextView) view.findViewById(R.id.heightField);
+                
+                builder.setView(view)
+                   .setPositiveButton("Set Destination", new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialog, int id) {
+                           final String mapName = 
+                               mapNameField.getText().toString().trim();
+                           
+                           final String widthString = 
+                               mapWidth.getText().toString();
+                           
+                           final int width = 
+                               widthString.length() == 0 ? 20 : Integer.parseInt(widthString);
+                           
+                           final String heightString = 
+                               mapHeight.getText().toString();
+                           
+                           final int height =
+                               heightString.length() == 0 ? 20 : Integer.parseInt(heightString);
+
+                           doorEvent.setTarget(100, 100, RpgForgeApplication.getDb().getMaps().get(1));
+                       }
+                   });
+                
+                builder.create().show();
         }
     }
     

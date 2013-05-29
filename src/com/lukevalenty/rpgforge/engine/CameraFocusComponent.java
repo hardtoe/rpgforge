@@ -1,14 +1,10 @@
 package com.lukevalenty.rpgforge.engine;
 
-public class MovementComponent extends GameObjectComponent {
-    private final NumberRef dx;
-    private final NumberRef dy;
+public class CameraFocusComponent extends GameObjectComponent {
     private final NumberRef x;
     private final NumberRef y;
 
-    public MovementComponent(final GameObject o) {
-        this.dx = o.getNumberRef("dx");
-        this.dy = o.getNumberRef("dy");
+    public CameraFocusComponent(final GameObject o) {
         this.x = o.getNumberRef("x");
         this.y = o.getNumberRef("y");
     }
@@ -19,8 +15,7 @@ public class MovementComponent extends GameObjectComponent {
         final GlobalGameState globalState
     ) {
         if (frameState.phase == GamePhase.MOVE) {
-            x.value = Math.max(0, x.value + dx.value);
-            y.value = Math.max(-16, y.value + dy.value);
+            globalState.setFocus((int) x.value + 16, (int) y.value + 32);
         }
     }
 }

@@ -63,7 +63,7 @@ public class DrawCommandBuffer {
             frontBuffer.clear();
             
             try {
-                pool.put(frontBuffer);
+                pool.offer(frontBuffer, 100, TimeUnit.MILLISECONDS);
                 
             } catch (InterruptedException e) {
                 // do nothing

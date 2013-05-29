@@ -12,5 +12,6 @@
 	<classpathentry exported="true" kind="lib" path="libs/kryo-2.21-all.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/libGoogleAnalyticsV2.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/roboguice-2.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

@@ -7,6 +7,7 @@ import roboguice.RoboGuice;
 
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.data.AutoTileData;
+import com.lukevalenty.rpgforge.data.EventData;
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.edit.ScaleMapEvent;
@@ -19,6 +20,7 @@ import com.lukevalenty.rpgforge.graphics.DrawTileMap;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Canvas.EdgeType;
+import android.graphics.Paint.Style;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -37,7 +39,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     
     @Inject private DrawCommandBuffer drawCommandBuffer;
     
-    @Inject GameView(
+    @Inject
+    protected GameView(
         final Context context
     ) {
         super(context);
@@ -84,12 +87,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private long frameIndex;
 
         private int tileSize = 32;
-        private float mapScale;
         
         private float[] pts = new float[2];
         private Matrix matrix;
         private final Matrix inverseMatrix = new Matrix();
         private int numTiles;
+
+        private Paint linepaint;
 
         
         
@@ -103,6 +107,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             paint.setColor(Color.BLACK);
             paint.setStrokeWidth(1);
             
+            linepaint = new Paint();
+            linepaint.setColor(Color.WHITE);
+            linepaint.setStrokeWidth(2);
+            linepaint.setStyle(Style.STROKE);
+            
             src = new Rect();
             dst = new RectF();
         }
@@ -110,25 +119,20 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         @Override
         public void run() {
             while(mRunning){
-                final Canvas c = 
-                    mHolder.lockCanvas();
+                final ArrayList<DrawCommand> frontBuffer = 
+                    drawCommandBuffer.lockFrontBuffer();
                 
-                if (c != null) {      
-                    final ArrayList<DrawCommand> frontBuffer = 
-                        drawCommandBuffer.lockFrontBuffer();
+                if (frontBuffer != null) { 
+                    final Canvas c = 
+                        mHolder.lockCanvas();
                     
-                    if (frontBuffer != null) {
+                    if (c != null) {      
                         doDraw(c, frontBuffer);
-                    }
-                    
-                    drawCommandBuffer.unlockFrontBuffer();
-                    
-                    if (mRunning) {
                         mHolder.unlockCanvasAndPost(c);
                     }
-                    
-                    //updateFramerate();
                 }
+                
+                drawCommandBuffer.unlockFrontBuffer();
             }
         }
 
@@ -216,6 +220,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                         } else {
                                             drawTile(sparseTile, c, x, y);
                                         }
+                                    }
+                                    
+                                    final EventData eventData =
+                                        map.getEvent(x, y);
+                                    
+                                    if (eventData != null) {
+                                        dst.top = (y * tileSize) + 3;
+                                        dst.bottom = dst.top + tileSize - 6;
+                                        dst.left = (x * tileSize) + 3;
+                                        dst.right = dst.left + tileSize - 6;
+                                        
+                                        c.drawRect(dst, linepaint); 
                                     }
                                 }
                             }
@@ -378,13 +394,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         Log.d(TAG, "surface destroyed");
         
         renderer.setRunning(false);
-        
+
         try {
             renderThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        
     }
     
     public void surfaceCreated(SurfaceHolder holder) {

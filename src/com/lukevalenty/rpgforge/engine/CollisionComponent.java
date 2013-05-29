@@ -50,7 +50,8 @@ public class CollisionComponent extends GameObjectComponent {
 
     @Override
     public void update(
-        final FrameState frameState
+        final FrameState frameState,
+        final GlobalGameState globalState
     ) {
         if (frameState.phase == GamePhase.COLLISION) {
             double pushDx = 0;
@@ -61,7 +62,7 @@ public class CollisionComponent extends GameObjectComponent {
             
             if (dx.value != 0 || dy.value != 0) {
                 final MapData map = 
-                    frameState.globalState.getMap();
+                    globalState.getMap();
 
                 if (dx.value > 0) {
                     final boolean upperRightHit = hit(map, upperRight, dx.value, 0);

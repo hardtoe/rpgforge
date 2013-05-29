@@ -23,14 +23,15 @@ public class GameObjectContainer {
     }
     
     public void update(
-        final FrameState frameState
+        final FrameState frameState,
+        final GlobalGameState globalState
     ) {
         for (int i = 0; i < objects.size(); i++) {
-            objects.get(i).update(frameState);
+            objects.get(i).update(frameState, globalState);
         }
         
         for (int i = 0; i < containers.size(); i++) {
-            containers.get(i).update(frameState);
+            containers.get(i).update(frameState, globalState);
         }
     }
 }

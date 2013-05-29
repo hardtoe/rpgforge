@@ -3,31 +3,37 @@ package com.lukevalenty.rpgforge.engine;
 import com.lukevalenty.rpgforge.engine.input.GameInput;
 
 public class PlayerControlComponent extends GameObjectComponent {
-    private static final double WALK_SPEED = 0.14;
+    public static final double WALK_SPEED = 0.14;
 
+    private final GameObject gameObject;
+    
     private final NumberRef x;
     private final NumberRef y;
     private final NumberRef dx;
     private final NumberRef dy;
     private final ObjectRef<Direction> dir;
+    private final BooleanRef walking;
 
     public PlayerControlComponent(
         final GameObject o
     ) {
+        this.gameObject = o;
         this.x = o.getNumberRef("x");
         this.y = o.getNumberRef("y");
         this.dx = o.getNumberRef("dx");
         this.dy = o.getNumberRef("dy");
         this.dir = o.getObjectRef("dir");
+        this.walking = o.getBooleanRef("walking");
     }
     
     @Override
     public void update(
-        final FrameState frameState
+        final FrameState frameState,
+        final GlobalGameState globalState
     ) {
         if (frameState.phase == GamePhase.UPDATE) {
             final GameInput g = 
-                frameState.globalState.getGameInput();
+                globalState.getGameInput();
             
             final float timeDelta =
                 frameState.timeDelta;
@@ -113,10 +119,13 @@ public class PlayerControlComponent extends GameObjectComponent {
                     (int) (((x.value + 16) / 32) + dir.value.x);
                 
                 final int yTile = 
-                    (int) (((y.value + 24)/ 32) + dir.value.y);
+                    (int) (((y.value + 48)/ 32) + dir.value.y);
                 
-                frameState.globalState.activate(xTile, yTile);
+                globalState.activate(gameObject, xTile, yTile);
             }
+            
+            // SET WALKING
+            walking.value = g.left() || g.right() || g.up() || g.down();
         }
     }
 }

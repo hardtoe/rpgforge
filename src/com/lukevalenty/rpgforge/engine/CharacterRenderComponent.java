@@ -7,13 +7,14 @@ public class CharacterRenderComponent extends GameObjectComponent {
     private static final float FRAME_LENGTH_MS = 200;
     
     private final CharacterData charData;
-    int yOffset = 0;
-    int xOffset = 32;
-    float frameTimer = 0;
+    private int yOffset = 0;
+    private int xOffset = 32;
+    private float frameTimer = 0;
     
     private final NumberRef x;
     private final NumberRef y;
     private final ObjectRef<Direction> dir;
+    private final BooleanRef walking;
 
     public CharacterRenderComponent(
         final GameObject o, 
@@ -24,22 +25,19 @@ public class CharacterRenderComponent extends GameObjectComponent {
         this.x = o.getNumberRef("x");
         this.y = o.getNumberRef("y");
         this.dir = o.getObjectRef("dir");
+        this.walking = o.getBooleanRef("walking");
     }
 
     @Override
     public void update(
-        final FrameState frameState
+        final FrameState frameState,
+        final GlobalGameState globalState
     ) {
         if (frameState.phase == GamePhase.RENDER) {
-            final GameInput g = 
-                frameState.globalState.getGameInput();
-            
             frameTimer += frameState.timeDelta;
             
-            if (!g.up() && !g.down() && !g.left() && !g.right()) {
-                xOffset = 32;
-                
-            } else {
+            if (walking.value) {
+
                 if (frameTimer >= FRAME_LENGTH_MS) {
                     if (frameTimer >= (FRAME_LENGTH_MS * 2)) {
                         // if a frame has been skipped, reset the frame
@@ -59,6 +57,9 @@ public class CharacterRenderComponent extends GameObjectComponent {
                         xOffset = 0;
                     }
                 }
+                
+            } else {
+                xOffset = 32;
             }
             
             if (dir.value == Direction.LEFT) {
@@ -77,10 +78,10 @@ public class CharacterRenderComponent extends GameObjectComponent {
             
             frameState.drawBuffer.add(frameState.spritePool.get().set(
                 charData.bitmap(), 
-                yOffset, 
-                xOffset, 
-                32 + xOffset, 
-                48 + yOffset,
+                yOffset + charData.src().top, 
+                xOffset + charData.src().left, 
+                32 + xOffset + charData.src().left, 
+                48 + yOffset + charData.src().top,
                 
                 (int) (16 + y.value), 
                 (int) (0 + x.value), 

@@ -1,5 +1,10 @@
 package com.lukevalenty.rpgforge.data;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import com.lukevalenty.rpgforge.engine.GameObject;
+
 import android.util.SparseArray;
 
 public class MapData {
@@ -102,13 +107,13 @@ public class MapData {
         }
     }
     
-    public void setTile(
+    public boolean setTile(
         final int x,
         final int y,
         final TileData tile
     ) {
         if (x < 0 || y < 0 || x >= width || y >= height) {
-            // out of bounds, do nothing
+            return false;
             
         } else {
             final int tileIndex = x + (y * width);
@@ -120,6 +125,10 @@ public class MapData {
             } else {
                 sparseTiles.put(tileIndex, tile);
             }
+            
+            events.delete(tileIndex);
+            
+            return true;
         }
     }
 
@@ -201,5 +210,22 @@ public class MapData {
         } else {
             events.put(x + (y * width), event);
         }
+    }
+    
+    public ArrayList<GameObject> getGameObjects() {
+        final ArrayList<GameObject> gameObjects =
+            new ArrayList<GameObject>();
+        
+        for (int i = 0; i < events.size(); i++) {
+            final GameObject gameObject = 
+                events.valueAt(i).getGameObject();
+            
+            gameObjects.add(gameObject);
+            
+            gameObject.getNumberRef("tileX").value = events.keyAt(i) % width;
+            gameObject.getNumberRef("tileY").value = events.keyAt(i) / width;
+        }
+        
+        return gameObjects;
     }
 }

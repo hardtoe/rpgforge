@@ -4,15 +4,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class GameObject {
-    final ArrayList<GameObjectComponent> components;
-    final HashMap<String, Object> values;
+    private final ArrayList<GameObjectComponent> components;
+    private final HashMap<String, Object> values;
     
     public GameObject() {
+        this(new HashMap<String, Object>());
+    }
+    
+    public GameObject(
+        final HashMap<String, Object> values
+    ) {
         this.components = 
             new ArrayList<GameObjectComponent>();
         
         this.values = 
-            new HashMap<String, Object>();
+            values;
     }
     
     public final void addComponent(
@@ -22,10 +28,21 @@ public class GameObject {
     }
     
     public final void update(
-        final FrameState frameState
+        final FrameState frameState,
+        final GlobalGameState globalState
     ) {
         for (int i = 0; i < components.size(); i++) {
-            components.get(i).update(frameState);
+            components.get(i).update(frameState, globalState);
+        }
+    }
+    
+    /**
+     * FIXME: make this into a message passing system
+     * @param sender
+     */
+    public final void activate(final GameObject sender) {
+        for (int i = 0; i < components.size(); i++) {
+            components.get(i).activate(sender);
         }
     }
     
@@ -51,6 +68,20 @@ public class GameObject {
             
         if (ref == null) {
             ref = new ObjectRef<T>();
+            values.put(name, ref);
+        }
+        
+        return ref;
+    }
+
+    public BooleanRef getBooleanRef(
+        final String name
+    ) {
+        BooleanRef ref = 
+            (BooleanRef) values.get(name);
+            
+        if (ref == null) {
+            ref = new BooleanRef();
             values.put(name, ref);
         }
         

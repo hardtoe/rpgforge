@@ -16,13 +16,13 @@ public class CameraObject extends GameObject {
             
             @Override
             public void update(
-                final FrameState frameState
+                final FrameState frameState,
+                final GlobalGameState globalState
             ) {
                 if (frameState.phase == GamePhase.PRERENDER) {
                     m.reset();
 
-                    final GlobalGameState global = frameState.globalState;
-                    final MapData map = global.getMap();
+                    final MapData map = globalState.getMap();
                     
                     float xTranslate;
                     float yTranslate;
@@ -30,7 +30,7 @@ public class CameraObject extends GameObject {
                     final int mapWidthPixels = map.getWidth() * 32;
                     
                     if (mapWidthPixels > SCREEN_WIDTH) {
-                        final int xFocus = (SCREEN_WIDTH / 2) - global.getXFocus();
+                        final int xFocus = (SCREEN_WIDTH / 2) - globalState.getXFocus();
                         xTranslate = Math.max(Math.min(xFocus, 0), SCREEN_WIDTH - mapWidthPixels);
                     
                     } else {
@@ -40,7 +40,7 @@ public class CameraObject extends GameObject {
                     final int mapHeightPixels = map.getHeight() * 32;
                     
                     if (mapHeightPixels > SCREEN_HEIGHT) {
-                        final int yFocus = (SCREEN_HEIGHT / 2) - global.getYFocus();
+                        final int yFocus = (SCREEN_HEIGHT / 2) - globalState.getYFocus();
                         yTranslate = Math.max(Math.min(yFocus, 0), SCREEN_HEIGHT - mapHeightPixels);
                         
                     } else {

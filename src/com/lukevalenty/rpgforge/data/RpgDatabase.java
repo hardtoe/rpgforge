@@ -16,10 +16,13 @@ public class RpgDatabase {
     
     private ArrayList<CharacterSetData> characterSets;
     
+    private ArrayList<EventData> savedEvents;
+    
     public RpgDatabase() {
         this.maps = new ArrayList<MapData>();
         this.tileSets = new ArrayList<TileSetData>();
         this.characterSets = new ArrayList<CharacterSetData>();
+        this.savedEvents = new ArrayList<EventData>();
     }
     
     public void addCharacterSet(final CharacterSetData characterSet) {
@@ -96,5 +99,18 @@ public class RpgDatabase {
         for (final CharacterSetData charSet : characterSets) {
             charSet.load(context);
         }
+    }
+
+    public void addEvent(final EventData eventData) {
+        this.savedEvents.add(eventData);
+    }
+    
+    /**
+     * 
+     * FIXME: make this behave like the other get...() methods
+     * 
+     */
+    public ArrayList<EventData> getEvents() {
+        return savedEvents;
     }
 }

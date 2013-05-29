@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
+import com.lukevalenty.rpgforge.data.EventData;
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.engine.input.GameInput;
 import com.lukevalenty.rpgforge.engine.input.OnScreenDPad;
@@ -78,7 +79,10 @@ public class GameEngine {
             globalState = 
                 new GlobalGameState();
             
-            globalState.setMap(RpgForgeApplication.getDb().getMaps().getFirst());
+            final MapData map = 
+                RpgForgeApplication.getDb().getMaps().getFirst();
+            
+            globalState.setMap(map);
             
             gameTree = 
                 new GameObjectContainer(); 
@@ -90,6 +94,13 @@ public class GameEngine {
             gameTree.add(new CameraObject(scaleFactor));
             gameTree.add(new MapObject());
             gameTree.add(new PlayerCharacter());
+
+            globalState.mapGameObjects =
+                map.getGameObjects();
+            
+            for (int i = 0; i < globalState.mapGameObjects.size(); i++) {
+                gameTree.add(globalState.mapGameObjects.get(i));
+            }
             
         }
 
@@ -101,7 +112,6 @@ public class GameEngine {
             
             final FrameState frameState = new FrameState();
             
-            frameState.globalState = globalState;
             frameState.setMatrixPool = setMatrixPool;
             frameState.spritePool = spritePool;
             frameState.tilemapPool = tilemapPool;
@@ -118,7 +128,7 @@ public class GameEngine {
                 
                 for (final GamePhase phase : GamePhase.values()) {
                     frameState.phase = phase;
-                    gameTree.update(frameState);
+                    gameTree.update(frameState, globalState);
                 }
                 
                 drawCommandBuffer.unlockBackBuffer();
