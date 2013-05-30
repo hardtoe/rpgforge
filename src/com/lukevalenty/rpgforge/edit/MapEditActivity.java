@@ -301,7 +301,7 @@ public class MapEditActivity extends BaseActivity {
     
     private boolean tileDrawInProgress = false;
     
-    @SuppressLint("NewApi")
+    //@SuppressLint("NewApi")
     public void onEvent(final DrawTileEvent e) {
         if (e.tile() instanceof TileData) {
             final TileData tile = 
@@ -423,16 +423,11 @@ public class MapEditActivity extends BaseActivity {
                         @Override
                         public void onClick(final DialogInterface dialog, int id) {
                             doorEvent.setTarget((int) destX.value, (int) destY.value, destMapRef.value);
-                            
-                        }
-                    }).setOnDismissListener(new OnDismissListener() {
-                        @Override
-                        public void onDismiss(final DialogInterface dialog) {
-                            doorEvent.setTarget((int) destX.value, (int) destY.value, destMapRef.value);
                             destMap.stop();
                             tileDrawInProgress = false;
+                            
                         }
-                    });
+                    }).setCancelable(false);
                 
                 builder.create().show();
             }
