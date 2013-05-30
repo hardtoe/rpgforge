@@ -10,6 +10,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
+import com.lukevalenty.rpgforge.engine.BooleanRef;
 import com.lukevalenty.rpgforge.engine.FrameState;
 import com.lukevalenty.rpgforge.engine.GameObject;
 import com.lukevalenty.rpgforge.engine.GameObjectComponent;
@@ -23,7 +24,8 @@ public class DoorEventData extends EventData {
         private GameObject gameObject;
         private NumberRef doorWarpTargetX;
         private NumberRef doorWarpTargetY;
-        private ObjectRef<Object> doorWarpTargetMap;        
+        private BooleanRef activeOnWalkOver;
+        private ObjectRef<MapData> doorWarpTargetMap;        
         
         private transient GameObject activator = null;
 
@@ -37,6 +39,7 @@ public class DoorEventData extends EventData {
             doorWarpTargetX = gameObject.getNumberRef("doorWarpTargetX");
             doorWarpTargetY = gameObject.getNumberRef("doorWarpTargetY");
             doorWarpTargetMap = gameObject.getObjectRef("doorWarpTargetMap");
+            activeOnWalkOver = gameObject.getBooleanRef("activeOnWalkOver");
         }
         
         @Override
@@ -48,7 +51,7 @@ public class DoorEventData extends EventData {
                 if (activator != null) {
                     activator.getNumberRef("x").value = doorWarpTargetX.value;
                     activator.getNumberRef("y").value = doorWarpTargetY.value;
-                    globalState.setMap((MapData) doorWarpTargetMap.value);
+                    globalState.setMap(doorWarpTargetMap.value);
                     
                     activator = null;
                 }
@@ -57,7 +60,16 @@ public class DoorEventData extends EventData {
 
         @Override
         public void activate(final GameObject sender) {
-            activator = sender;
+            if (!activeOnWalkOver.value) {
+                activator = sender;
+            }
+        }
+
+        @Override
+        public void walkOver(final GameObject sender) {
+            if (activeOnWalkOver.value) {
+                activator = sender;
+            }
         }
     }
 
@@ -131,10 +143,12 @@ public class DoorEventData extends EventData {
     public void setTarget(
         final int x, 
         final int y, 
-        final MapData map
+        final MapData map,
+        final boolean activeOnWalkOver
     ) {
         getGameObject().getNumberRef("doorWarpTargetX").value = x;
         getGameObject().getNumberRef("doorWarpTargetY").value = y;
         getGameObject().getObjectRef("doorWarpTargetMap").value = map;
+        getGameObject().getBooleanRef("activeOnWalkOver").value = activeOnWalkOver;
     }
 }

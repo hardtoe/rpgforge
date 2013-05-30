@@ -113,7 +113,10 @@ public class PlayerControlComponent extends GameObjectComponent {
                 }
             }
             
-            // EVENT ACTIVATION
+            // EVENT ACTIVATION BY POSITION
+            globalState.walkOver(gameObject, (int) ((x.value + 16) / 32), (int) ((y.value + 48)/ 32));
+            
+            // EVENT ACTIVATION BY ACTION
             if (g.action()) {
                 final int xTile = 
                     (int) (((x.value + 16) / 32) + dir.value.x);

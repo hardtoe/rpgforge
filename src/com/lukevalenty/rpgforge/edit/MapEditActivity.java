@@ -58,6 +58,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ListView;
@@ -339,6 +340,9 @@ public class MapEditActivity extends BaseActivity {
                 
                 final Spinner mapList =
                     (Spinner) view.findViewById(R.id.spinner1);
+
+                final CheckBox activeOnWalkOver =
+                    (CheckBox) view.findViewById(R.id.activeOnWalkOver);
                 
                 final BaseAdapter mapListAdapter = new BaseAdapter() {
                     @Override
@@ -422,7 +426,8 @@ public class MapEditActivity extends BaseActivity {
                     .setPositiveButton("Set Destination", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(final DialogInterface dialog, int id) {
-                            doorEvent.setTarget((int) destX.value, (int) destY.value, destMapRef.value);
+                            // TODO: need to query user for activeOnWalkOver
+                            doorEvent.setTarget((int) destX.value, (int) destY.value, destMapRef.value, activeOnWalkOver.isChecked());
                             destMap.stop();
                             tileDrawInProgress = false;
                             

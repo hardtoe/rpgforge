@@ -9,6 +9,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <CheckBox
+        android:id="@+id/activeOnWalkOver"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Activate Door on Walk Over" />
+
     <com.lukevalenty.rpgforge.edit.MapView
         android:id="@+id/doorDestMapView"
         android:layout_width="fill_parent"

@@ -83,4 +83,22 @@ public class GlobalGameState {
             }
         }
     }
+
+    /**
+     * FIXME: make this into a message passing system
+     */
+    public void walkOver(
+        final GameObject sender, 
+        final int x, 
+        final int y
+    ) {
+        for (GameObject o : mapGameObjects) {
+            int tileX = (int) o.getNumberRef("tileX").value;
+            int tileY = (int) o.getNumberRef("tileY").value;
+            
+            if (tileX == x && tileY == y) {
+                o.walkOver(sender);
+            }
+        }
+    }
 }

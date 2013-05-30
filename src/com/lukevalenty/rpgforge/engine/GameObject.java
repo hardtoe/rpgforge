@@ -46,6 +46,16 @@ public class GameObject {
         }
     }
     
+    /**
+     * FIXME: make this into a message passing system
+     * @param sender
+     */
+    public final void walkOver(final GameObject sender) {
+        for (int i = 0; i < components.size(); i++) {
+            components.get(i).walkOver(sender);
+        }
+    }
+    
     public NumberRef getNumberRef(
         final String name
     ) {
