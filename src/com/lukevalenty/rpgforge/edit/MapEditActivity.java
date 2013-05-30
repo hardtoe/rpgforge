@@ -162,6 +162,7 @@ public class MapEditActivity extends BaseActivity {
 
         eventBus.register(this);
         
+        mapView.setDebug(true);
         mapView.start();
         
         mapView.setOnTileClickListener(new OnTileClickListener() {

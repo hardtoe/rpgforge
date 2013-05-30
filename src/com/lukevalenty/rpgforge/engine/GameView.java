@@ -39,6 +39,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     
     @Inject private DrawCommandBuffer drawCommandBuffer;
     
+    private boolean debug;
+    
     @Inject
     protected GameView(
         final Context context
@@ -62,6 +64,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     ) {
         super(context, attrs, defStyle);
         init(context);
+    }
+    
+    public void setDebug(final boolean debug) {
+        this.debug = debug;
     }
     
     public void setDrawCommandBuffer(final DrawCommandBuffer drawCommandBuffer) {
@@ -229,7 +235,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                     final EventData eventData =
                                         map.getEvent(x, y);
                                     
-                                    if (eventData != null) {
+                                    if (eventData != null && debug) {
                                         dst.top = (y * tileSize) + 3;
                                         dst.bottom = dst.top + tileSize - 6;
                                         dst.left = (x * tileSize) + 3;
