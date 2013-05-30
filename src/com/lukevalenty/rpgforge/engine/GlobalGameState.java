@@ -12,13 +12,30 @@ public class GlobalGameState {
     private GameInput gameInput;
     private int xFocus;
     private int yFocus;
+    public GameObjectContainer gameTree;
     
     // FIXME: probably want a better data structure for this
     // FIXME: need to encapsulate this field
     public ArrayList<GameObject> mapGameObjects;
 
-    public void setMap(final MapData map) {
-        this.map = map;
+    public void setMap(final MapData newMap) {
+        if (newMap != this.map && this.map != null) {
+            mapGameObjects =
+                this.map.getGameObjects();
+            
+            for (int i = 0; i < mapGameObjects.size(); i++) {
+                gameTree.remove(mapGameObjects.get(i));
+            }
+        }
+        
+        this.map = newMap;
+
+        mapGameObjects =
+            newMap.getGameObjects();
+        
+        for (int i = 0; i < mapGameObjects.size(); i++) {
+            gameTree.add(mapGameObjects.get(i));
+        }
     }
 
     public MapData getMap() {

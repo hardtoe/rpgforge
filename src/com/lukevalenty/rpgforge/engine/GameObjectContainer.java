@@ -34,4 +34,8 @@ public class GameObjectContainer {
             containers.get(i).update(frameState, globalState);
         }
     }
+
+    public void remove(final GameObject gameObject) {
+        this.objects.remove(gameObject);
+    }
 }

@@ -55,7 +55,6 @@ public class GameEngine {
         private final EventBus eventBus;
 
         private final GlobalGameState globalState;
-        private final GameObjectContainer gameTree;
         
         private boolean mRunning;
 
@@ -81,30 +80,25 @@ public class GameEngine {
             
             final MapData map = 
                 RpgForgeApplication.getDb().getMaps().getFirst();
+
+            globalState.gameTree = 
+                new GameObjectContainer(); 
             
             globalState.setMap(map);
             
-            gameTree = 
-                new GameObjectContainer(); 
 
             // 512 x 384 effective resolution
             final float scaleFactor =
                 (float) (context.getResources().getDisplayMetrics().heightPixels / 384.0);
             
-            gameTree.add(new CameraObject(scaleFactor));
-            gameTree.add(new MapObject());
-            gameTree.add(new PlayerCharacter());
+            globalState.gameTree.add(new CameraObject(scaleFactor));
+            globalState.gameTree.add(new MapObject());
+            globalState.gameTree.add(new PlayerCharacter());
 
-            globalState.mapGameObjects =
-                map.getGameObjects();
-            
-            for (int i = 0; i < globalState.mapGameObjects.size(); i++) {
-                gameTree.add(globalState.mapGameObjects.get(i));
-            }
             
         }
 
-        
+                
         @Override
         public void run() {
             long lastFrameTimestamp =
@@ -129,7 +123,7 @@ public class GameEngine {
                     
                     for (final GamePhase phase : GamePhase.values()) {
                         frameState.phase = phase;
-                        gameTree.update(frameState, globalState);
+                        globalState.gameTree.update(frameState, globalState);
                     }
                 }
                 
