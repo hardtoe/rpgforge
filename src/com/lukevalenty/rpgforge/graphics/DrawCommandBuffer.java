@@ -30,7 +30,7 @@ public class DrawCommandBuffer {
     private ArrayList<DrawCommand> backBuffer;
     private ArrayList<DrawCommand> frontBuffer;
     
-    @Inject DrawCommandBuffer() {
+    @Inject public DrawCommandBuffer() {
         pool = new ArrayBlockingQueue<ArrayList<DrawCommand>>(2);
         queue = new ArrayBlockingQueue<ArrayList<DrawCommand>>(1);
         
@@ -73,7 +73,7 @@ public class DrawCommandBuffer {
     
     public ArrayList<DrawCommand> lockBackBuffer() {
         try {
-            backBuffer = pool.take();
+            backBuffer = pool.poll(100, TimeUnit.MILLISECONDS);
             
         } catch (InterruptedException e) {
             // do nothing
@@ -83,15 +83,19 @@ public class DrawCommandBuffer {
     }
     
     public void unlockBackBuffer() {
-        try {
-            //while (!queue.offer(backBuffer)) {
-            //    Thread.sleep(1);
-            //}
-            
-            queue.put(backBuffer);
-            
-        } catch (InterruptedException e) {
-            // do nothing
+        if (backBuffer != null) {
+            try {
+                //while (!queue.offer(backBuffer)) {
+                //    Thread.sleep(1);
+                //}
+                
+                if (!queue.offer(backBuffer, 100, TimeUnit.MILLISECONDS)) {
+                    pool.put(backBuffer);
+                }
+                
+            } catch (InterruptedException e) {
+                // do nothing
+            }
         }
     }
     

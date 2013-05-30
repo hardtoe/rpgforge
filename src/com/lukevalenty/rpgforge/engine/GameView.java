@@ -64,6 +64,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         init(context);
     }
     
+    public void setDrawCommandBuffer(final DrawCommandBuffer drawCommandBuffer) {
+        this.drawCommandBuffer = drawCommandBuffer;
+    }
+    
     private void init(
         final Context context
     ) {

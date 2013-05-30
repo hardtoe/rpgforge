@@ -217,13 +217,18 @@ public class MapData {
             new ArrayList<GameObject>();
         
         for (int i = 0; i < events.size(); i++) {
-            final GameObject gameObject = 
-                events.valueAt(i).getGameObject();
+            final Object object = 
+                events.valueAt(i);
             
-            gameObjects.add(gameObject);
-            
-            gameObject.getNumberRef("tileX").value = events.keyAt(i) % width;
-            gameObject.getNumberRef("tileY").value = events.keyAt(i) / width;
+            if (object instanceof DoorEventData) {
+                final GameObject gameObject =
+                    ((DoorEventData) object).getGameObject();
+                
+                gameObjects.add(gameObject);
+                
+                gameObject.getNumberRef("tileX").value = events.keyAt(i) % width;
+                gameObject.getNumberRef("tileY").value = events.keyAt(i) / width;
+            }
         }
         
         return gameObjects;

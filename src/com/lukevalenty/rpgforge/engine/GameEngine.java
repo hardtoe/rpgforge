@@ -120,15 +120,17 @@ public class GameEngine {
                 frameState.drawBuffer = 
                     drawCommandBuffer.lockBackBuffer();
 
-                frameState.timeDelta = 
-                    (float) ((System.nanoTime() - lastFrameTimestamp) / 1000000.0);
-                
-                lastFrameTimestamp =
-                    System.nanoTime();
-                
-                for (final GamePhase phase : GamePhase.values()) {
-                    frameState.phase = phase;
-                    gameTree.update(frameState, globalState);
+                if (frameState.drawBuffer != null) {
+                    frameState.timeDelta = 
+                        (float) ((System.nanoTime() - lastFrameTimestamp) / 1000000.0);
+                    
+                    lastFrameTimestamp =
+                        System.nanoTime();
+                    
+                    for (final GamePhase phase : GamePhase.values()) {
+                        frameState.phase = phase;
+                        gameTree.update(frameState, globalState);
+                    }
                 }
                 
                 drawCommandBuffer.unlockBackBuffer();

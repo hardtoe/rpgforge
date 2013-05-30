@@ -10,8 +10,8 @@
         android:layout_height="wrap_content" />
 
     <com.lukevalenty.rpgforge.edit.MapView
-        android:id="@+id/mapView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:id="@+id/doorDestMapView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
 	
 </LinearLayout>

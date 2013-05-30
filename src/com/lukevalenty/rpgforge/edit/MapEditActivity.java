@@ -3,6 +3,8 @@ package com.lukevalenty.rpgforge.edit;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.BaseActivity;
@@ -17,8 +19,12 @@ import com.lukevalenty.rpgforge.data.RpgDatabase;
 import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.data.MapData;
+import com.lukevalenty.rpgforge.edit.MapView.OnTileClickListener;
 import com.lukevalenty.rpgforge.engine.GameActivity;
+import com.lukevalenty.rpgforge.engine.GameObject;
 import com.lukevalenty.rpgforge.engine.GameView;
+import com.lukevalenty.rpgforge.engine.NumberRef;
+import com.lukevalenty.rpgforge.engine.ObjectRef;
 
 import de.greenrobot.event.EventBus;
 
@@ -29,20 +35,28 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -59,7 +73,6 @@ public class MapEditActivity extends BaseActivity {
     @InjectView(R.id.gridView1) private GridView tileList;
     @InjectView(R.id.tileDrawerSpinner) private Spinner tileDrawerSpinner; 
     @InjectView(R.id.mapView) private MapView mapView;
-    @Inject private MapEditEngine mapEditEngine;
     
     @Inject private EventBus eventBus;
 
@@ -76,6 +89,8 @@ public class MapEditActivity extends BaseActivity {
     private TilePalettePresenter tilePalettePresenter;
 
     private ArrayList<EventData> eventTilePalette;
+
+    private PaletteItem currentPaletteItem;
 
     
 
@@ -114,6 +129,7 @@ public class MapEditActivity extends BaseActivity {
 
             eventBus.post(new SelectMapEvent(0, rpgDatabase.getMaps().getFirst()));
             
+            
             allTiles = 
                 rpgDatabase.getAllTiles();       
             
@@ -128,6 +144,12 @@ public class MapEditActivity extends BaseActivity {
     }
     
     
+    public void onEvent(
+        final ResizeMapEvent e
+    ) {
+        currentMap.resize(e.width(), e.height(), RpgForgeApplication.getDb().getDefaultTile());
+        mapView.setMap(currentMap);
+    }
     
     @SuppressLint("NewApi")
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -139,7 +161,50 @@ public class MapEditActivity extends BaseActivity {
 
         eventBus.register(this);
         
-        mapEditEngine.start();
+        mapView.start();
+        
+        mapView.setOnTileClickListener(new OnTileClickListener() {
+            @Override
+            public boolean onTileClick(
+                final int tileX, 
+                final int tileY
+            ) {
+                if (currentTool == Tool.EYEDROP) {
+                    eventBus.post(new PaletteItemSelectedEvent(currentMap.getTile(tileX, tileY)));
+                
+                } else if (currentTool == Tool.DRAW) {     
+                    if (currentPaletteItem instanceof EventData) {
+                        eventBus.post(new DrawTileEvent(((EventData) currentPaletteItem).create(), tileX, tileY));
+                        
+                    } else {
+                        eventBus.post(new DrawTileEvent(currentPaletteItem, tileX, tileY));
+                    }
+                    
+                    
+                } else if (currentTool == Tool.FILL) {
+
+                    if (currentPaletteItem instanceof TileData) {
+                        final TileData tile = 
+                            (TileData) currentPaletteItem;
+                            
+                        if (fillInProgress == false) {
+                            fillInProgress = true;
+                            
+                            new Thread(new Runnable() {
+                                
+                                @Override
+                                public void run() {
+                                    fill(tile, tileX, tileY);
+                                    fillInProgress = false;
+                                }
+                            }).start();
+                        }
+                    }
+                }
+
+                return true;
+            }
+        });
         
         handleIntent(getIntent());
 
@@ -156,9 +221,67 @@ public class MapEditActivity extends BaseActivity {
         
         Log.d(TAG, "ONCREATE FINISHED");
     }
+
+    private boolean fillInProgress;
+
+    private void fill(
+        final TileData replacementTile, 
+        final int x, 
+        final int y
+    ) {
+        if (replacementTile.getLayer() == 0) {
+            final TileData targetTile = 
+                currentMap.getTile(x, y);
+            
+            if (targetTile != null && !replacementTile.equals(targetTile)) { 
+                LinkedHashSet<Point> q = 
+                    new LinkedHashSet<Point>();
+                
+                q.add(new Point(x, y));
+                
+                while (!q.isEmpty()) {
+                    final Iterator<Point> i = q.iterator();
+                    
+                    final Point n = 
+                        i.next();
+
+                    i.remove();
+                    
+                    final TileData nTile = 
+                            currentMap.getTile(n.x, n.y);
+                    
+                    if (nTile != null && nTile == targetTile) {
+                        currentMap.setTile(n.x, n.y, replacementTile);
+                        mapView.invalidateMapData(n.x, n.y);
+                        addPoint(targetTile, q, new Point(n.x + 1, n.y));
+                        addPoint(targetTile, q, new Point(n.x - 1, n.y));
+                        addPoint(targetTile, q, new Point(n.x, n.y + 1));
+                        addPoint(targetTile, q, new Point(n.x, n.y - 1));
+                    }
+                }
+                
+                q = null;
+            }
+        }
+    }
+
+
+    private void addPoint(
+        final TileData targetTile, 
+        final LinkedHashSet<Point> q, 
+        final Point p
+    ) {
+        final TileData tile = 
+            currentMap.getTile(p.x, p.y);
+        
+        if (tile != null && tile.equals(targetTile)) {
+            q.add(p);
+        }
+    }
     
     public void onEvent(final PaletteItemSelectedEvent e) {
         currentTool = Tool.DRAW;
+        currentPaletteItem = e.tile();
         eventBus.post(new ToolSelectedEvent(currentTool));
     }
     
@@ -167,55 +290,152 @@ public class MapEditActivity extends BaseActivity {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             invalidateOptionsMenu();
         }
+        
+        if (e.tool() == Tool.MOVE) {
+            mapView.freezeMapLocation(false);
+            
+        } else {
+            mapView.freezeMapLocation(true);
+        }
     }
     
+    private boolean tileDrawInProgress = false;
+    
+    @SuppressLint("NewApi")
     public void onEvent(final DrawTileEvent e) {
+        if (e.tile() instanceof TileData) {
+            final TileData tile = 
+                (TileData) e.tile();
+            
+            if (currentMap.setTile(e.x(), e.y(), tile)) {
+                mapView.invalidateMapData(e.x(), e.y());
+            }
+            
+        } else if (e.tile() instanceof EventData && !tileDrawInProgress) {
+            final EventData event = 
+                (EventData) e.tile();
+            
+            currentMap.setEvent(e.x(), e.y(), event);
+        }
+        
         if (e.tile() instanceof DoorEventData) {
-            final DoorEventData doorEvent = 
-                (DoorEventData) e.tile();
-
-            final AlertDialog.Builder builder = 
+            if (tileDrawInProgress == false) {
+                tileDrawInProgress = true;
+                
+                final DoorEventData doorEvent = 
+                    (DoorEventData) e.tile();
+                
+                final AlertDialog.Builder builder = 
                     new AlertDialog.Builder(this);
                 
                 final LayoutInflater inflater = 
                     this.getLayoutInflater();
                 
                 final View view = 
-                    inflater.inflate(R.layout.new_map_dialog, null);
+                    inflater.inflate(R.layout.set_door_dest_dialog, null);
                 
-                final TextView mapNameField = 
-                    (TextView) view.findViewById(R.id.mapNameField);
+                final MapView destMap = 
+                    (MapView) view.findViewById(R.id.doorDestMapView);
                 
-                final TextView mapWidth = 
-                    (TextView) view.findViewById(R.id.widthField);
+                final Spinner mapList =
+                    (Spinner) view.findViewById(R.id.spinner1);
                 
-                final TextView mapHeight = 
-                    (TextView) view.findViewById(R.id.heightField);
+                final BaseAdapter mapListAdapter = new BaseAdapter() {
+                    @Override
+                    public View getView(int position, View convertView, ViewGroup parent) {
+                        TextView label = new TextView(MapEditActivity.this);
+                        label.setGravity(Gravity.HORIZONTAL_GRAVITY_MASK | Gravity.LEFT);
+                        label.setTextSize(18);
+                        label.setPadding(8, 16, 8, 16);
+                        label.setText(RpgForgeApplication.getDb().getMaps().get(position).getName());
+                        label.setTextColor(Color.BLACK);
+                        return label;
+                    }
+                    
+                    @Override
+                    public long getItemId(int position) {
+                        return System.identityHashCode(getItem(position));
+                    }
+                    
+                    @Override
+                    public Object getItem(int position) {
+                        return RpgForgeApplication.getDb().getMaps().get(position);
+                    }
+                    
+                    @Override
+                    public int getCount() {
+                        return RpgForgeApplication.getDb().getMaps().size();
+                    }
+                };
+                
+                mapList.setAdapter(mapListAdapter);
+                
+                final ObjectRef<MapData> destMapRef = new ObjectRef<MapData>();
+                final NumberRef destX = new NumberRef();
+                final NumberRef destY = new NumberRef();
+                
+                mapList.setOnItemSelectedListener(new OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(
+                        final AdapterView<?> parent, 
+                        final View view,
+                        final int position, 
+                        final long id
+                    ) {
+                        destMapRef.value = 
+                            RpgForgeApplication.getDb().getMaps().get(position);
+                        
+                        destMap.setMap(destMapRef.value);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> arg0) {
+                        // do nothing
+                    }
+                });
+                
+                destMap.setMap(currentMap);
+                destMap.start();
+                destMap.setZOrderOnTop(true);
+
+                destMapRef.value = currentMap;
+                destX.value = 32;
+                destY.value = 32;
+                
+                mapList.setSelection(0);
+                
+                destMap.highlightTile(true, 0, 0);
+                
+                destMap.setOnTileClickListener(new OnTileClickListener() {
+                    @Override
+                    public boolean onTileClick(int tileX, int tileY) {
+                        destX.value = tileX * 32;
+                        destY.value = (tileY * 32) - 32;
+                        destMap.highlightTile(true, tileX, tileY);
+                        
+                        return true;
+                    }
+                });
+                
                 
                 builder.setView(view)
-                   .setPositiveButton("Set Destination", new DialogInterface.OnClickListener() {
-                       @Override
-                       public void onClick(DialogInterface dialog, int id) {
-                           final String mapName = 
-                               mapNameField.getText().toString().trim();
-                           
-                           final String widthString = 
-                               mapWidth.getText().toString();
-                           
-                           final int width = 
-                               widthString.length() == 0 ? 20 : Integer.parseInt(widthString);
-                           
-                           final String heightString = 
-                               mapHeight.getText().toString();
-                           
-                           final int height =
-                               heightString.length() == 0 ? 20 : Integer.parseInt(heightString);
-
-                           doorEvent.setTarget(100, 100, RpgForgeApplication.getDb().getMaps().get(1));
-                       }
-                   });
+                    .setPositiveButton("Set Destination", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialog, int id) {
+                            doorEvent.setTarget((int) destX.value, (int) destY.value, destMapRef.value);
+                            
+                        }
+                    }).setOnDismissListener(new OnDismissListener() {
+                        @Override
+                        public void onDismiss(final DialogInterface dialog) {
+                            doorEvent.setTarget((int) destX.value, (int) destY.value, destMapRef.value);
+                            destMap.stop();
+                            tileDrawInProgress = false;
+                        }
+                    });
                 
                 builder.create().show();
+            }
         }
     }
     
@@ -414,6 +634,7 @@ public class MapEditActivity extends BaseActivity {
     public void onEvent(
         final SelectMapEvent e
     ) {
+        mapView.setMap(e.map());
         currentMap = e.map();
         currentMapIndex = e.mapIndex();
         
@@ -436,13 +657,13 @@ public class MapEditActivity extends BaseActivity {
     @Override 
     public void onResume() {
         super.onResume();
-        mapEditEngine.start();
+        mapView.start();
     }
     
     @Override 
     public void onPause() {
         super.onPause();
-        mapEditEngine.stop();
+        mapView.stop();
         Log.d(TAG, "SAVING FILE: " + activeDatabaseFilename);
         loader.save(this, activeDatabaseFilename, RpgForgeApplication.getDb());
     }
@@ -450,7 +671,7 @@ public class MapEditActivity extends BaseActivity {
     @Override 
     public void onDestroy() {
         super.onDestroy();
-        mapEditEngine.stop();
+        mapView.stop();
     }
     
     @Override 
@@ -461,7 +682,7 @@ public class MapEditActivity extends BaseActivity {
     @Override 
     public void onStop() {
         super.onStop();
-        mapEditEngine.stop();
+        mapView.stop();
     }
 
 

@@ -1,6 +1,11 @@
 package com.lukevalenty.rpgforge.engine;
 
+import java.util.ArrayList;
+
 import com.lukevalenty.rpgforge.data.MapData;
+import com.lukevalenty.rpgforge.graphics.DrawCommand;
+import com.lukevalenty.rpgforge.graphics.SetMatrix;
+import com.lukevalenty.rpgforge.graphics.SetMatrixPool;
 
 import android.graphics.Matrix;
 
@@ -52,7 +57,15 @@ public class CameraObject extends GameObject {
                     m.postTranslate(xTranslate, yTranslate);
                     m.postScale(scaleFactor, scaleFactor);
                    
-                    frameState.drawBuffer.add(frameState.setMatrixPool.get().set(m));
+                    final ArrayList<DrawCommand> drawBuffer = frameState.drawBuffer;
+                    
+                    final SetMatrixPool setMatrixPool = frameState.setMatrixPool;
+                    
+                    final SetMatrix setMatrix = setMatrixPool.get();
+                    
+                    setMatrix.set(m);
+                    
+                    drawBuffer.add(setMatrix);
                 }
             }
         });
