@@ -16,6 +16,15 @@ public final class R {
     }
     public static final class attr {
     }
+    public static final class bool {
+        /** Enable automatic activity tracking
+         */
+        public static final int ga_autoActivityTracking=0x7f060000;
+        public static final int ga_debug=0x7f060002;
+        /** Enable automatic exception tracking
+         */
+        public static final int ga_reportUncaughtExceptions=0x7f060001;
+    }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
 
@@ -23,8 +32,8 @@ public final class R {
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f050000;
-        public static final int activity_vertical_margin=0x7f050001;
+        public static final int activity_horizontal_margin=0x7f080000;
+        public static final int activity_vertical_margin=0x7f080001;
     }
     public static final class drawable {
         public static final int ic_action_delete=0x7f020000;
@@ -42,32 +51,43 @@ public final class R {
         public static final int ic_launcher=0x7f02000c;
     }
     public static final class id {
-        public static final int gameView=0x7f090004;
-        public static final int gridView1=0x7f09000c;
-        public static final int heightField=0x7f09000f;
-        public static final int mapNameField=0x7f09000d;
-        public static final int mapView=0x7f09000b;
-        public static final int menu_deletemap=0x7f090019;
-        public static final int menu_draw=0x7f090015;
-        public static final int menu_eyedrop=0x7f090014;
-        public static final int menu_fill=0x7f090016;
-        public static final int menu_move=0x7f090013;
-        public static final int menu_new=0x7f090011;
-        public static final int menu_playtest=0x7f090012;
-        public static final int menu_renamemap=0x7f090017;
-        public static final int menu_resizemap=0x7f090018;
-        public static final int onScreenDPad=0x7f090005;
-        public static final int pager=0x7f090000;
-        public static final int pager_title_strip=0x7f090001;
-        public static final int projectName=0x7f090010;
-        public static final int resizeHeightField=0x7f090009;
-        public static final int resizeWidthField=0x7f090007;
-        public static final int rpgListView=0x7f090002;
-        public static final int rpg_list=0x7f090003;
-        public static final int textView1=0x7f090006;
-        public static final int textView2=0x7f090008;
-        public static final int textView3=0x7f09000a;
-        public static final int widthField=0x7f09000e;
+        public static final int activeOnWalkOver=0x7f0b0017;
+        public static final int doorDestMapView=0x7f0b0018;
+        public static final int gameView=0x7f0b0004;
+        public static final int heightField=0x7f0b0012;
+        public static final int mapNameField=0x7f0b0010;
+        public static final int mapView=0x7f0b000c;
+        public static final int menu_deletemap=0x7f0b0021;
+        public static final int menu_draw=0x7f0b001d;
+        public static final int menu_eyedrop=0x7f0b001c;
+        public static final int menu_fill=0x7f0b001e;
+        public static final int menu_move=0x7f0b001b;
+        public static final int menu_new=0x7f0b0019;
+        public static final int menu_playtest=0x7f0b001a;
+        public static final int menu_renamemap=0x7f0b001f;
+        public static final int menu_resizemap=0x7f0b0020;
+        public static final int npcCharacterName=0x7f0b0014;
+        public static final int npcDialog=0x7f0b0015;
+        public static final int npcSpriteList=0x7f0b000f;
+        public static final int onScreenActionPad=0x7f0b0006;
+        public static final int onScreenDPad=0x7f0b0005;
+        public static final int pager=0x7f0b0000;
+        public static final int pager_title_strip=0x7f0b0001;
+        public static final int projectName=0x7f0b0013;
+        public static final int resizeHeightField=0x7f0b000a;
+        public static final int resizeWidthField=0x7f0b0008;
+        public static final int rpgListView=0x7f0b0002;
+        public static final int rpg_list=0x7f0b0003;
+        public static final int spinner1=0x7f0b0016;
+        public static final int textView1=0x7f0b0007;
+        public static final int textView2=0x7f0b0009;
+        public static final int textView3=0x7f0b000b;
+        public static final int tileDrawerSpinner=0x7f0b000e;
+        public static final int tilePalette=0x7f0b000d;
+        public static final int widthField=0x7f0b0011;
+    }
+    public static final class integer {
+        public static final int ga_dispatchPeriod=0x7f070000;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -79,16 +99,20 @@ public final class R {
         public static final int mapedit=0x7f030006;
         public static final int new_map_dialog=0x7f030007;
         public static final int new_project_dialog=0x7f030008;
-        public static final int tiledrawer=0x7f030009;
+        public static final int npc_event_dialog=0x7f030009;
+        public static final int set_door_dest_dialog=0x7f03000a;
     }
     public static final class menu {
-        public static final int main=0x7f080000;
+        public static final int main=0x7f0a0000;
     }
     public static final class string {
-        public static final int action_settings=0x7f060001;
-        public static final int app_name=0x7f060000;
-        public static final int title_section1=0x7f060002;
-        public static final int title_section2=0x7f060003;
+        public static final int action_settings=0x7f050002;
+        public static final int app_name=0x7f050001;
+        /** Replace placeholder ID with your tracking ID
+         */
+        public static final int ga_trackingId=0x7f050000;
+        public static final int title_section1=0x7f050003;
+        public static final int title_section2=0x7f050004;
     }
     public static final class style {
         /** 
@@ -112,10 +136,10 @@ public final class R {
     
  API 14 theme customizations can go here. 
          */
-        public static final int AppBaseTheme=0x7f070000;
+        public static final int AppBaseTheme=0x7f090000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f070001;
+        public static final int AppTheme=0x7f090001;
     }
 }

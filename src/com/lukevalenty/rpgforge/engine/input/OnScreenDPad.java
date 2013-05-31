@@ -1,11 +1,16 @@
 package com.lukevalenty.rpgforge.engine.input;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -15,6 +20,8 @@ public class OnScreenDPad extends View implements GameInput {
     private Rect upDrawRect, downDrawRect, leftDrawRect, rightDrawRect;
     private Rect upHitRect, downHitRect, leftHitRect, rightHitRect;
     private boolean up, down, left, right;
+    
+    private boolean visible = true;
     
     public OnScreenDPad(
         final Context context, 
@@ -46,6 +53,10 @@ public class OnScreenDPad extends View implements GameInput {
         
         activePaint = new Paint();
         activePaint.setColor(Color.argb(0x88, 0xff, 0xff, 0xff));
+    }
+
+    public void setVisible(final boolean visible) {
+        this.visible = visible;
     }
     
     @Override
@@ -111,10 +122,12 @@ public class OnScreenDPad extends View implements GameInput {
     protected void onDraw(Canvas c) {
         super.onDraw(c);
      
-        c.drawRect(upDrawRect, getPaint(up));
-        c.drawRect(downDrawRect, getPaint(down));
-        c.drawRect(leftDrawRect, getPaint(left));
-        c.drawRect(rightDrawRect, getPaint(right));
+        if (visible) {
+            c.drawRect(upDrawRect, getPaint(up));
+            c.drawRect(downDrawRect, getPaint(down));
+            c.drawRect(leftDrawRect, getPaint(left));
+            c.drawRect(rightDrawRect, getPaint(right));
+        }
     }
     
     private Paint getPaint(boolean active) {
@@ -144,6 +157,7 @@ public class OnScreenDPad extends View implements GameInput {
         
         return true;
     }
+    
 
     @Override
     public boolean up() {

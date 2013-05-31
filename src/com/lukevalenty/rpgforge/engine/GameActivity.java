@@ -1,6 +1,9 @@
 package com.lukevalenty.rpgforge.engine;
 
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.BaseActivity;
 import com.lukevalenty.rpgforge.R;
@@ -13,11 +16,15 @@ import roboguice.activity.RoboFragmentActivity;
 import roboguice.inject.InjectView;
 
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
+import android.view.View.OnTouchListener;
 import android.widget.RelativeLayout;
 
 
@@ -36,6 +43,7 @@ public class GameActivity extends BaseActivity {
     boolean action;
     boolean back;
     
+    @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,6 +104,65 @@ public class GameActivity extends BaseActivity {
                 return true;
             }
         });       
+        
+        startTimer();
+        
+        final OnTouchListener timeoutListener = new OnTouchListener() {
+            @SuppressLint("NewApi")
+            @Override
+            public boolean onTouch(View v, MotionEvent e) {
+                if ((e.getDevice().getSources() | InputDevice.SOURCE_TOUCHSCREEN) != 0) {
+                    onScreenDPad.setVisible(true);
+                    onScreenActionPad.setVisible(true);
+                    
+                    onScreenDPad.invalidate();
+                    onScreenActionPad.invalidate();
+                    startTimer();
+                }
+                
+                return false;
+            }
+        };
+        
+        gameView.setClickable(false);
+        
+        onScreenDPad.setOnTouchListener(timeoutListener);
+        onScreenActionPad.setOnTouchListener(timeoutListener);
+        gameView.setOnTouchListener(timeoutListener);
+    }
+   
+
+    private Timer fadeoutTimer;
+    
+    private void startTimer() {
+        if (fadeoutTimer != null) {
+            fadeoutTimer.cancel();
+        }
+        
+        fadeoutTimer = new Timer();
+        fadeoutTimer.schedule(new TimerTask() {
+            @SuppressLint("NewApi")
+            @Override
+            public void run() {
+                onScreenDPad.getHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        onScreenDPad.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+                        onScreenDPad.setVisible(false);
+                        onScreenDPad.invalidate();
+                    }
+                });
+                
+                onScreenActionPad.getHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        onScreenActionPad.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+                        onScreenActionPad.setVisible(false);
+                        onScreenActionPad.invalidate();
+                    }
+                });
+            }
+        }, 10000);
     }
 
     @Override 

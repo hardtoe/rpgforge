@@ -14,6 +14,7 @@ public class OnScreenActionPad extends View implements GameInput {
     private Paint activePaint;
     private Rect downRect, rightRect;
     private boolean down, right;
+    private boolean visible = true;
     
     public OnScreenActionPad(
         final Context context, 
@@ -73,8 +74,10 @@ public class OnScreenActionPad extends View implements GameInput {
     protected void onDraw(Canvas c) {
         super.onDraw(c);
      
-        c.drawRect(downRect, getPaint(down));
-        c.drawRect(rightRect, getPaint(right));
+        if (visible) {
+            c.drawRect(downRect, getPaint(down));
+            c.drawRect(rightRect, getPaint(right));
+        }
     }
     
     private Paint getPaint(boolean active) {
@@ -131,5 +134,9 @@ public class OnScreenActionPad extends View implements GameInput {
     @Override
     public boolean back() {
         return right;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible  = visible;
     }
 }
