@@ -220,6 +220,7 @@ public class MapData {
             final Object object = 
                 events.valueAt(i);
             
+            // FIXME: these game object parameters need to be cleaned up...
             if (object instanceof DoorEventData) {
                 final GameObject gameObject =
                     ((DoorEventData) object).getGameObject();
@@ -228,6 +229,13 @@ public class MapData {
                 
                 gameObject.getNumberRef("tileX").value = events.keyAt(i) % width;
                 gameObject.getNumberRef("tileY").value = events.keyAt(i) / width;
+            }
+            
+            if (object instanceof NpcEventData) {
+                final GameObject gameObject =
+                    ((NpcEventData) object).getGameObject();
+                
+                gameObjects.add(gameObject);
             }
         }
         

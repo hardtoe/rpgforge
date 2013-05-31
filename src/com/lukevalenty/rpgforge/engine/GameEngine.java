@@ -84,8 +84,6 @@ public class GameEngine {
             globalState.gameTree = 
                 new GameObjectContainer(); 
             
-            globalState.setMap(map);
-            
 
             // 512 x 384 effective resolution
             final float scaleFactor =
@@ -94,6 +92,11 @@ public class GameEngine {
             globalState.gameTree.add(new CameraObject(scaleFactor));
             globalState.gameTree.add(new MapObject());
             globalState.gameTree.add(new PlayerCharacter());
+            
+            
+            globalState.setMap(map);
+            
+
 
             
         }

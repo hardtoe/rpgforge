@@ -2,14 +2,18 @@ package com.lukevalenty.rpgforge.engine;
 
 public class RandomWalkComponent extends GameObjectComponent {
     // shared object state
-    private final NumberRef dx;
-    private final NumberRef dy;
-    private final ObjectRef<Direction> dir;
-    private final BooleanRef walking;
+    private NumberRef dx;
+    private NumberRef dy;
+    private ObjectRef<Direction> dir;
+    private BooleanRef walking;
     
     // local state
     private float decisionTimeframe = 5000;
     private float timeSinceLastDecision = Float.POSITIVE_INFINITY;
+    
+    private RandomWalkComponent() {
+        // do nothing
+    }
     
     public RandomWalkComponent(
         final GameObject o

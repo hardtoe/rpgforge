@@ -1,11 +1,15 @@
 package com.lukevalenty.rpgforge.engine;
 
 public class MovementComponent extends GameObjectComponent {
-    private final NumberRef dx;
-    private final NumberRef dy;
-    private final NumberRef x;
-    private final NumberRef y;
+    private NumberRef dx;
+    private NumberRef dy;
+    private NumberRef x;
+    private NumberRef y;
 
+    public MovementComponent() {
+        // do nothing
+    }
+    
     public MovementComponent(final GameObject o) {
         this.dx = o.getNumberRef("dx");
         this.dy = o.getNumberRef("dy");

@@ -17,6 +17,23 @@ public class BuiltinData {
 
     private static boolean loaded = false;
     private static CharacterSetData CHARSET_1A;
+    private static CharacterSetData CHARSET_1B;
+    private static CharacterSetData CHARSET_2A;
+    private static CharacterSetData CHARSET_2B;
+    private static CharacterSetData CHARSET_2C;
+    private static CharacterSetData CHARSET_2D;
+    private static CharacterSetData CHARSET_3A;
+    private static CharacterSetData CHARSET_3B;
+    private static CharacterSetData CHARSET_3C;
+    private static CharacterSetData CHARSET_3D;
+    private static CharacterSetData CHARSET_3E;
+    private static CharacterSetData CHARSET_3F;
+    private static CharacterSetData CHARSET_3G;
+    private static CharacterSetData CHARSET_4A;
+    private static CharacterSetData CHARSET_4B;
+    private static CharacterSetData CHARSET_6A;
+    private static CharacterSetData CHARSET_7B;
+    private static CharacterSetData CHARSET_8A;
     
     public static void load(final Context context) {
         if (!loaded) {
@@ -141,15 +158,40 @@ public class BuiltinData {
             TILESET_E = load(context, "TileE.png", 1);
             
             
-            CHARSET_1A = new CharacterSetData("vx_chara01_a.png");
-            CHARSET_1A.load(context);
-            
-            for (int x = 0; x < 4; x++) {
-                for (int y = 0; y < 2; y++) {
-                    CHARSET_1A.addCharacter(new CharacterData(CHARSET_1A, new Rect(x * 96, y * 192, x * 96 + 96, y * 192 + 192)));
-                }
+            CHARSET_1A = loadCharacterSet(context, "vx_chara01_a.png");
+            CHARSET_1B = loadCharacterSet(context, "vx_chara01_b.png");
+            CHARSET_2A = loadCharacterSet(context, "vx_chara02_a.png");
+            CHARSET_2B = loadCharacterSet(context, "vx_chara02_b.png");
+            CHARSET_2C = loadCharacterSet(context, "vx_chara02_c.png");
+            CHARSET_2D = loadCharacterSet(context, "vx_chara02_d.png");
+            CHARSET_3A = loadCharacterSet(context, "vx_chara03_a.png");
+            CHARSET_3B = loadCharacterSet(context, "vx_chara03_b.png");
+            CHARSET_3C = loadCharacterSet(context, "vx_chara03_c.png");
+            CHARSET_3D = loadCharacterSet(context, "vx_chara03_d.png");
+            CHARSET_3E = loadCharacterSet(context, "vx_chara03_e.png");
+            CHARSET_3F = loadCharacterSet(context, "vx_chara03_f.png");
+            CHARSET_3G = loadCharacterSet(context, "vx_chara03_g.png");
+            CHARSET_4A = loadCharacterSet(context, "vx_chara04_a.png");
+            CHARSET_4B = loadCharacterSet(context, "vx_chara04_b.png");
+            CHARSET_6A = loadCharacterSet(context, "vx_chara06_a.png");
+            CHARSET_7B = loadCharacterSet(context, "vx_chara07_b.png");
+            CHARSET_8A = loadCharacterSet(context, "vx_chara08_a.png");
+        }
+    }
+
+    private static CharacterSetData loadCharacterSet(final Context context, final String filename) {
+        final CharacterSetData charSetData = 
+            new CharacterSetData(filename);
+        
+        charSetData.load(context);
+        
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 2; y++) {
+                charSetData.addCharacter(new CharacterData(charSetData, new Rect(x * 96, y * 192, x * 96 + 96, y * 192 + 192)));
             }
         }
+        
+        return charSetData;
     }
    
     private static TileSetData load(final Context context, final String assetName, final int layer) {
@@ -220,8 +262,28 @@ public class BuiltinData {
         db.getMaps().get(0).fill(db.getDefaultTile());
         
         db.addCharacterSet(CHARSET_1A);
-        
+        db.addCharacterSet(CHARSET_1B);
+        db.addCharacterSet(CHARSET_2A);
+        db.addCharacterSet(CHARSET_2B);
+        db.addCharacterSet(CHARSET_2C);
+        db.addCharacterSet(CHARSET_2D);
+
+        db.addCharacterSet(CHARSET_3A);
+        db.addCharacterSet(CHARSET_3B);
+        db.addCharacterSet(CHARSET_3C);
+        db.addCharacterSet(CHARSET_3D);
+        db.addCharacterSet(CHARSET_3E);
+        db.addCharacterSet(CHARSET_3F);
+        db.addCharacterSet(CHARSET_3G);
+        db.addCharacterSet(CHARSET_4A);
+        db.addCharacterSet(CHARSET_4B);
+        db.addCharacterSet(CHARSET_6A);
+        db.addCharacterSet(CHARSET_7B);
+        db.addCharacterSet(CHARSET_8A);
+
         db.addEvent(new DoorEventData());
+        db.addEvent(new NpcEventData());
+        
         
         return db;
     }

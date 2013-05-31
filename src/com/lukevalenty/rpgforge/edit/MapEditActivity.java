@@ -13,8 +13,11 @@ import com.lukevalenty.rpgforge.R;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
 import com.lukevalenty.rpgforge.DialogUtil.StringPromptListener;
 import com.lukevalenty.rpgforge.data.BuiltinData;
+import com.lukevalenty.rpgforge.data.CharacterData;
+import com.lukevalenty.rpgforge.data.CharacterSetData;
 import com.lukevalenty.rpgforge.data.DoorEventData;
 import com.lukevalenty.rpgforge.data.EventData;
+import com.lukevalenty.rpgforge.data.NpcEventData;
 import com.lukevalenty.rpgforge.data.RpgDatabase;
 import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 import com.lukevalenty.rpgforge.data.TileData;
@@ -34,14 +37,20 @@ import roboguice.inject.InjectView;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -54,13 +63,16 @@ import android.view.MenuItem;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -71,7 +83,7 @@ public class MapEditActivity extends BaseActivity {
     public static final String TAG = MapEditActivity.class.getName();
     
     @InjectView(R.id.tilePalette) private View tilePalette; 
-    @InjectView(R.id.gridView1) private GridView tileList;
+    @InjectView(R.id.npcSpriteList) private GridView tileList;
     @InjectView(R.id.tileDrawerSpinner) private Spinner tileDrawerSpinner; 
     @InjectView(R.id.mapView) private MapView mapView;
     
@@ -318,6 +330,9 @@ public class MapEditActivity extends BaseActivity {
                 (EventData) e.tile();
             
             currentMap.setEvent(e.x(), e.y(), event);
+
+            currentTool = Tool.MOVE;
+            eventBus.post(new ToolSelectedEvent(currentTool));   
         }
         
         if (e.tile() instanceof DoorEventData) {
@@ -431,7 +446,166 @@ public class MapEditActivity extends BaseActivity {
                             doorEvent.setTarget((int) destX.value, (int) destY.value, destMapRef.value, activeOnWalkOver.isChecked());
                             destMap.stop();
                             tileDrawInProgress = false;
+                        }
+                    }).setCancelable(false);
+                
+                builder.create().show();
+            }
+        
+        } else if (e.tile() instanceof NpcEventData) {
+            if (tileDrawInProgress == false) {
+                tileDrawInProgress = true;
+                
+                final NpcEventData npcEvent = 
+                    (NpcEventData) e.tile();
+                
+                final AlertDialog.Builder builder = 
+                    new AlertDialog.Builder(this);
+                
+                final LayoutInflater inflater = 
+                    this.getLayoutInflater();
+                
+                final View view = 
+                    inflater.inflate(R.layout.npc_event_dialog, null);
+                
+                final GridView npcSpriteList =
+                    (GridView) view.findViewById(R.id.npcSpriteList);
+                
+                final EditText npcDialog =
+                    (EditText) view.findViewById(R.id.npcDialog);
+                
+                final EditText npcCharacterName =
+                    (EditText) view.findViewById(R.id.npcCharacterName);
+                
+                final ArrayList<CharacterData> charDataList =
+                    new ArrayList<CharacterData>();
+                
+                for (final CharacterSetData charSetData : RpgForgeApplication.getDb().getCharacterSets()) {
+                    for (final CharacterData charData : charSetData.getCharacters()) {
+                        charDataList.add(charData);
+                    }
+                }
+
+
+                npcEvent.setCharacterData(charDataList.get(0));
+                
+                final NumberRef currentSelectedPositionInTilePalette = new NumberRef();
+                currentSelectedPositionInTilePalette.value = 0;
+                
+                final BaseAdapter npcListAdapter = new BaseAdapter() {
+
+                    @Override
+                    public View getView(
+                        final int position, 
+                        final View convertView, 
+                        final ViewGroup parent
+                    ) {
+                        final CharacterData charData =
+                            charDataList.get(position);
+
+                        ImageView tileView;
+                        
+                        if (convertView == null) {
+                            tileView = 
+                                new ImageView(MapEditActivity.this);
                             
+                        } else {
+                            tileView = 
+                                (ImageView) convertView;
+                        }
+                        
+                        if (((int) currentSelectedPositionInTilePalette.value) == position) {
+                            tileView.setBackgroundColor(Color.WHITE);
+                        } else {
+                            tileView.setBackgroundColor(Color.TRANSPARENT);
+                        }
+                        
+                        tileView.setLayoutParams(new GridView.LayoutParams(dpToPx(64), dpToPx(96)));
+                        tileView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                        tileView.setPadding(4, 4, 4, 4);
+                        
+                        tileView.setImageDrawable(new Drawable() {   
+                            private Rect src = new Rect();
+                            
+                            {
+                                src.left = charData.src().left + 32;
+                                src.right = charData.src().right - 32;
+                                src.top = charData.src().top;
+                                src.bottom = charData.src().top + 48; 
+                            }
+                            
+                            @Override
+                            public void setColorFilter(ColorFilter cf) {
+                                // do nothing
+                            }
+                            
+                            @Override
+                            public void setAlpha(int alpha) {
+                                // do nothing
+                            }
+                            
+                            @Override
+                            public int getOpacity() {
+                                return PixelFormat.TRANSPARENT;
+                            }
+                            
+                            @Override
+                            public void draw(final Canvas canvas) {
+                                canvas.drawBitmap(charData.bitmap(), src,  getBounds(), null);
+                            }
+                        });
+                        
+                        return tileView;
+                    }
+                    
+
+
+                    private int dpToPx(final int dp) {
+                        return (int) (MapEditActivity.this.getResources().getDisplayMetrics().density * dp);
+                    }
+                    
+                    @Override
+                    public long getItemId(int position) {
+                        return System.identityHashCode(getItem(position));
+                    }
+                    
+                    @Override
+                    public Object getItem(int position) {
+                        return charDataList.get(position);
+                    }
+                    
+                    @Override
+                    public int getCount() {
+                        return charDataList.size();
+                    }
+                };
+                
+                npcSpriteList.setAdapter(npcListAdapter);
+                
+                
+                npcSpriteList.setOnItemClickListener(new OnItemClickListener() {
+                    @Override
+                    public void onItemClick(
+                        final AdapterView<?> parent, 
+                        final View view,
+                        final int position, 
+                        final long id
+                    ) {
+                        currentSelectedPositionInTilePalette.value = position;
+                        npcListAdapter.notifyDataSetChanged();
+
+                        npcEvent.setCharacterData(charDataList.get(position));
+                    }
+                });
+
+                builder.setView(view)
+                    .setPositiveButton("Create NPC", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialog, int id) {
+                            npcEvent.setCharacterName(npcCharacterName.getText().toString());
+                            npcEvent.setCharacterDialog(npcDialog.getText().toString());
+                            npcEvent.setInitialPosition(e.x() * 32, (e.y() - 1) * 32);        
+                            tileDrawInProgress = false;                   
                         }
                     }).setCancelable(false);
                 

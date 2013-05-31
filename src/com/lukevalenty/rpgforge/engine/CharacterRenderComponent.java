@@ -6,16 +6,20 @@ import com.lukevalenty.rpgforge.engine.input.GameInput;
 public class CharacterRenderComponent extends GameObjectComponent {
     private static final float FRAME_LENGTH_MS = 200;
     
-    private final CharacterData charData;
+    private CharacterData charData;
     private int yOffset = 0;
     private int xOffset = 32;
     private float frameTimer = 0;
     
-    private final NumberRef x;
-    private final NumberRef y;
-    private final ObjectRef<Direction> dir;
-    private final BooleanRef walking;
+    private NumberRef x;
+    private NumberRef y;
+    private ObjectRef<Direction> dir;
+    private BooleanRef walking;
 
+    private CharacterRenderComponent() {
+        // do nothing
+    }
+    
     public CharacterRenderComponent(
         final GameObject o, 
         final CharacterData charData
@@ -88,5 +92,13 @@ public class CharacterRenderComponent extends GameObjectComponent {
                 (int) (32 + x.value), 
                 (int) (64 + y.value)));
         }
+    }
+
+    public void setCharacterData(final CharacterData charData) {
+        this.charData = charData;
+    }
+
+    public CharacterData getCharacterData() {
+       return this.charData;
     }
 }

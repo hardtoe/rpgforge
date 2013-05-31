@@ -28,7 +28,7 @@
 	        android:layout_height="48sp"/>
 
 	    <GridView
-			android:id="@+id/gridView1"
+			android:id="@+id/npcSpriteList"
 		    android:numColumns="4"
 		    android:verticalSpacing="2dp"
 		    android:horizontalSpacing="2dp"

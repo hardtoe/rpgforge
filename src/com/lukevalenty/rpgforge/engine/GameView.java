@@ -7,8 +7,10 @@ import roboguice.RoboGuice;
 
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.data.AutoTileData;
+import com.lukevalenty.rpgforge.data.CharacterData;
 import com.lukevalenty.rpgforge.data.EventData;
 import com.lukevalenty.rpgforge.data.MapData;
+import com.lukevalenty.rpgforge.data.NpcEventData;
 import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.edit.ScaleMapEvent;
 import com.lukevalenty.rpgforge.graphics.DrawCommand;
@@ -236,12 +238,33 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                         map.getEvent(x, y);
                                     
                                     if (eventData != null && debug) {
-                                        dst.top = (y * tileSize) + 3;
-                                        dst.bottom = dst.top + tileSize - 6;
-                                        dst.left = (x * tileSize) + 3;
-                                        dst.right = dst.left + tileSize - 6;
+                                        if (eventData instanceof NpcEventData) {
+                                            final CharacterData charData = 
+                                                ((NpcEventData) eventData).getCharacterData();
+                                            
+                                            if (charData != null) {
+                                                src.top = charData.src().top;
+                                                src.bottom = src.top + 48;
+                                                src.left = charData.src().left + 32;
+                                                src.right = src.left + 32;
+                                                
+                                                dst.top = (y * tileSize) - 16;
+                                                dst.bottom = dst.top + tileSize + 16;
+                                                dst.left = (x * tileSize);
+                                                dst.right = dst.left + tileSize;
+                                                
+                                                c.drawBitmap(charData.bitmap(), src, dst, null);
+                                            }
+                                            
+                                        } else {
+                                            dst.top = (y * tileSize) + 3;
+                                            dst.bottom = dst.top + tileSize - 6;
+                                            dst.left = (x * tileSize) + 3;
+                                            dst.right = dst.left + tileSize - 6;
+                                            
+                                            c.drawRect(dst, linepaint); 
+                                        }
                                         
-                                        c.drawRect(dst, linepaint); 
                                     }
                                 }
                             }

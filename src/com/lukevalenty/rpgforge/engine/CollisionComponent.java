@@ -14,11 +14,15 @@ public class CollisionComponent extends GameObjectComponent {
     private final Point bottomLeft = new Point(2, 63);
     private final Point bottomRight = new Point(30, 63);
     
-    private final NumberRef dx;
-    private final NumberRef dy;
-    private final NumberRef x;
-    private final NumberRef y;
+    private NumberRef dx;
+    private NumberRef dy;
+    private NumberRef x;
+    private NumberRef y;
 
+    private CollisionComponent() {
+        // do nothing
+    }
+    
     public CollisionComponent(
         final GameObject o
     ) {
