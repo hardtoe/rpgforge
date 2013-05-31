@@ -130,6 +130,9 @@ public class MapEditActivity extends BaseActivity {
                 getFileStreamPath(activeDatabaseFilename);
                 
             RpgDatabase rpgDatabase;
+
+            // clean up old memory
+            RpgForgeApplication.setDb(null);
             
             if (databaseFile.exists()) {
                 rpgDatabase = loader.load(this, activeDatabaseFilename);

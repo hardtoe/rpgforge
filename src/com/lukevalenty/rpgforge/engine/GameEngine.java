@@ -1,17 +1,14 @@
 package com.lukevalenty.rpgforge.engine;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import android.content.Context;
-import android.graphics.Matrix;
-import android.util.Log;
 
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
-import com.lukevalenty.rpgforge.data.EventData;
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.engine.input.GameInput;
-import com.lukevalenty.rpgforge.engine.input.OnScreenDPad;
 import com.lukevalenty.rpgforge.graphics.DrawCommand;
 import com.lukevalenty.rpgforge.graphics.DrawCommandBuffer;
 import com.lukevalenty.rpgforge.graphics.DrawSpritePool;
@@ -23,7 +20,6 @@ import de.greenrobot.event.EventBus;
 public class GameEngine {
     private final MainLoop mainLoop;
     private Thread mainLoopThread;
-    private GameInput gameInput;
 
     @Inject GameEngine(
         final MainLoop mainLoop
@@ -128,6 +124,21 @@ public class GameEngine {
                         frameState.phase = phase;
                         globalState.gameTree.update(frameState, globalState);
                     }
+                    
+                    Collections.sort(frameState.drawBuffer, new Comparator<DrawCommand>() {
+                        @Override
+                        public int compare(DrawCommand lhs, DrawCommand rhs) {
+                            if (lhs.z() < rhs.z()) {
+                                return -1;
+                                
+                            } else if (lhs.z() > rhs.z()) {
+                                return 1;
+                                
+                            } else {
+                                return 0;
+                            }
+                        }
+                    });
                 }
                 
                 drawCommandBuffer.unlockBackBuffer();

@@ -90,7 +90,8 @@ public class CharacterRenderComponent extends GameObjectComponent {
                 (int) (16 + y.value), 
                 (int) (0 + x.value), 
                 (int) (32 + x.value), 
-                (int) (64 + y.value)));
+                (int) (64 + y.value))
+                .setZ((float) y.value));
         }
     }
 

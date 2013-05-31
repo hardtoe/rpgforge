@@ -31,4 +31,9 @@ public class SetMatrix extends DrawCommand<SetMatrix> {
     public void recycle() {
         super.recycle();
     }
+    
+    @Override
+    public final float z() {
+        return -2000;
+    }
 }
