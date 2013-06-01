@@ -23,6 +23,7 @@ import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.edit.MapView.OnTileClickListener;
+import com.lukevalenty.rpgforge.engine.Direction;
 import com.lukevalenty.rpgforge.engine.GameActivity;
 import com.lukevalenty.rpgforge.engine.GameObject;
 import com.lukevalenty.rpgforge.engine.GameView;
@@ -53,6 +54,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.NavUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -64,9 +66,12 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -179,6 +184,7 @@ public class MapEditActivity extends BaseActivity {
         
         mapView.setDebug(true);
         mapView.start();
+        
         
         mapView.setOnTileClickListener(new OnTileClickListener() {
             @Override
@@ -319,6 +325,7 @@ public class MapEditActivity extends BaseActivity {
     private boolean tileDrawInProgress = false;
     
     //@SuppressLint("NewApi")
+    @SuppressLint("NewApi")
     public void onEvent(final DrawTileEvent e) {
         if (e.tile() instanceof TileData) {
             final TileData tile = 
@@ -358,7 +365,7 @@ public class MapEditActivity extends BaseActivity {
                     (MapView) view.findViewById(R.id.doorDestMapView);
                 
                 final Spinner mapList =
-                    (Spinner) view.findViewById(R.id.spinner1);
+                    (Spinner) view.findViewById(R.id.npcInitialDirection);
 
                 final CheckBox activeOnWalkOver =
                     (CheckBox) view.findViewById(R.id.activeOnWalkOver);
@@ -479,6 +486,42 @@ public class MapEditActivity extends BaseActivity {
                 
                 final EditText npcCharacterName =
                     (EditText) view.findViewById(R.id.npcCharacterName);
+                
+                final CheckBox npcStationary =
+                    (CheckBox) view.findViewById(R.id.npcStationary);
+                
+                final Spinner npcInitialDirection =
+                    (Spinner) view.findViewById(R.id.npcInitialDirection);
+                
+               
+                ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(MapEditActivity.this, android.R.layout.simple_spinner_item); 
+                spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                
+                spinnerArrayAdapter.addAll("Faces Up", "Faces Down", "Faces Left", "Faces Right");  
+                
+                npcInitialDirection.setAdapter(spinnerArrayAdapter);
+                
+
+                npcEvent.setDirection(Direction.DOWN);
+                
+                npcInitialDirection.setOnItemSelectedListener(new OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(
+                        final AdapterView<?> parent, 
+                        final View view,
+                        final int position, 
+                        final long id
+                    ) {
+                        npcEvent.setDirection(Direction.values()[position]);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> arg0) {
+                        // do nothing
+                    }
+                });
+                
+                npcInitialDirection.setSelection(1);
                 
                 final ArrayList<CharacterData> charDataList =
                     new ArrayList<CharacterData>();
@@ -608,11 +651,25 @@ public class MapEditActivity extends BaseActivity {
                             npcEvent.setCharacterName(npcCharacterName.getText().toString());
                             npcEvent.setCharacterDialog(npcDialog.getText().toString());
                             npcEvent.setInitialPosition(e.x() * 32, (e.y() - 1) * 32);        
+                            npcEvent.setStationary(npcStationary.isChecked());
                             tileDrawInProgress = false;                   
                         }
                     }).setCancelable(false);
                 
-                builder.create().show();
+                final AlertDialog dialog = builder.create();
+                
+                dialog.show();
+                
+                // FIXME: this does not work :(
+                /*
+                view.getHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        IBinder token = view.getWindowToken();
+                        ( ( InputMethodManager ) getSystemService( Context.INPUT_METHOD_SERVICE ) ).hideSoftInputFromWindow( token, 0 );
+                    }
+                });
+                */
             }
         }
     }

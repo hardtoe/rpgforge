@@ -4,15 +4,29 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <CheckBox
+        android:id="@+id/npcStationary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="NPC Stationary">
+        
+        <requestFocus />
+    </CheckBox>
+
+    <Spinner
+        android:id="@+id/npcInitialDirection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    
     <EditText
         android:id="@+id/npcCharacterName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Character Name"
-        android:inputType="textPersonName" >
+        android:inputType="textPersonName">
 
-        <requestFocus />
     </EditText>
 
     <EditText

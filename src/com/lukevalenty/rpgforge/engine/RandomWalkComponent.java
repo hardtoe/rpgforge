@@ -6,6 +6,7 @@ public class RandomWalkComponent extends GameObjectComponent {
     private NumberRef dy;
     private ObjectRef<Direction> dir;
     private BooleanRef walking;
+    private BooleanRef stationary;
     
     // local state
     private float decisionTimeframe = 5000;
@@ -22,6 +23,7 @@ public class RandomWalkComponent extends GameObjectComponent {
         this.dy = o.getNumberRef("dy");
         this.dir = o.getObjectRef("dir");
         this.walking = o.getBooleanRef("walking");
+        this.stationary = o.getBooleanRef("stationary");
     }
     
     @Override
@@ -29,29 +31,30 @@ public class RandomWalkComponent extends GameObjectComponent {
         final FrameState frameState,
         final GlobalGameState globalState
     ) {
-        if (frameState.phase == GamePhase.UPDATE) {
-            final float timeDelta =
-                frameState.timeDelta;
-            
-            timeSinceLastDecision += timeDelta;
-            
-            if (timeSinceLastDecision > decisionTimeframe) {
-                walking.value = (Math.random() > 0.7); 
-                dir.value = Direction.values()[(int) (Direction.values().length * Math.random())];
-                timeSinceLastDecision = 0;
-            }
-            
-            if (walking.value) {
-                decisionTimeframe = 1000;
-                dx.value = PlayerControlComponent.WALK_SPEED *.5 * timeDelta * dir.value.x;
-                dy.value = PlayerControlComponent.WALK_SPEED *.5 * timeDelta * dir.value.y;
+        if (stationary == null || !stationary.value) {
+            if (frameState.phase == GamePhase.UPDATE) {
+                final float timeDelta =
+                    frameState.timeDelta;
                 
-            } else {
-                decisionTimeframe = 5000;
-                dx.value = 0;
-                dy.value = 0;
-            }
-                        
+                timeSinceLastDecision += timeDelta;
+                
+                if (timeSinceLastDecision > decisionTimeframe) {
+                    walking.value = (Math.random() > 0.7); 
+                    dir.value = Direction.values()[(int) (Direction.values().length * Math.random())];
+                    timeSinceLastDecision = 0;
+                }
+                
+                if (walking.value) {
+                    decisionTimeframe = 1000;
+                    dx.value = PlayerControlComponent.WALK_SPEED *.5 * timeDelta * dir.value.x;
+                    dy.value = PlayerControlComponent.WALK_SPEED *.5 * timeDelta * dir.value.y;
+                    
+                } else {
+                    decisionTimeframe = 5000;
+                    dx.value = 0;
+                    dy.value = 0;
+                }
+            }     
         }
     }
 }

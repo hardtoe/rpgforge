@@ -137,6 +137,7 @@ public class GameActivity extends BaseActivity {
     private void startTimer() {
         if (fadeoutTimer != null) {
             fadeoutTimer.cancel();
+            fadeoutTimer = null;
         }
         
         fadeoutTimer = new Timer();
@@ -246,6 +247,11 @@ public class GameActivity extends BaseActivity {
     @Override public void onPause() {
         super.onPause();
         gameEngine.stop();
+        
+        if (fadeoutTimer != null) {
+            fadeoutTimer.cancel();
+            fadeoutTimer = null;
+        }
     }
     
     @Override
