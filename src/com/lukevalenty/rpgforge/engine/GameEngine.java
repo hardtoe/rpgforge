@@ -77,8 +77,6 @@ public class GameEngine {
             final MapData map = 
                 RpgForgeApplication.getDb().getMaps().getFirst();
 
-            globalState.gameTree = 
-                new GameObjectContainer(); 
             
 
             // 512 x 384 effective resolution
@@ -125,6 +123,7 @@ public class GameEngine {
                         globalState.gameTree.update(frameState, globalState);
                     }
                     
+                    // sort draw commands by z-order before rendering them
                     Collections.sort(frameState.drawBuffer, new Comparator<DrawCommand>() {
                         @Override
                         public int compare(DrawCommand lhs, DrawCommand rhs) {

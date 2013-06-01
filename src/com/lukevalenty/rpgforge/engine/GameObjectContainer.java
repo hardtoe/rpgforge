@@ -38,4 +38,9 @@ public class GameObjectContainer {
     public void remove(final GameObject gameObject) {
         this.objects.remove(gameObject);
     }
+
+    public void clear() {
+        objects.clear();
+        containers.clear();
+    }
 }
