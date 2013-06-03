@@ -30,12 +30,16 @@ public class NpcEventData extends EventData {
     public static class NpcGameObject extends GameObjectComponent {
         private GameObject gameObject;
         private ObjectRef<String> characterName;  
-        private ObjectRef<String> characterDialog;        
+        private ObjectRef<String> characterDialog;     
+        private NumberRef tileX;
+        private NumberRef tileY;  
+        private NumberRef x;
+        private NumberRef y;
         
         private transient GameObject activator = null;
 
         private NpcGameObject() {
-            this(new GameObject());
+            // do nothing and keep private
         }
         
         public NpcGameObject(final GameObject gameObject) {
@@ -43,6 +47,10 @@ public class NpcEventData extends EventData {
             
             characterName = gameObject.getObjectRef("characterName");
             characterDialog = gameObject.getObjectRef("characterDialog");
+            tileX = gameObject.getNumberRef("tileX");
+            tileY = gameObject.getNumberRef("tileY");
+            x = gameObject.getNumberRef("x");
+            y = gameObject.getNumberRef("y");
         }
         
         @Override
@@ -51,12 +59,55 @@ public class NpcEventData extends EventData {
             final GlobalGameState globalState
         ) {
             if (frameState.phase == GamePhase.UPDATE) {
+                // FIXME: find better place to put this...maybe init function?
+                if (
+                    tileX == null || 
+                    tileY == null || 
+                    x == null || 
+                    y == null
+                ) {
+                    tileX = gameObject.getNumberRef("tileX");
+                    tileY = gameObject.getNumberRef("tileY");
+                    x = gameObject.getNumberRef("x");
+                    y = gameObject.getNumberRef("y");
+                }
+                
+                tileX.value = (int) (x.value / 32);
+                tileY.value = (int) ((y.value + 32) / 32);
+                
+            } else if (frameState.phase == GamePhase.RENDER) {
                 if (activator != null) {
-                    // TODO: character dialog
+                    if (showingDialog) {
+                        if ((System.nanoTime() - dialogTime) > 1000000000L) {
+                            dialogTime = System.nanoTime();
+                            showingDialog = false;
+                        }
+                        
+                    } else if ((System.nanoTime() - dialogTime) > 1000000000L) {
+                        dialogTime = System.nanoTime();
+                        showingDialog = true;
+                    }
                     
                     activator = null;
                 }
+                
+                if (showingDialog) {
+                    frameState.drawBuffer.add(frameState.dialogPool.get().set(dialogText()).setZ(1000));
+                }
             }
+        }
+
+        private transient long dialogTime = 0;
+        private transient boolean showingDialog = false;
+        
+        private transient String dialogText;
+        
+        private String dialogText() {
+            if (dialogText == null) {
+                dialogText = characterName.value + ": " + characterDialog.value;
+            }
+            
+            return dialogText;
         }
 
         @Override

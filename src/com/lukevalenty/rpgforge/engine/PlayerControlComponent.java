@@ -38,6 +38,10 @@ public class PlayerControlComponent extends GameObjectComponent {
             final float timeDelta =
                 frameState.timeDelta;
             
+            if (dir.value == null) {
+                dir.value = Direction.DOWN;
+            }
+            
             // COMPUTE MOVEMENT DIRECTION AND MAGNITUDE
             if (g.up()) {
                 dy.value = -timeDelta * WALK_SPEED;

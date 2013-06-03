@@ -11,6 +11,7 @@ import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.engine.input.GameInput;
 import com.lukevalenty.rpgforge.graphics.DrawCommand;
 import com.lukevalenty.rpgforge.graphics.DrawCommandBuffer;
+import com.lukevalenty.rpgforge.graphics.DrawDialogPool;
 import com.lukevalenty.rpgforge.graphics.DrawSpritePool;
 import com.lukevalenty.rpgforge.graphics.DrawTileMapPool;
 import com.lukevalenty.rpgforge.graphics.SetMatrixPool;
@@ -53,6 +54,7 @@ public class GameEngine {
         private final GlobalGameState globalState;
         
         private boolean mRunning;
+        private DrawDialogPool dialogPool;
 
         
 
@@ -62,6 +64,7 @@ public class GameEngine {
             final SetMatrixPool setMatrixPool,
             final DrawSpritePool spritePool,
             final DrawTileMapPool tilemapPool,
+            final DrawDialogPool dialogPool,
             final EventBus eventBus,
             final Context context
         ) {
@@ -69,6 +72,7 @@ public class GameEngine {
             this.setMatrixPool = setMatrixPool;
             this.spritePool = spritePool;
             this.tilemapPool = tilemapPool;
+            this.dialogPool = dialogPool;
             this.eventBus = eventBus;
 
             globalState = 
@@ -106,6 +110,7 @@ public class GameEngine {
             frameState.setMatrixPool = setMatrixPool;
             frameState.spritePool = spritePool;
             frameState.tilemapPool = tilemapPool;
+            frameState.dialogPool = dialogPool;
             
             while(mRunning){
                 frameState.drawBuffer = 

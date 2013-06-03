@@ -13,7 +13,7 @@ public class RandomWalkComponent extends GameObjectComponent {
     private float timeSinceLastDecision = Float.POSITIVE_INFINITY;
     
     private RandomWalkComponent() {
-        // do nothing
+        
     }
     
     public RandomWalkComponent(
@@ -33,6 +33,10 @@ public class RandomWalkComponent extends GameObjectComponent {
     ) {
         if (stationary == null || !stationary.value) {
             if (frameState.phase == GamePhase.UPDATE) {
+                if (dir.value == null) {
+                    dir.value = Direction.DOWN;
+                }
+                
                 final float timeDelta =
                     frameState.timeDelta;
                 

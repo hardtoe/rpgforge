@@ -25,7 +25,11 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Character Name"
-        android:inputType="textPersonName">
+        android:inputType="textPersonName"
+        android:lines="1"
+        android:maxLength="10"
+        android:minLines="1"
+        android:typeface="monospace" >
 
     </EditText>
 
@@ -36,7 +40,11 @@
         android:ems="10"
         android:hint="Character Dialog"
         android:inputType="textMultiLine"
-        android:minLines="4" />
+        android:lines="4"
+        android:maxLength="80"
+        android:maxLines="4"
+        android:minLines="4"
+        android:typeface="monospace" />
 
     <GridView
         android:id="@+id/npcSpriteList"

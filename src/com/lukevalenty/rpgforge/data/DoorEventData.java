@@ -30,7 +30,7 @@ public class DoorEventData extends EventData {
         private transient GameObject activator = null;
 
         private DoorGameObject() {
-            this(new GameObject());
+            // do nothing and keep private
         }
         
         public DoorGameObject(final GameObject gameObject) {

@@ -15,6 +15,7 @@ import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.edit.ScaleMapEvent;
 import com.lukevalenty.rpgforge.graphics.DrawCommand;
 import com.lukevalenty.rpgforge.graphics.DrawCommandBuffer;
+import com.lukevalenty.rpgforge.graphics.DrawDialog;
 import com.lukevalenty.rpgforge.graphics.SetMatrix;
 import com.lukevalenty.rpgforge.graphics.DrawSprite;
 import com.lukevalenty.rpgforge.graphics.DrawTileMap;
@@ -28,6 +29,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -105,8 +107,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private final Matrix inverseMatrix = new Matrix();
         private int numTiles;
 
-        private Paint linepaint;
-
+        private Paint linePaint;
+        private Paint dialogPaint;
+        private Paint dialogBgPaint;
         
         
         public Renderer(
@@ -119,10 +122,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             paint.setColor(Color.BLACK);
             paint.setStrokeWidth(1);
             
-            linepaint = new Paint();
-            linepaint.setColor(Color.WHITE);
-            linepaint.setStrokeWidth(2);
-            linepaint.setStyle(Style.STROKE);
+            linePaint = new Paint();
+            linePaint.setColor(Color.WHITE);
+            linePaint.setStrokeWidth(2);
+            linePaint.setStyle(Style.STROKE);
+            
+            dialogPaint = new Paint();
+            dialogPaint.setColor(Color.WHITE);
+            dialogPaint.setTextSize(32);
+            dialogPaint.setTypeface(Typeface.MONOSPACE);
+            
+            dialogBgPaint = new Paint();
+            dialogBgPaint.setColor(Color.argb(0x80, 0, 0, 0));
+            dialogBgPaint.setStyle(Style.FILL);
             
             src = new Rect();
             dst = new RectF();
@@ -262,7 +274,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                             dst.left = (x * tileSize) + 3;
                                             dst.right = dst.left + tileSize - 6;
                                             
-                                            c.drawRect(dst, linepaint); 
+                                            c.drawRect(dst, linePaint); 
                                         }
                                         
                                     }
@@ -270,16 +282,44 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                             }
                         }
                     }
+                    
                 } else if (drawCommand instanceof SetMatrix) {
                     matrix = ((SetMatrix) drawCommand).matrix();
                     c.setMatrix(matrix);
+                
+                } else if (drawCommand instanceof DrawDialog) {
+                    DrawDialog dialog =
+                        (DrawDialog) drawCommand;
+                    
+                    matrix.getValues(matrixValues);
+                    final float x = matrixValues[Matrix.MTRANS_X] / matrixValues[Matrix.MSCALE_X];
+                    final float y = matrixValues[Matrix.MTRANS_Y] / matrixValues[Matrix.MSCALE_Y];
+                    
+                    
+                    //c.drawRect(16, 240, 496, 372, dialogBgPaint);
+                    c.drawRect(0 - x, 240 - y, 512 - x, 384 - y, dialogBgPaint);
+                    
+                    final int numlines = 
+                        (int) Math.ceil(dialog.text().length() / 25.0);
+                    
+                    for (int lineNumber = 0; lineNumber < numlines; lineNumber++) {
+                        c.drawText(
+                            dialog.text().substring(
+                                lineNumber * 25, 
+                                Math.min((lineNumber + 1) * 25, dialog.text().length())), 
+                            16 - x, 
+                            (272 + (32 * lineNumber)) - y, 
+                            dialogPaint);
+                    }
+                    
+                    
                 }
             }
             
             duration = System.nanoTime() - startTime;
         }
 
-       
+        float[] matrixValues = new float[9];
         
         private void drawTile(
             final TileData tile,
