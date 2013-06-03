@@ -75,21 +75,33 @@ public class NpcEventData extends EventData {
                 tileX.value = (int) (x.value / 32);
                 tileY.value = (int) ((y.value + 32) / 32);
                 
-            } else if (frameState.phase == GamePhase.RENDER) {
-                if (activator != null) {
-                    if (showingDialog) {
+                if (showingDialog) {
+                    if (
+                        activator != null || 
+                        globalState.getGameInput().up() || 
+                        globalState.getGameInput().down() || 
+                        globalState.getGameInput().left() || 
+                        globalState.getGameInput().right() || 
+                        globalState.getGameInput().action() || 
+                        globalState.getGameInput().back() 
+                    ) {
                         if ((System.nanoTime() - dialogTime) > 1000000000L) {
                             dialogTime = System.nanoTime();
                             showingDialog = false;
                         }
-                        
-                    } else if ((System.nanoTime() - dialogTime) > 1000000000L) {
+                    }
+                }
+                
+                if (activator != null) {
+                    if (!showingDialog && (System.nanoTime() - dialogTime) > 1000000000L) {
                         dialogTime = System.nanoTime();
                         showingDialog = true;
                     }
                     
                     activator = null;
                 }
+                
+            } else if (frameState.phase == GamePhase.RENDER) {
                 
                 if (showingDialog) {
                     frameState.drawBuffer.add(frameState.dialogPool.get().set(dialogText()).setZ(1000));
