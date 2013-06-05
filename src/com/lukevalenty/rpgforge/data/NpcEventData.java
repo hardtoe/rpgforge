@@ -112,11 +112,11 @@ public class NpcEventData extends EventData {
         private transient long dialogTime = 0;
         private transient boolean showingDialog = false;
         
-        private transient String dialogText;
+        private transient String[] dialogText;
         
-        private String dialogText() {
+        private String[] dialogText() {
             if (dialogText == null) {
-                dialogText = characterName.value + ": " + characterDialog.value;
+                dialogText = (characterName.value + ":\n" + characterDialog.value).split("\\s*\\n\\s*");
             }
             
             return dialogText;

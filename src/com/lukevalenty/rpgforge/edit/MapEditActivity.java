@@ -56,6 +56,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NavUtils;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -494,6 +496,122 @@ public class MapEditActivity extends BaseActivity {
                     (Spinner) view.findViewById(R.id.npcInitialDirection);
                 
                
+                npcDialog.addTextChangedListener(new TextWatcher() {    
+                    private boolean myChange = false;
+                    
+                    @Override
+                    public void onTextChanged(
+                        final CharSequence s, 
+                        final int start, 
+                        final int before, 
+                        final int count
+                    ) {
+                        // do nothing
+                    }
+                    
+                    @Override
+                    public void beforeTextChanged(
+                        final CharSequence s, 
+                        final int start, 
+                        final int before, 
+                        final int count
+                    ) {
+                        // do nothing
+                    }
+                    
+                    @Override
+                    public void afterTextChanged(
+                        final Editable s
+                    ) {
+                        if (myChange == false) {
+                            myChange = true;
+                            
+                            wrapLine(0, 24, s);
+                            wrapLine(1, 24, s);
+                            wrapLine(2, 24, s);
+                            wrapLine(3, 24, s);
+                            
+                            
+                        } else {
+                            myChange = false;
+                        }
+                    }
+
+                    private void wrapLine(
+                        final int lineNumber,
+                        final int maxLength, 
+                        final Editable s
+                    ) {
+                        final int startOfLine = 
+                            findStartOfLine(lineNumber, s);
+                        
+                        final int endOfLine =
+                            findEndOfLine(startOfLine, maxLength, s);    
+                        
+                        final int lineLength =
+                            endOfLine - startOfLine;
+                        
+                        if (
+                            lineLength >= maxLength &&
+                            s.length() > endOfLine && 
+                            s.charAt(endOfLine) != ' ' && 
+                            s.charAt(endOfLine) != '\n'
+                        ) {
+                            int startOfWord;
+                            
+                            for (
+                                startOfWord = endOfLine; 
+                                startOfWord > 0 && s.charAt(startOfWord) != ' ' && s.charAt(startOfWord) != '\n'; 
+                                startOfWord--
+                            );
+                            
+                            s.insert(startOfWord + 1, "\n");
+                        }
+                    }
+
+                    private int findEndOfLine(
+                        final int startOfLine, 
+                        final int maxLength,
+                        final Editable s
+                    ) {
+                        int endOfLine;
+                        
+                        for (
+                            endOfLine = startOfLine; 
+                            (endOfLine - startOfLine) <= maxLength && endOfLine < s.length() && s.charAt(endOfLine) != '\n'; 
+                            endOfLine++
+                        );
+                        
+                        return endOfLine;
+                    }
+
+                    private int findStartOfLine(
+                        final int lineNumber, 
+                        final Editable s
+                    ) {
+                        if (lineNumber == 0) {
+                            return 0;
+                            
+                        } else {
+                            int startOfLine = 0;
+                            int numNewlinesSeen = 0;
+                            
+                            while (
+                                numNewlinesSeen < lineNumber && 
+                                startOfLine < s.length()
+                            ) {
+                                if (s.charAt(startOfLine) == '\n') {
+                                    numNewlinesSeen++;
+                                }
+                                
+                                startOfLine++;
+                            }
+                            
+                            return startOfLine;
+                        }
+                    }
+                });
+                
                 ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(MapEditActivity.this, android.R.layout.simple_spinner_item); 
                 spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 

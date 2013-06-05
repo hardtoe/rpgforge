@@ -7,10 +7,10 @@ public class DrawDialog extends DrawCommand<DrawDialog> {
         super(objectPool);
     }
     
-    private String text;
+    private String[] text;
     
     public DrawDialog set(
-        final String text
+        final String... text
     ) {
         super.init();
         
@@ -19,7 +19,7 @@ public class DrawDialog extends DrawCommand<DrawDialog> {
         return this;
     }
     
-    public String text() {
+    public String[] text() {
         return text;
     }
 }

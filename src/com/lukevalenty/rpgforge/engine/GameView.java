@@ -297,18 +297,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     
                     
                     //c.drawRect(16, 240, 496, 372, dialogBgPaint);
-                    c.drawRect(0 - x, 240 - y, 512 - x, 384 - y, dialogBgPaint);
+                    c.drawRect(0 - x, 208 - y, 512 - x, 384 - y, dialogBgPaint);
                     
                     final int numlines = 
-                        (int) Math.ceil(dialog.text().length() / 25.0);
+                        dialog.text().length;
                     
                     for (int lineNumber = 0; lineNumber < numlines; lineNumber++) {
                         c.drawText(
-                            dialog.text().substring(
-                                lineNumber * 25, 
-                                Math.min((lineNumber + 1) * 25, dialog.text().length())), 
+                            dialog.text()[lineNumber], 
                             16 - x, 
-                            (272 + (32 * lineNumber)) - y, 
+                            (240 + (32 * lineNumber)) - y, 
                             dialogPaint);
                     }
                     

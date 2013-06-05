@@ -37,12 +37,14 @@
         android:id="@+id/npcDialog"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
+        android:ems="24"
         android:hint="Character Dialog"
         android:inputType="textMultiLine"
         android:lines="4"
-        android:maxLength="80"
+        android:maxEms="24"
+        android:maxLength="96"
         android:maxLines="4"
+        android:minEms="24"
         android:minLines="4"
         android:typeface="monospace" />
 
