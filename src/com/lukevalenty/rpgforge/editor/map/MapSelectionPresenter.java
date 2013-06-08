@@ -1,4 +1,4 @@
-package com.lukevalenty.rpgforge.edit;
+package com.lukevalenty.rpgforge.editor.map;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;

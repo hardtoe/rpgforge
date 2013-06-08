@@ -1,12 +1,14 @@
-package com.lukevalenty.rpgforge.edit;
+package com.lukevalenty.rpgforge.editor.map;
 
-public class DrawTileEvent {
-    private final PaletteItem tile;
+import com.lukevalenty.rpgforge.data.TileData;
+
+public class FillTileEvent {
+    private final TileData tile;
     private final int x;
     private final int y;
     
-    public DrawTileEvent(
-        final PaletteItem tile,
+    public FillTileEvent(
+        final TileData tile,
         final int x,
         final int y
     ) {
@@ -15,7 +17,7 @@ public class DrawTileEvent {
         this.y = y;
     }
 
-    public PaletteItem tile() {
+    public TileData tile() {
         return tile;
     }
     

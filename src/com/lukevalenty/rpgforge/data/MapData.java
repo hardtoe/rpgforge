@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import com.lukevalenty.rpgforge.engine.GameObject;
 
+import android.graphics.Bitmap;
 import android.util.SparseArray;
 
 public class MapData {
@@ -240,5 +241,66 @@ public class MapData {
         }
         
         return gameObjects;
+    }
+    
+    public Bitmap createBitmap() {
+        final Bitmap bitmap = 
+            Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        
+        updateBitmap(bitmap);
+        
+        return bitmap;
+    }
+
+    public Bitmap createBitmap(final float maxSize) {
+        Bitmap mapBitmap = 
+            createBitmap();
+        
+        final float height = 
+            mapBitmap.getHeight();
+        
+        final float width = 
+            mapBitmap.getWidth();
+        
+        float scale;
+        
+        if (height > width) {
+            scale = maxSize / height;
+            
+        } else {
+            scale = maxSize / width;
+        }
+        
+        final Bitmap scaledMapBitmap =
+            Bitmap.createScaledBitmap(mapBitmap, (int) (scale * width), (int) (scale * height), false);
+        
+        mapBitmap = null;
+        
+        return scaledMapBitmap;
+    }
+    
+    private void updateBitmap(
+        final Bitmap bitmap
+    ) {
+        for (int y = 0; y < getHeight(); y++) {
+            for (int x = 0; x < getWidth(); x++) {
+                updateBitmap(bitmap, x, y);
+            }
+        }
+    }
+
+    private void updateBitmap(
+        final Bitmap bitmap, 
+        final int x, 
+        final int y
+    ) {
+        final TileData sparseTile = 
+            getSparseTile(x, y);
+        
+        if (sparseTile == null) {
+            bitmap.setPixel(x, y, getTile(x, y).getAvgColor());
+        } else {
+            bitmap.setPixel(x, y, sparseTile.getAvgColor());
+        }
     }
 }

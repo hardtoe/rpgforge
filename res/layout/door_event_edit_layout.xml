@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:text="Activate Door on Walk Over" />
 
-    <com.lukevalenty.rpgforge.edit.MapView
+    <com.lukevalenty.rpgforge.editor.map.MapView
         android:id="@+id/doorDestMapView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />

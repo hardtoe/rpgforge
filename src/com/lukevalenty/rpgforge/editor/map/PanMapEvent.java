@@ -1,14 +1,10 @@
-package com.lukevalenty.rpgforge.edit;
+package com.lukevalenty.rpgforge.editor.map;
 
-import java.util.List;
-
-import com.lukevalenty.rpgforge.data.TileData;
-
-public class EyedropEvent {
+public class PanMapEvent {
     private final int x;
     private final int y;
-    
-    public EyedropEvent(
+
+    public PanMapEvent(
         final int x,
         final int y
     ) {

@@ -19,7 +19,7 @@ import com.lukevalenty.rpgforge.data.RpgDatabase;
 import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.data.RpgList;
-import com.lukevalenty.rpgforge.edit.MapEditActivity;
+import com.lukevalenty.rpgforge.editor.map.MapEditActivity;
 import com.lukevalenty.rpgforge.engine.GameView;
 
 import de.greenrobot.event.EventBus;
@@ -34,6 +34,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
@@ -59,8 +60,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class RpgBrowseActivity extends BaseActivity {
-    public static final String TAG = RpgBrowseActivity.class.getName();
+public class BrowseGamesActivity extends BaseActivity {
+    public static final String TAG = BrowseGamesActivity.class.getName();
 
     private static final String RPG_LIST_FILENAME = "rpgListFile";
     
@@ -75,7 +76,7 @@ public class RpgBrowseActivity extends BaseActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.browse_activity);
+        setContentView(R.layout.browse_games_layout);
 
         kryo = new Kryo();
         kryo.setDefaultSerializer(CompatibleFieldSerializer.class);
@@ -87,11 +88,12 @@ public class RpgBrowseActivity extends BaseActivity {
             new BaseAdapter() {
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
-                    TextView label = new TextView(RpgBrowseActivity.this);
+                    TextView label = new TextView(BrowseGamesActivity.this);
                     label.setGravity(Gravity.CENTER);
                     label.setTextSize(24);
                     label.setPadding(16, 24, 16, 24);
                     label.setText(rpgList.get(position));
+                    label.setBackgroundColor(Color.TRANSPARENT);
                     return label;
                 }
                 
@@ -119,7 +121,7 @@ public class RpgBrowseActivity extends BaseActivity {
         newProjectButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
-                DialogUtil.showStringPrompt(RpgBrowseActivity.this, "Project Name", "Create Project", "Cancel", 
+                DialogUtil.showStringPrompt(BrowseGamesActivity.this, "Project Name", "Create Project", "Cancel", 
                     new StringPromptListener() {
                         @Override
                         public void onAccept(final String newProjectName) {
@@ -140,7 +142,7 @@ public class RpgBrowseActivity extends BaseActivity {
                 final long row
             ) {
                 final String projectName = rpgList.get(position);
-                Intent intent = new Intent(RpgBrowseActivity.this, MapEditActivity.class);
+                Intent intent = new Intent(BrowseGamesActivity.this, GameOverviewActivity.class);
                 intent.putExtra("PROJECT_NAME", projectName);
                 startActivity(intent);
                 overridePendingTransition(R.anim.right_slide_in, R.anim.left_slide_out);

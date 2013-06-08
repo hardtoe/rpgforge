@@ -1,4 +1,4 @@
-package com.lukevalenty.rpgforge.edit;
+package com.lukevalenty.rpgforge.editor.map;
 
 public class ResizeMapEvent {
     private final int width;

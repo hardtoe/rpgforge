@@ -12,7 +12,7 @@ import com.lukevalenty.rpgforge.data.EventData;
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.data.NpcEventData;
 import com.lukevalenty.rpgforge.data.TileData;
-import com.lukevalenty.rpgforge.edit.ScaleMapEvent;
+import com.lukevalenty.rpgforge.editor.map.ScaleMapEvent;
 import com.lukevalenty.rpgforge.graphics.DrawCommand;
 import com.lukevalenty.rpgforge.graphics.DrawCommandBuffer;
 import com.lukevalenty.rpgforge.graphics.DrawDialog;

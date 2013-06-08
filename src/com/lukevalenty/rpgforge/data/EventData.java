@@ -2,7 +2,7 @@ package com.lukevalenty.rpgforge.data;
 
 import android.graphics.drawable.Drawable;
 
-import com.lukevalenty.rpgforge.edit.PaletteItem;
+import com.lukevalenty.rpgforge.editor.map.PaletteItem;
 import com.lukevalenty.rpgforge.engine.GameObject;
 
 public abstract class EventData implements PaletteItem {

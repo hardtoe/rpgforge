@@ -1,8 +1,12 @@
 package com.lukevalenty.rpgforge;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -22,10 +26,66 @@ public class DialogUtil {
             activity.getLayoutInflater();
         
         final View view = 
-            inflater.inflate(R.layout.new_project_dialog, null);
+            inflater.inflate(R.layout.new_project_layout, null);
         
         final TextView stringValueField = 
             (TextView) view.findViewById(R.id.projectName);
+        
+        stringValueField.addTextChangedListener(new TextWatcher() {
+            private boolean myEdit = false;
+            
+            @Override
+            public void onTextChanged(
+                final CharSequence s, 
+                final int start, 
+                final int before, 
+                final int count
+            ) {
+                // do nothing
+            }
+            
+            @Override
+            public void beforeTextChanged(
+                final CharSequence s, 
+                final int start, 
+                final int count,
+                final int after
+            ) {
+                // do nothing 
+            }
+            
+            @Override
+            public void afterTextChanged(
+                final Editable s
+            ) {
+                if (myEdit == false) {
+                    myEdit = true;
+                 
+                    for (int i = 0; i < s.length(); i++) {
+                        if (invalidChar(s.charAt(i))) {
+                            s.delete(i, i + 1);
+                        }
+                    }
+                    
+                    myEdit = false;
+                }
+            }
+
+            private char[] invalidChars = {'*', '/', '"', ':', '<', '>', '?', '\\', '|', '+', ',', '.', ';', '=', '[', ']', '\'', '`', 127};
+            
+            private boolean invalidChar(
+                final char c
+            ) {
+                for (int i = 0; i < invalidChars.length; i++) {
+                    if (c == invalidChars[i]) {
+                        return true;
+                    }
+                }
+                
+                return 
+                    (c >= 0 && c <= 31);
+            }
+        });
         
         stringValueField.setHint(textFieldHint);
         

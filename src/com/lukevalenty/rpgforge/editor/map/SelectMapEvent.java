@@ -1,4 +1,4 @@
-package com.lukevalenty.rpgforge.edit;
+package com.lukevalenty.rpgforge.editor.map;
 
 import com.lukevalenty.rpgforge.data.MapData;
 

@@ -1,4 +1,4 @@
-package com.lukevalenty.rpgforge.edit;
+package com.lukevalenty.rpgforge.editor.map;
 
 
 import java.io.File;
@@ -22,25 +22,20 @@ import com.lukevalenty.rpgforge.data.RpgDatabase;
 import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.data.MapData;
-import com.lukevalenty.rpgforge.edit.MapView.OnTileClickListener;
+import com.lukevalenty.rpgforge.editor.map.MapView.OnTileClickListener;
 import com.lukevalenty.rpgforge.engine.Direction;
 import com.lukevalenty.rpgforge.engine.GameActivity;
-import com.lukevalenty.rpgforge.engine.GameObject;
-import com.lukevalenty.rpgforge.engine.GameView;
 import com.lukevalenty.rpgforge.engine.NumberRef;
 import com.lukevalenty.rpgforge.engine.ObjectRef;
 
 import de.greenrobot.event.EventBus;
 
-import roboguice.activity.RoboFragmentActivity;
 import roboguice.inject.InjectView;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -54,7 +49,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -64,12 +58,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -77,16 +67,12 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 public class MapEditActivity extends BaseActivity {
-    private String activeDatabaseFilename = "defaultRpgDatabase";
-    
     public static final String TAG = MapEditActivity.class.getName();
     
     @InjectView(R.id.tilePalette) private View tilePalette; 
@@ -96,7 +82,6 @@ public class MapEditActivity extends BaseActivity {
     
     @Inject private EventBus eventBus;
 
-    @Inject private RpgDatabaseLoader loader;
     
     private Tool currentTool = Tool.MOVE;
     private BaseAdapter tilePaletteAdapter;
@@ -104,67 +89,13 @@ public class MapEditActivity extends BaseActivity {
     private ArrayList<? extends PaletteItem> allTiles;
     private BaseAdapter mapSelectionAdapter;
 
-    private MapSelectionPresenter mapSelectionPresenter;
-
-    private TilePalettePresenter tilePalettePresenter;
-
     private ArrayList<EventData> eventTilePalette;
 
     private PaletteItem currentPaletteItem;
 
     
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        Log.d(TAG, "MapEditActivity.onNewIntent");
-        Log.d(TAG, "SAVING FILE: " + activeDatabaseFilename);
-        loader.save(this, activeDatabaseFilename, RpgForgeApplication.getDb());
-        handleIntent(intent);
-        tilePaletteAdapter.notifyDataSetChanged(); 
-    }
-    
-    private void handleIntent(Intent intent) {
-        Log.d(TAG, "MapEditActivity.handleIntent - " + intent);
-        
-        final String intentDatabaseFilename = 
-            Base64.encodeToString(intent.getExtras().getString("PROJECT_NAME").getBytes(), Base64.DEFAULT);
-        
-        if (!intentDatabaseFilename.equals(activeDatabaseFilename)) {
-            activeDatabaseFilename = 
-                intentDatabaseFilename;
-            
-            final File databaseFile = 
-                getFileStreamPath(activeDatabaseFilename);
-                
-            RpgDatabase rpgDatabase;
 
-            // clean up old memory
-            RpgForgeApplication.setDb(null);
-            
-            if (databaseFile.exists()) {
-                rpgDatabase = loader.load(this, activeDatabaseFilename);
-                
-            } else {
-                rpgDatabase = BuiltinData.createNewDatabase(this);
-            }
-              
-            RpgForgeApplication.setDb(rpgDatabase);
-
-            eventBus.post(new SelectMapEvent(0, rpgDatabase.getMaps().getFirst()));
-            
-            
-            allTiles = 
-                rpgDatabase.getAllTiles();       
-            
-            eventTilePalette = rpgDatabase.getEvents();
-            
-            if (mapSelectionAdapter != null) {
-                mapSelectionAdapter.notifyDataSetChanged();
-            }
-        }
-
-        Log.d(TAG, "HANDLE INTENT FINISHED");
-    }
     
     
     public void onEvent(
@@ -174,19 +105,35 @@ public class MapEditActivity extends BaseActivity {
         mapView.setMap(currentMap);
     }
     
-    @SuppressLint("NewApi")
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Log.d(TAG, "MapEditActivity.onNewIntent");
+        handleIntent(intent);
+    }
+    
+    private void handleIntent(Intent intent) {
+        Log.d(TAG, "MapEditActivity.handleIntent - " + intent);
+        
+        final int assetIndex = intent.getIntExtra("ASSET_INDEX", 0);
+        eventBus.post(new SelectMapEvent(assetIndex, RpgForgeApplication.getDb().getMaps().get(assetIndex)).setMapListChanged());
+            
+        Log.d(TAG, "HANDLE INTENT FINISHED");
+    }
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "== ON CREATE ==" + this.hashCode());
-        setContentView(R.layout.mapedit);
+        setContentView(R.layout.map_edit_layout);
 
         eventBus.register(this);
         
         mapView.setDebug(true);
         mapView.start();
         
+
+        updateFromDatabase(); 
         
         mapView.setOnTileClickListener(new OnTileClickListener() {
             @Override
@@ -231,18 +178,16 @@ public class MapEditActivity extends BaseActivity {
             }
         });
         
-        handleIntent(getIntent());
 
         
-        tilePalettePresenter =
-            new TilePalettePresenter(this, eventBus, tilePalette, tileDrawerSpinner, tileList, allTiles, eventTilePalette);
+        new TilePalettePresenter(this, eventBus, tilePalette, tileDrawerSpinner, tileList, allTiles, eventTilePalette);
         
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {     
-            mapSelectionPresenter =
-                new MapSelectionPresenter(this, eventBus, getActionBar());
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {  
+            new MapSelectionPresenter(this, eventBus, getActionBar());
         }      
 
+        handleIntent(getIntent());
         
         Log.d(TAG, "ONCREATE FINISHED");
     }
@@ -326,8 +271,6 @@ public class MapEditActivity extends BaseActivity {
     
     private boolean tileDrawInProgress = false;
     
-    //@SuppressLint("NewApi")
-    @SuppressLint("NewApi")
     public void onEvent(final DrawTileEvent e) {
         if (e.tile() instanceof TileData) {
             final TileData tile = 
@@ -348,447 +291,456 @@ public class MapEditActivity extends BaseActivity {
         }
         
         if (e.tile() instanceof DoorEventData) {
-            if (tileDrawInProgress == false) {
-                tileDrawInProgress = true;
-                
-                final DoorEventData doorEvent = 
-                    (DoorEventData) e.tile();
-                
-                final AlertDialog.Builder builder = 
-                    new AlertDialog.Builder(this);
-                
-                final LayoutInflater inflater = 
-                    this.getLayoutInflater();
-                
-                final View view = 
-                    inflater.inflate(R.layout.set_door_dest_dialog, null);
-                
-                final MapView destMap = 
-                    (MapView) view.findViewById(R.id.doorDestMapView);
-                
-                final Spinner mapList =
-                    (Spinner) view.findViewById(R.id.npcInitialDirection);
-
-                final CheckBox activeOnWalkOver =
-                    (CheckBox) view.findViewById(R.id.activeOnWalkOver);
-                
-                final BaseAdapter mapListAdapter = new BaseAdapter() {
-                    @Override
-                    public View getView(int position, View convertView, ViewGroup parent) {
-                        TextView label = new TextView(MapEditActivity.this);
-                        label.setGravity(Gravity.HORIZONTAL_GRAVITY_MASK | Gravity.LEFT);
-                        label.setTextSize(18);
-                        label.setPadding(8, 16, 8, 16);
-                        label.setText(RpgForgeApplication.getDb().getMaps().get(position).getName());
-                        label.setTextColor(Color.BLACK);
-                        return label;
-                    }
-                    
-                    @Override
-                    public long getItemId(int position) {
-                        return System.identityHashCode(getItem(position));
-                    }
-                    
-                    @Override
-                    public Object getItem(int position) {
-                        return RpgForgeApplication.getDb().getMaps().get(position);
-                    }
-                    
-                    @Override
-                    public int getCount() {
-                        return RpgForgeApplication.getDb().getMaps().size();
-                    }
-                };
-                
-                mapList.setAdapter(mapListAdapter);
-                
-                final ObjectRef<MapData> destMapRef = new ObjectRef<MapData>();
-                final NumberRef destX = new NumberRef();
-                final NumberRef destY = new NumberRef();
-                
-                mapList.setOnItemSelectedListener(new OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(
-                        final AdapterView<?> parent, 
-                        final View view,
-                        final int position, 
-                        final long id
-                    ) {
-                        destMapRef.value = 
-                            RpgForgeApplication.getDb().getMaps().get(position);
-                        
-                        destMap.setMap(destMapRef.value);
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> arg0) {
-                        // do nothing
-                    }
-                });
-                
-                destMap.setMap(currentMap);
-                destMap.start();
-                destMap.setZOrderOnTop(true);
-
-                destMapRef.value = currentMap;
-                destX.value = 32;
-                destY.value = 32;
-                
-                mapList.setSelection(0);
-                
-                destMap.highlightTile(true, 0, 0);
-                
-                destMap.setOnTileClickListener(new OnTileClickListener() {
-                    @Override
-                    public boolean onTileClick(int tileX, int tileY) {
-                        destX.value = tileX * 32;
-                        destY.value = (tileY * 32) - 32;
-                        destMap.highlightTile(true, tileX, tileY);
-                        
-                        return true;
-                    }
-                });
-                
-                
-                builder.setView(view)
-                    .setPositiveButton("Set Destination", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(final DialogInterface dialog, int id) {
-                            // TODO: need to query user for activeOnWalkOver
-                            doorEvent.setTarget((int) destX.value, (int) destY.value, destMapRef.value, activeOnWalkOver.isChecked());
-                            destMap.stop();
-                            tileDrawInProgress = false;
-                        }
-                    }).setCancelable(false);
-                
-                builder.create().show();
-            }
+            editDoorEvent(e);
         
         } else if (e.tile() instanceof NpcEventData) {
-            if (tileDrawInProgress == false) {
-                tileDrawInProgress = true;
-                
-                final NpcEventData npcEvent = 
-                    (NpcEventData) e.tile();
-                
-                final AlertDialog.Builder builder = 
-                    new AlertDialog.Builder(this);
-                
-                final LayoutInflater inflater = 
-                    this.getLayoutInflater();
-                
-                final View view = 
-                    inflater.inflate(R.layout.npc_event_dialog, null);
-                
-                final GridView npcSpriteList =
-                    (GridView) view.findViewById(R.id.npcSpriteList);
-                
-                final EditText npcDialog =
-                    (EditText) view.findViewById(R.id.npcDialog);
-                
-                final EditText npcCharacterName =
-                    (EditText) view.findViewById(R.id.npcCharacterName);
-                
-                final CheckBox npcStationary =
-                    (CheckBox) view.findViewById(R.id.npcStationary);
-                
-                final Spinner npcInitialDirection =
-                    (Spinner) view.findViewById(R.id.npcInitialDirection);
-                
-               
-                npcDialog.addTextChangedListener(new TextWatcher() {    
-                    private boolean myChange = false;
-                    
-                    @Override
-                    public void onTextChanged(
-                        final CharSequence s, 
-                        final int start, 
-                        final int before, 
-                        final int count
-                    ) {
-                        // do nothing
-                    }
-                    
-                    @Override
-                    public void beforeTextChanged(
-                        final CharSequence s, 
-                        final int start, 
-                        final int before, 
-                        final int count
-                    ) {
-                        // do nothing
-                    }
-                    
-                    @Override
-                    public void afterTextChanged(
-                        final Editable s
-                    ) {
-                        if (myChange == false) {
-                            myChange = true;
-                            
-                            wrapLine(0, 24, s);
-                            wrapLine(1, 24, s);
-                            wrapLine(2, 24, s);
-                            wrapLine(3, 24, s);
-                            
-                            
-                        } else {
-                            myChange = false;
-                        }
-                    }
+            editNpcEvent(e);
+        }
+    }
 
-                    private void wrapLine(
-                        final int lineNumber,
-                        final int maxLength, 
-                        final Editable s
-                    ) {
-                        final int startOfLine = 
-                            findStartOfLine(lineNumber, s);
+    @SuppressLint("NewApi")
+    private void editNpcEvent(final DrawTileEvent e) {
+        if (tileDrawInProgress == false) {
+            tileDrawInProgress = true;
+            
+            final NpcEventData npcEvent = 
+                (NpcEventData) e.tile();
+            
+            final AlertDialog.Builder builder = 
+                new AlertDialog.Builder(this);
+            
+            final LayoutInflater inflater = 
+                this.getLayoutInflater();
+            
+            final View view = 
+                inflater.inflate(R.layout.npc_event_edit_layout, null);
+            
+            final GridView npcSpriteList =
+                (GridView) view.findViewById(R.id.npcSpriteList);
+            
+            final EditText npcDialog =
+                (EditText) view.findViewById(R.id.npcDialog);
+            
+            final EditText npcCharacterName =
+                (EditText) view.findViewById(R.id.npcCharacterName);
+            
+            final CheckBox npcStationary =
+                (CheckBox) view.findViewById(R.id.npcStationary);
+            
+            final Spinner npcInitialDirection =
+                (Spinner) view.findViewById(R.id.npcInitialDirection);
+            
+           
+            npcDialog.addTextChangedListener(new TextWatcher() {    
+                private boolean myChange = false;
+                
+                @Override
+                public void onTextChanged(
+                    final CharSequence s, 
+                    final int start, 
+                    final int before, 
+                    final int count
+                ) {
+                    // do nothing
+                }
+                
+                @Override
+                public void beforeTextChanged(
+                    final CharSequence s, 
+                    final int start, 
+                    final int before, 
+                    final int count
+                ) {
+                    // do nothing
+                }
+                
+                @Override
+                public void afterTextChanged(
+                    final Editable s
+                ) {
+                    if (myChange == false) {
+                        myChange = true;
                         
-                        final int endOfLine =
-                            findEndOfLine(startOfLine, maxLength, s);    
+                        wrapLine(0, 24, s);
+                        wrapLine(1, 24, s);
+                        wrapLine(2, 24, s);
+                        wrapLine(3, 24, s);
                         
-                        final int lineLength =
-                            endOfLine - startOfLine;
                         
-                        if (
-                            lineLength >= maxLength &&
-                            s.length() > endOfLine && 
-                            s.charAt(endOfLine) != ' ' && 
-                            s.charAt(endOfLine) != '\n'
-                        ) {
-                            int startOfWord;
-                            
-                            for (
-                                startOfWord = endOfLine; 
-                                startOfWord > 0 && s.charAt(startOfWord) != ' ' && s.charAt(startOfWord) != '\n'; 
-                                startOfWord--
-                            );
-                            
-                            s.insert(startOfWord + 1, "\n");
-                        }
-                    }
-
-                    private int findEndOfLine(
-                        final int startOfLine, 
-                        final int maxLength,
-                        final Editable s
-                    ) {
-                        int endOfLine;
-                        
-                        for (
-                            endOfLine = startOfLine; 
-                            (endOfLine - startOfLine) <= maxLength && endOfLine < s.length() && s.charAt(endOfLine) != '\n'; 
-                            endOfLine++
-                        );
-                        
-                        return endOfLine;
-                    }
-
-                    private int findStartOfLine(
-                        final int lineNumber, 
-                        final Editable s
-                    ) {
-                        if (lineNumber == 0) {
-                            return 0;
-                            
-                        } else {
-                            int startOfLine = 0;
-                            int numNewlinesSeen = 0;
-                            
-                            while (
-                                numNewlinesSeen < lineNumber && 
-                                startOfLine < s.length()
-                            ) {
-                                if (s.charAt(startOfLine) == '\n') {
-                                    numNewlinesSeen++;
-                                }
-                                
-                                startOfLine++;
-                            }
-                            
-                            return startOfLine;
-                        }
-                    }
-                });
-                
-                ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(MapEditActivity.this, android.R.layout.simple_spinner_item); 
-                spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                
-                spinnerArrayAdapter.addAll("Faces Up", "Faces Down", "Faces Left", "Faces Right");  
-                
-                npcInitialDirection.setAdapter(spinnerArrayAdapter);
-                
-
-                npcEvent.setDirection(Direction.DOWN);
-                
-                npcInitialDirection.setOnItemSelectedListener(new OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(
-                        final AdapterView<?> parent, 
-                        final View view,
-                        final int position, 
-                        final long id
-                    ) {
-                        npcEvent.setDirection(Direction.values()[position]);
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> arg0) {
-                        // do nothing
-                    }
-                });
-                
-                npcInitialDirection.setSelection(1);
-                
-                final ArrayList<CharacterData> charDataList =
-                    new ArrayList<CharacterData>();
-                
-                for (final CharacterSetData charSetData : RpgForgeApplication.getDb().getCharacterSets()) {
-                    for (final CharacterData charData : charSetData.getCharacters()) {
-                        charDataList.add(charData);
+                    } else {
+                        myChange = false;
                     }
                 }
 
-
-                npcEvent.setCharacterData(charDataList.get(0));
-                
-                final NumberRef currentSelectedPositionInTilePalette = new NumberRef();
-                currentSelectedPositionInTilePalette.value = 0;
-                
-                final BaseAdapter npcListAdapter = new BaseAdapter() {
-
-                    @Override
-                    public View getView(
-                        final int position, 
-                        final View convertView, 
-                        final ViewGroup parent
+                private void wrapLine(
+                    final int lineNumber,
+                    final int maxLength, 
+                    final Editable s
+                ) {
+                    final int startOfLine = 
+                        findStartOfLine(lineNumber, s);
+                    
+                    final int endOfLine =
+                        findEndOfLine(startOfLine, maxLength, s);    
+                    
+                    final int lineLength =
+                        endOfLine - startOfLine;
+                    
+                    if (
+                        lineLength >= maxLength &&
+                        s.length() > endOfLine && 
+                        s.charAt(endOfLine) != ' ' && 
+                        s.charAt(endOfLine) != '\n'
                     ) {
-                        final CharacterData charData =
-                            charDataList.get(position);
-
-                        ImageView tileView;
+                        int startOfWord;
                         
-                        if (convertView == null) {
-                            tileView = 
-                                new ImageView(MapEditActivity.this);
+                        for (
+                            startOfWord = endOfLine; 
+                            startOfWord > 0 && s.charAt(startOfWord) != ' ' && s.charAt(startOfWord) != '\n'; 
+                            startOfWord--
+                        );
+                        
+                        s.insert(startOfWord + 1, "\n");
+                    }
+                }
+
+                private int findEndOfLine(
+                    final int startOfLine, 
+                    final int maxLength,
+                    final Editable s
+                ) {
+                    int endOfLine;
+                    
+                    for (
+                        endOfLine = startOfLine; 
+                        (endOfLine - startOfLine) <= maxLength && endOfLine < s.length() && s.charAt(endOfLine) != '\n'; 
+                        endOfLine++
+                    );
+                    
+                    return endOfLine;
+                }
+
+                private int findStartOfLine(
+                    final int lineNumber, 
+                    final Editable s
+                ) {
+                    if (lineNumber == 0) {
+                        return 0;
+                        
+                    } else {
+                        int startOfLine = 0;
+                        int numNewlinesSeen = 0;
+                        
+                        while (
+                            numNewlinesSeen < lineNumber && 
+                            startOfLine < s.length()
+                        ) {
+                            if (s.charAt(startOfLine) == '\n') {
+                                numNewlinesSeen++;
+                            }
                             
-                        } else {
-                            tileView = 
-                                (ImageView) convertView;
+                            startOfLine++;
                         }
                         
-                        if (((int) currentSelectedPositionInTilePalette.value) == position) {
-                            tileView.setBackgroundColor(Color.WHITE);
-                        } else {
-                            tileView.setBackgroundColor(Color.TRANSPARENT);
-                        }
-                        
-                        tileView.setLayoutParams(new GridView.LayoutParams(dpToPx(64), dpToPx(96)));
-                        tileView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                        tileView.setPadding(4, 4, 4, 4);
-                        
-                        tileView.setImageDrawable(new Drawable() {   
-                            private Rect src = new Rect();
-                            
-                            {
-                                src.left = charData.src().left + 32;
-                                src.right = charData.src().right - 32;
-                                src.top = charData.src().top;
-                                src.bottom = charData.src().top + 48; 
-                            }
-                            
-                            @Override
-                            public void setColorFilter(ColorFilter cf) {
-                                // do nothing
-                            }
-                            
-                            @Override
-                            public void setAlpha(int alpha) {
-                                // do nothing
-                            }
-                            
-                            @Override
-                            public int getOpacity() {
-                                return PixelFormat.TRANSPARENT;
-                            }
-                            
-                            @Override
-                            public void draw(final Canvas canvas) {
-                                canvas.drawBitmap(charData.bitmap(), src,  getBounds(), null);
-                            }
-                        });
-                        
-                        return tileView;
+                        return startOfLine;
                     }
-                    
+                }
+            });
+            
+            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(MapEditActivity.this, android.R.layout.simple_spinner_item); 
+            spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            
+            spinnerArrayAdapter.addAll("Faces Up", "Faces Down", "Faces Left", "Faces Right");  
+            
+            npcInitialDirection.setAdapter(spinnerArrayAdapter);
+            
 
+            npcEvent.setDirection(Direction.DOWN);
+            
+            npcInitialDirection.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(
+                    final AdapterView<?> parent, 
+                    final View view,
+                    final int position, 
+                    final long id
+                ) {
+                    npcEvent.setDirection(Direction.values()[position]);
+                }
 
-                    private int dpToPx(final int dp) {
-                        return (int) (MapEditActivity.this.getResources().getDisplayMetrics().density * dp);
-                    }
-                    
-                    @Override
-                    public long getItemId(int position) {
-                        return System.identityHashCode(getItem(position));
-                    }
-                    
-                    @Override
-                    public Object getItem(int position) {
-                        return charDataList.get(position);
-                    }
-                    
-                    @Override
-                    public int getCount() {
-                        return charDataList.size();
-                    }
-                };
-                
-                npcSpriteList.setAdapter(npcListAdapter);
-                
-                
-                npcSpriteList.setOnItemClickListener(new OnItemClickListener() {
-                    @Override
-                    public void onItemClick(
-                        final AdapterView<?> parent, 
-                        final View view,
-                        final int position, 
-                        final long id
-                    ) {
-                        currentSelectedPositionInTilePalette.value = position;
-                        npcListAdapter.notifyDataSetChanged();
-
-                        npcEvent.setCharacterData(charDataList.get(position));
-                    }
-                });
-
-                builder.setView(view)
-                    .setPositiveButton("Create NPC", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(final DialogInterface dialog, int id) {
-                            npcEvent.setCharacterName(npcCharacterName.getText().toString());
-                            npcEvent.setCharacterDialog(npcDialog.getText().toString());
-                            npcEvent.setInitialPosition(e.x() * 32, (e.y() - 1) * 32);        
-                            npcEvent.setStationary(npcStationary.isChecked());
-                            tileDrawInProgress = false;                   
-                        }
-                    }).setCancelable(false);
-                
-                final AlertDialog dialog = builder.create();
-                
-                dialog.show();
-                
-                // FIXME: this does not work :(
-                /*
-                view.getHandler().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        IBinder token = view.getWindowToken();
-                        ( ( InputMethodManager ) getSystemService( Context.INPUT_METHOD_SERVICE ) ).hideSoftInputFromWindow( token, 0 );
-                    }
-                });
-                */
+                @Override
+                public void onNothingSelected(AdapterView<?> arg0) {
+                    // do nothing
+                }
+            });
+            
+            npcInitialDirection.setSelection(1);
+            
+            final ArrayList<CharacterData> charDataList =
+                new ArrayList<CharacterData>();
+            
+            for (final CharacterSetData charSetData : RpgForgeApplication.getDb().getCharacterSets()) {
+                for (final CharacterData charData : charSetData.getCharacters()) {
+                    charDataList.add(charData);
+                }
             }
+
+
+            npcEvent.setCharacterData(charDataList.get(0));
+            
+            final NumberRef currentSelectedPositionInTilePalette = new NumberRef();
+            currentSelectedPositionInTilePalette.value = 0;
+            
+            final BaseAdapter npcListAdapter = new BaseAdapter() {
+
+                @Override
+                public View getView(
+                    final int position, 
+                    final View convertView, 
+                    final ViewGroup parent
+                ) {
+                    final CharacterData charData =
+                        charDataList.get(position);
+
+                    ImageView tileView;
+                    
+                    if (convertView == null) {
+                        tileView = 
+                            new ImageView(MapEditActivity.this);
+                        
+                    } else {
+                        tileView = 
+                            (ImageView) convertView;
+                    }
+                    
+                    if (((int) currentSelectedPositionInTilePalette.value) == position) {
+                        tileView.setBackgroundColor(Color.WHITE);
+                    } else {
+                        tileView.setBackgroundColor(Color.TRANSPARENT);
+                    }
+                    
+                    tileView.setLayoutParams(new GridView.LayoutParams(dpToPx(64), dpToPx(96)));
+                    tileView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    tileView.setPadding(4, 4, 4, 4);
+                    
+                    tileView.setImageDrawable(new Drawable() {   
+                        private Rect src = new Rect();
+                        
+                        {
+                            src.left = charData.src().left + 32;
+                            src.right = charData.src().right - 32;
+                            src.top = charData.src().top;
+                            src.bottom = charData.src().top + 48; 
+                        }
+                        
+                        @Override
+                        public void setColorFilter(ColorFilter cf) {
+                            // do nothing
+                        }
+                        
+                        @Override
+                        public void setAlpha(int alpha) {
+                            // do nothing
+                        }
+                        
+                        @Override
+                        public int getOpacity() {
+                            return PixelFormat.TRANSPARENT;
+                        }
+                        
+                        @Override
+                        public void draw(final Canvas canvas) {
+                            canvas.drawBitmap(charData.bitmap(), src,  getBounds(), null);
+                        }
+                    });
+                    
+                    return tileView;
+                }
+                
+
+
+                private int dpToPx(final int dp) {
+                    return (int) (MapEditActivity.this.getResources().getDisplayMetrics().density * dp);
+                }
+                
+                @Override
+                public long getItemId(int position) {
+                    return System.identityHashCode(getItem(position));
+                }
+                
+                @Override
+                public Object getItem(int position) {
+                    return charDataList.get(position);
+                }
+                
+                @Override
+                public int getCount() {
+                    return charDataList.size();
+                }
+            };
+            
+            npcSpriteList.setAdapter(npcListAdapter);
+            
+            
+            npcSpriteList.setOnItemClickListener(new OnItemClickListener() {
+                @Override
+                public void onItemClick(
+                    final AdapterView<?> parent, 
+                    final View view,
+                    final int position, 
+                    final long id
+                ) {
+                    currentSelectedPositionInTilePalette.value = position;
+                    npcListAdapter.notifyDataSetChanged();
+
+                    npcEvent.setCharacterData(charDataList.get(position));
+                }
+            });
+
+            builder.setView(view)
+                .setPositiveButton("Create NPC", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, int id) {
+                        npcEvent.setCharacterName(npcCharacterName.getText().toString());
+                        npcEvent.setCharacterDialog(npcDialog.getText().toString());
+                        npcEvent.setInitialPosition(e.x() * 32, (e.y() - 1) * 32);        
+                        npcEvent.setStationary(npcStationary.isChecked());
+                        tileDrawInProgress = false;                   
+                    }
+                }).setCancelable(false);
+            
+            final AlertDialog dialog = builder.create();
+            
+            dialog.show();
+            
+            // FIXME: this does not work :(
+            /*
+            view.getHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    IBinder token = view.getWindowToken();
+                    ( ( InputMethodManager ) getSystemService( Context.INPUT_METHOD_SERVICE ) ).hideSoftInputFromWindow( token, 0 );
+                }
+            });
+            */
+        }
+    }
+
+    private void editDoorEvent(final DrawTileEvent e) {
+        if (tileDrawInProgress == false) {
+            tileDrawInProgress = true;
+            
+            final DoorEventData doorEvent = 
+                (DoorEventData) e.tile();
+            
+            final AlertDialog.Builder builder = 
+                new AlertDialog.Builder(this);
+            
+            final LayoutInflater inflater = 
+                this.getLayoutInflater();
+            
+            final View view = 
+                inflater.inflate(R.layout.door_event_edit_layout, null);
+            
+            final MapView destMap = 
+                (MapView) view.findViewById(R.id.doorDestMapView);
+            
+            final Spinner mapList =
+                (Spinner) view.findViewById(R.id.npcInitialDirection);
+
+            final CheckBox activeOnWalkOver =
+                (CheckBox) view.findViewById(R.id.activeOnWalkOver);
+            
+            final BaseAdapter mapListAdapter = new BaseAdapter() {
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    TextView label = new TextView(MapEditActivity.this);
+                    label.setGravity(Gravity.HORIZONTAL_GRAVITY_MASK | Gravity.LEFT);
+                    label.setTextSize(18);
+                    label.setPadding(8, 16, 8, 16);
+                    label.setText(RpgForgeApplication.getDb().getMaps().get(position).getName());
+                    label.setTextColor(Color.BLACK);
+                    return label;
+                }
+                
+                @Override
+                public long getItemId(int position) {
+                    return System.identityHashCode(getItem(position));
+                }
+                
+                @Override
+                public Object getItem(int position) {
+                    return RpgForgeApplication.getDb().getMaps().get(position);
+                }
+                
+                @Override
+                public int getCount() {
+                    return RpgForgeApplication.getDb().getMaps().size();
+                }
+            };
+            
+            mapList.setAdapter(mapListAdapter);
+            
+            final ObjectRef<MapData> destMapRef = new ObjectRef<MapData>();
+            final NumberRef destX = new NumberRef();
+            final NumberRef destY = new NumberRef();
+            
+            mapList.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(
+                    final AdapterView<?> parent, 
+                    final View view,
+                    final int position, 
+                    final long id
+                ) {
+                    destMapRef.value = 
+                        RpgForgeApplication.getDb().getMaps().get(position);
+                    
+                    destMap.setMap(destMapRef.value);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> arg0) {
+                    // do nothing
+                }
+            });
+            
+            destMap.setMap(currentMap);
+            destMap.start();
+            destMap.setZOrderOnTop(true);
+
+            destMapRef.value = currentMap;
+            destX.value = 32;
+            destY.value = 32;
+            
+            mapList.setSelection(0);
+            
+            destMap.highlightTile(true, 0, 0);
+            
+            destMap.setOnTileClickListener(new OnTileClickListener() {
+                @Override
+                public boolean onTileClick(int tileX, int tileY) {
+                    destX.value = tileX * 32;
+                    destY.value = (tileY * 32) - 32;
+                    destMap.highlightTile(true, tileX, tileY);
+                    
+                    return true;
+                }
+            });
+            
+            
+            builder.setView(view)
+                .setPositiveButton("Set Destination", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, int id) {
+                        // TODO: need to query user for activeOnWalkOver
+                        doorEvent.setTarget((int) destX.value, (int) destY.value, destMapRef.value, activeOnWalkOver.isChecked());
+                        destMap.stop();
+                        tileDrawInProgress = false;
+                    }
+                }).setCancelable(false);
+            
+            builder.create().show();
         }
     }
     
@@ -983,21 +935,18 @@ public class MapEditActivity extends BaseActivity {
     private MapData currentMap;
     private int currentMapIndex;
     
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void onEvent(
         final SelectMapEvent e
     ) {
         mapView.setMap(e.map());
         currentMap = e.map();
         currentMapIndex = e.mapIndex();
-        
-        if (e.mapListChanged()) {
-            mapSelectionAdapter.notifyDataSetChanged(); 
 
-            if (android.os.Build.VERSION.SDK_INT >= 11) {
-                getActionBar().setSelectedNavigationItem(e.mapIndex());
-            }
+        if (mapSelectionAdapter != null) {
+            mapSelectionAdapter.notifyDataSetChanged(); 
         }
+        
+        getActionBar().setSelectedNavigationItem(e.mapIndex());
     }
     
     @Override
@@ -1011,14 +960,31 @@ public class MapEditActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
         mapView.start();
+
+
+        updateFromDatabase(); 
+    }
+
+    private void updateFromDatabase() {
+        allTiles = 
+            RpgForgeApplication.getDb().getAllTiles();       
+        
+        eventTilePalette = 
+            RpgForgeApplication.getDb().getEvents();
+        
+        if (mapSelectionAdapter != null) {
+            mapSelectionAdapter.notifyDataSetChanged();
+        }
+        
+        if (tilePaletteAdapter != null) {
+            tilePaletteAdapter.notifyDataSetChanged();
+        }
     }
     
     @Override 
     public void onPause() {
         super.onPause();
         mapView.stop();
-        Log.d(TAG, "SAVING FILE: " + activeDatabaseFilename);
-        loader.save(this, activeDatabaseFilename, RpgForgeApplication.getDb());
     }
     
     @Override 
@@ -1047,7 +1013,7 @@ public class MapEditActivity extends BaseActivity {
             this.getLayoutInflater();
         
         final View view = 
-            inflater.inflate(R.layout.map_info, null);
+            inflater.inflate(R.layout.map_resize_layout, null);
               
         final TextView mapWidth = 
             (TextView) view.findViewById(R.id.resizeWidthField);
@@ -1097,7 +1063,7 @@ public class MapEditActivity extends BaseActivity {
             this.getLayoutInflater();
         
         final View view = 
-            inflater.inflate(R.layout.new_map_dialog, null);
+            inflater.inflate(R.layout.new_map_layout, null);
         
         final TextView mapNameField = 
             (TextView) view.findViewById(R.id.mapNameField);

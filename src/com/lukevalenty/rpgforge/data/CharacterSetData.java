@@ -1,5 +1,7 @@
 package com.lukevalenty.rpgforge.data;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -8,9 +10,11 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Environment;
 
 public class CharacterSetData extends BitmapData {
     private ArrayList<CharacterData> characters = new ArrayList<CharacterData>();
@@ -29,6 +33,9 @@ public class CharacterSetData extends BitmapData {
 
     public void load(final Context context) {
         super.load(context);
+        
+        /*
+        // THIS WAS A STUPID HACK TO MAKE THE SPRITESHEETS TRANSPARENT
         
         int transparentColor = bitmap().getPixel(0, 0);
         
@@ -49,6 +56,22 @@ public class CharacterSetData extends BitmapData {
         this.bitmap.recycle();
         this.bitmap = null;
         this.bitmap = newBitmap;
+        
+        
+
+        
+        FileOutputStream thumbnailOutput;
+        try {
+            thumbnailOutput = new FileOutputStream(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/Screenshots/" + bitmapFilePath);
+
+            bitmap.compress(CompressFormat.PNG, 0, thumbnailOutput);
+            
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        */
+        
     }
 
     public void addCharacter(final CharacterData characterData) {

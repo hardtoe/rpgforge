@@ -1,4 +1,4 @@
-package com.lukevalenty.rpgforge.edit;
+package com.lukevalenty.rpgforge.editor.map;
 
 import java.util.ArrayList;
 import java.util.Formatter.BigDecimalLayoutForm;
@@ -308,9 +308,7 @@ public class MapView extends GameView {
 
             public void setMap(final MapData mapData) {
                 this.currentMap = mapData;
-                currentMapBitmap = Bitmap.createBitmap(currentMap.getWidth(), currentMap.getHeight(), Bitmap.Config.ARGB_8888);
-                
-                updateMapBitmap();
+                currentMapBitmap = currentMap.createBitmap();
             }
     
             private void updateMapBitmap() {

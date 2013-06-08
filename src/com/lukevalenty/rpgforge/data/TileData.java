@@ -1,6 +1,6 @@
 package com.lukevalenty.rpgforge.data;
 
-import com.lukevalenty.rpgforge.edit.PaletteItem;
+import com.lukevalenty.rpgforge.editor.map.PaletteItem;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

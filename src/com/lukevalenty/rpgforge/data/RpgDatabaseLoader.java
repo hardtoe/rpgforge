@@ -1,8 +1,11 @@
 package com.lukevalenty.rpgforge.data;
 
 import java.io.File;
+import java.io.FileOutputStream;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -44,13 +47,40 @@ public class RpgDatabaseLoader {
         final RpgDatabase rpgDatabase
     ) {
         try {
-            Output output = 
+            final Output output = 
                 new Output(context.openFileOutput(rpgDatabaseFile, Context.MODE_PRIVATE));
             
             kryo.writeObject(output, rpgDatabase);
             
             output.close();
             
+            /*
+            final FileOutputStream thumbnailOutput = 
+                context.openFileOutput(rpgDatabaseFile + ".png", Context.MODE_PRIVATE);
+            
+            final Bitmap mapBitmap = 
+                rpgDatabase.getMaps().getFirst().createBitmap();
+            
+            final float height = 
+                mapBitmap.getHeight();
+            
+            final float width = 
+                mapBitmap.getWidth();
+            
+            float scale;
+            
+            if (height > width) {
+                scale = height / 128f;
+                
+            } else {
+                scale = width / 128f;
+            }
+            
+            final Bitmap scaledMapBitmap =
+                Bitmap.createScaledBitmap(mapBitmap, (int) (scale * width), (int) (scale * height), false);
+            
+            scaledMapBitmap.compress(CompressFormat.PNG, 0, thumbnailOutput);
+            */
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

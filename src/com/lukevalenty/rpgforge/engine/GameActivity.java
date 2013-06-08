@@ -47,7 +47,7 @@ public class GameActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.gameview);
+        setContentView(R.layout.game_play_layout);
         
         gameEngine.addGameInput(new GameInput() {
             @Override

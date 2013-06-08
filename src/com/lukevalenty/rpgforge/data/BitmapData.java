@@ -9,7 +9,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 public abstract class BitmapData {
-    private String bitmapFilePath;
+    protected String bitmapFilePath;
     
     protected transient Bitmap bitmap;
     
