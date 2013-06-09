@@ -41,48 +41,28 @@ public class GameOverviewActivity extends BaseActivity {
     private static final String TAG = 
         GameOverviewActivity.class.getCanonicalName();
 
-    private String activeDatabaseFilename = "defaultRpgDatabase";
-    @Inject private RpgDatabaseLoader loader;
     @InjectView(R.id.assetGridView) private GridView assetGridView;
     
     @Override
     protected void onNewIntent(Intent intent) {
         Log.d(TAG, "GameOverviewActivity.onNewIntent");
-        Log.d(TAG, "SAVING FILE: " + activeDatabaseFilename);
-        loader.save(this, activeDatabaseFilename, RpgForgeApplication.getDb());
+        Log.d(TAG, "SAVING FILE: " + RpgForgeApplication.getDbFile());
+        RpgForgeApplication.save(this);
         handleIntent(intent);
     }
     
     private void handleIntent(Intent intent) {
         Log.d(TAG, "GameOverviewActivity.handleIntent - " + intent);
-        
-        if (intent.hasExtra("PROJECT_NAME")) {
+
+        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+            final File intentDatabaseFile =
+                new File(intent.getData().getPath());
             
-            final String intentDatabaseFilename = 
-                Base64.encodeToString(intent.getExtras().getString("PROJECT_NAME").getBytes(), Base64.DEFAULT);
-            
-            if (!intentDatabaseFilename.equals(activeDatabaseFilename)) {
-                activeDatabaseFilename = 
-                    intentDatabaseFilename;
-                
-                final File databaseFile = 
-                    getFileStreamPath(activeDatabaseFilename);
-                    
-                RpgDatabase rpgDatabase;
-    
-                // clean up old memory
-                RpgForgeApplication.setDb(null);
-                
-                if (databaseFile.exists()) {
-                    rpgDatabase = loader.load(this, activeDatabaseFilename);
-                    
-                } else {
-                    rpgDatabase = BuiltinData.createNewDatabase(this);
-                }
-                  
-                RpgForgeApplication.setDb(rpgDatabase);
+            if (!intentDatabaseFile.getAbsolutePath().equals(RpgForgeApplication.getDbFile())) {
+                RpgForgeApplication.load(this, intentDatabaseFile);
             }
         }
+        
         Log.d(TAG, "HANDLE INTENT FINISHED");
     }
     
@@ -95,13 +75,22 @@ public class GameOverviewActivity extends BaseActivity {
         
         getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         
+        final Tab mapsTab = getActionBar().newTab().setText("Maps");
+        final Tab tilesetsTab = getActionBar().newTab().setText("Tilesets");
+        final Tab charactersTab = getActionBar().newTab().setText("Characters");
+        final Tab enemiesTab = getActionBar().newTab().setText("Enemies");
+        final Tab itemsTab = getActionBar().newTab().setText("Items");
+        final Tab skillsTab = getActionBar().newTab().setText("Skills");
+        final Tab spritesTab = getActionBar().newTab().setText("Sprites");
+        final Tab eventsTab = getActionBar().newTab().setText("Events");
+        
         final TabListener tabListener = new TabListener() {    
             @Override
             public void onTabUnselected(
                 final Tab tab, 
                 final FragmentTransaction ft
             ) {
-                
+                // do nothing
             }
             
             @Override
@@ -117,18 +106,18 @@ public class GameOverviewActivity extends BaseActivity {
                 final Tab tab, 
                 final FragmentTransaction ft
             ) {
-                
+                // do nothing
             }
         };
         
-        getActionBar().addTab(getActionBar().newTab().setText("Maps").setTabListener(tabListener));
-        getActionBar().addTab(getActionBar().newTab().setText("Tilesets").setTabListener(tabListener));
-        getActionBar().addTab(getActionBar().newTab().setText("Characters").setTabListener(tabListener));
-        getActionBar().addTab(getActionBar().newTab().setText("Enemies").setTabListener(tabListener));
-        getActionBar().addTab(getActionBar().newTab().setText("Items").setTabListener(tabListener));
-        getActionBar().addTab(getActionBar().newTab().setText("Skills").setTabListener(tabListener));
-        getActionBar().addTab(getActionBar().newTab().setText("Sprites").setTabListener(tabListener));
-        getActionBar().addTab(getActionBar().newTab().setText("Events").setTabListener(tabListener));
+        getActionBar().addTab(mapsTab.setTabListener(tabListener));
+        getActionBar().addTab(tilesetsTab.setTabListener(tabListener));
+        getActionBar().addTab(charactersTab.setTabListener(tabListener));
+        getActionBar().addTab(enemiesTab.setTabListener(tabListener));
+        getActionBar().addTab(itemsTab.setTabListener(tabListener));
+        getActionBar().addTab(skillsTab.setTabListener(tabListener));
+        getActionBar().addTab(spritesTab.setTabListener(tabListener));
+        getActionBar().addTab(eventsTab.setTabListener(tabListener));
         
 
         final BaseAdapter assetGridAdapter = new BaseAdapter() {      
@@ -199,8 +188,8 @@ public class GameOverviewActivity extends BaseActivity {
     @Override 
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "SAVING FILE: " + activeDatabaseFilename);
-        loader.save(this, activeDatabaseFilename, RpgForgeApplication.getDb());
+        Log.d(TAG, "SAVING FILE: " + RpgForgeApplication.getDbFile());
+        RpgForgeApplication.save(this);
     }
 
     @Override

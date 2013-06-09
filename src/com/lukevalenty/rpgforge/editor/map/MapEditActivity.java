@@ -985,6 +985,8 @@ public class MapEditActivity extends BaseActivity {
     public void onPause() {
         super.onPause();
         mapView.stop();
+        Log.d(TAG, "SAVING FILE: " + RpgForgeApplication.getDbFile());
+        RpgForgeApplication.save(this);
     }
     
     @Override 

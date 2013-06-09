@@ -1,7 +1,9 @@
 package com.lukevalenty.rpgforge.data;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -81,6 +83,45 @@ public class RpgDatabaseLoader {
             
             scaledMapBitmap.compress(CompressFormat.PNG, 0, thumbnailOutput);
             */
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public void save(
+            final Context context, 
+            final File dbFile, 
+            final RpgDatabase rpgDatabase
+        ) {
+            try {
+                final Output output = 
+                    new Output(new FileOutputStream(dbFile));
+                
+                kryo.writeObject(output, rpgDatabase);
+                
+                output.close();
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    public RpgDatabase load(
+        final Context context, 
+        final File dbFile
+    ) {
+        try {
+            final Input input = 
+                new Input(new FileInputStream(dbFile));
+            
+            final RpgDatabase rpgDatabase =  
+                kryo.readObject(input, RpgDatabase.class);
+            
+            rpgDatabase.load(context);
+            
+            input.close();
+            return rpgDatabase;
+            
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

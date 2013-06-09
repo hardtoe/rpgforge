@@ -1,7 +1,11 @@
 package com.lukevalenty.rpgforge.browse;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -39,7 +43,10 @@ import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -68,8 +75,10 @@ public class BrowseGamesActivity extends BaseActivity {
     @InjectView(R.id.rpgListView) ListView rpgListView;
     @Inject private EventBus eventBus;
 
-    private Kryo kryo;
-    private RpgList rpgList;
+    private final File externalDir = 
+        new File(Environment.getExternalStorageDirectory(), "RpgForge");
+
+    private File[] rpgDirList;
     
     // FIXME: this should be moved to RpgForgeApplication
             
@@ -78,11 +87,10 @@ public class BrowseGamesActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.browse_games_layout);
 
-        kryo = new Kryo();
-        kryo.setDefaultSerializer(CompatibleFieldSerializer.class);
-        
-        rpgList = loadRpgList();
+        convertToExternalStorage();
 
+        rpgDirList = 
+            externalDir.listFiles();
         
         final BaseAdapter rpgListAdapter = 
             new BaseAdapter() {
@@ -92,7 +100,7 @@ public class BrowseGamesActivity extends BaseActivity {
                     label.setGravity(Gravity.CENTER);
                     label.setTextSize(24);
                     label.setPadding(16, 24, 16, 24);
-                    label.setText(rpgList.get(position));
+                    label.setText(rpgDirList[position].getName());
                     label.setBackgroundColor(Color.TRANSPARENT);
                     return label;
                 }
@@ -104,12 +112,12 @@ public class BrowseGamesActivity extends BaseActivity {
                 
                 @Override
                 public Object getItem(int position) {
-                    return rpgList.get(position);
+                    return rpgDirList[position];
                 }
                 
                 @Override
                 public int getCount() {
-                    return rpgList.getSize();
+                    return rpgDirList.length;
                 }
             };
         
@@ -125,7 +133,12 @@ public class BrowseGamesActivity extends BaseActivity {
                     new StringPromptListener() {
                         @Override
                         public void onAccept(final String newProjectName) {
-                            rpgList.add(newProjectName);
+                            //rpgList.add(newProjectName);
+                            new File(externalDir, newProjectName).mkdir();
+                            
+                            rpgDirList = 
+                                externalDir.listFiles();
+                            
                             rpgListAdapter.notifyDataSetChanged();
                         }
                     });
@@ -141,9 +154,11 @@ public class BrowseGamesActivity extends BaseActivity {
                 final int position,
                 final long row
             ) {
-                final String projectName = rpgList.get(position);
-                Intent intent = new Intent(BrowseGamesActivity.this, GameOverviewActivity.class);
-                intent.putExtra("PROJECT_NAME", projectName);
+                final String projectName = rpgDirList[position].getName();
+                //Intent intent = new Intent(BrowseGamesActivity.this, GameOverviewActivity.class);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                //intent.putExtra("PROJECT_NAME", projectName);
+                intent.setData(Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "RpgForge" + File.separator + projectName + File.separator + projectName + ".rpg")));
                 startActivity(intent);
                 overridePendingTransition(R.anim.right_slide_in, R.anim.left_slide_out);
             }
@@ -153,6 +168,69 @@ public class BrowseGamesActivity extends BaseActivity {
         rpgListView.setAdapter(rpgListAdapter);
     }
 
+
+    private void convertToExternalStorage() {
+        
+        if (!externalDir.exists()) {
+            externalDir.mkdir();
+            
+            
+            final RpgList rpgList = loadRpgList();
+            
+            for (int i = 0; i < rpgList.getSize(); i++) {
+                final String gameName = 
+                    rpgList.get(i);
+                
+                final File internalGameFile = 
+                    this.getFileStreamPath(Base64.encodeToString(gameName.getBytes(), Base64.DEFAULT));
+                
+                final File externalGameDir = 
+                    new File(externalDir, gameName.replaceAll("[\\n\\t]", ""));
+                
+                externalGameDir.mkdir();
+                
+                final File externalGameFile =
+                    new File(externalGameDir, gameName + ".rpg");
+                
+                try {
+                    copyFile(internalGameFile, externalGameFile);
+                    
+                } catch (final IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+
+    public void copyFile(
+        final File sourceFile, 
+        final File destFile
+    ) throws 
+        IOException 
+    {
+        if (!destFile.exists()) {
+            destFile.createNewFile();
+        }
+
+        FileChannel source = null;
+        FileChannel destination = null;
+        
+        try {
+            source = new FileInputStream(sourceFile).getChannel();
+            destination = new FileOutputStream(destFile).getChannel();
+            destination.transferFrom(source, 0, source.size());
+            
+        } finally {
+            if (source != null) {
+                source.close();
+            }
+            
+            if (destination != null) {
+                destination.close();
+            }
+        }
+    }
 
     @Override 
     public void onResume() {
@@ -169,10 +247,13 @@ public class BrowseGamesActivity extends BaseActivity {
         final Bundle outState
     ) {
         super.onSaveInstanceState(outState);
-        saveRpgList(rpgList);
+        //saveRpgList(rpgList);
     }
 
     public RpgList loadRpgList() {
+        final Kryo kryo = new Kryo();
+        kryo.setDefaultSerializer(CompatibleFieldSerializer.class);
+        
         try {
             final Input input = 
                 new Input(openFileInput(RPG_LIST_FILENAME));
@@ -185,22 +266,6 @@ public class BrowseGamesActivity extends BaseActivity {
             
         } catch (final FileNotFoundException e) {
             return new RpgList();
-            
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public void saveRpgList(
-        final RpgList rpgList
-    ) {
-        try {
-            final Output output = 
-                new Output(this.openFileOutput(RPG_LIST_FILENAME, Context.MODE_PRIVATE));
-            
-            kryo.writeObject(output, rpgList);
-            
-            output.close();
             
         } catch (final Exception e) {
             throw new RuntimeException(e);
