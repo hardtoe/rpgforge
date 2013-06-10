@@ -18,7 +18,6 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import com.google.inject.Inject;
-import com.lukevalenty.rpgforge.data.BuiltinData;
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.engine.GameView;
@@ -269,8 +268,6 @@ public class MapView extends GameView {
                 this.setMatrixPool = setMatrixPool;
                 this.spritePool = spritePool;
                 this.tilemapPool = tilemapPool;
-                
-                BuiltinData.load(context);
     
                 viewMatrix.postScale(2, 2);
                 
@@ -356,7 +353,7 @@ public class MapView extends GameView {
                     
                     if (backBuffer != null) {
                         backBuffer.add(setMatrixPool.get().set(viewMatrix));
-                        backBuffer.add(tilemapPool.get().set(currentMap, currentMapBitmap));
+                        backBuffer.add(tilemapPool.get().set(currentMap, currentMapBitmap).setUpper().setLower());
                         
                         if (highlightTile) {
                             backBuffer.add(spritePool.get().set(

@@ -12,7 +12,6 @@ import com.lukevalenty.rpgforge.DialogUtil;
 import com.lukevalenty.rpgforge.R;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
 import com.lukevalenty.rpgforge.DialogUtil.StringPromptListener;
-import com.lukevalenty.rpgforge.data.BuiltinData;
 import com.lukevalenty.rpgforge.data.CharacterData;
 import com.lukevalenty.rpgforge.data.CharacterSetData;
 import com.lukevalenty.rpgforge.data.DoorEventData;

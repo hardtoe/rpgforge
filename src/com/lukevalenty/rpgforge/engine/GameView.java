@@ -223,26 +223,33 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                         } else {
                             for (int y = yMinTile; y < yMaxTile; y++) {
                                 for (int x = xMinTile; x < xMaxTile; x++) {
-                                    final TileData tile =
-                                        map.getTile(x, y);
-                                    
-                                    if (tile != null) {
-                                        if (tile instanceof AutoTileData) {
-                                            drawAutoTile(map, drawTilemap, (AutoTileData) tile, c, x, y);
-                                        } else {
-                                            drawTile(tile, c, x, y);
+                                    if (drawTilemap.isLower()) {
+                                        final TileData tile =
+                                            map.getTile(x, y);
+                                        
+                                        if (tile != null) {
+                                            if (tile instanceof AutoTileData) {
+                                                drawAutoTile(map, drawTilemap, (AutoTileData) tile, c, x, y);
+                                            } else {
+                                                drawTile(tile, c, x, y);
+                                            }
                                         }
                                     }
                                     
                                     
                                     final TileData sparseTile =
                                         map.getSparseTile(x, y);
-                                    
+
                                     if (sparseTile != null) {
-                                        if (sparseTile instanceof AutoTileData) {
-                                            drawAutoTile(map, drawTilemap, (AutoTileData) sparseTile, c, x, y);
-                                        } else {
-                                            drawTile(sparseTile, c, x, y);
+                                        if (
+                                            (drawTilemap.isLower() && sparseTile.getLayer() <= 1) ||
+                                            (drawTilemap.isUpper() && sparseTile.getLayer() > 1)
+                                        ) {
+                                            if (sparseTile instanceof AutoTileData) {
+                                                drawAutoTile(map, drawTilemap, (AutoTileData) sparseTile, c, x, y);
+                                            } else {
+                                                drawTile(sparseTile, c, x, y);
+                                            }            
                                         }
                                     }
                                     

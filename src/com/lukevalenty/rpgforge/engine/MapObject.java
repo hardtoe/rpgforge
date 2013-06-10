@@ -9,7 +9,8 @@ public class MapObject extends GameObject {
                 final GlobalGameState globalState
             ) {
                 if (frameState.phase == GamePhase.RENDER) {
-                    frameState.drawBuffer.add(frameState.tilemapPool.get().set(globalState.getMap()).setZ(-1000));
+                    frameState.drawBuffer.add(frameState.tilemapPool.get().set(globalState.getMap()).setLower().setZ(-1000));
+                    frameState.drawBuffer.add(frameState.tilemapPool.get().set(globalState.getMap()).setUpper().setZ(32 * 1000));
                 }
             }
         });

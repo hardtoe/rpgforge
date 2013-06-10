@@ -58,15 +58,15 @@ public final class R {
         public static final int heightField=0x7f0b0013;
         public static final int mapNameField=0x7f0b0011;
         public static final int mapView=0x7f0b0008;
-        public static final int menu_deletemap=0x7f0b0020;
-        public static final int menu_draw=0x7f0b001c;
-        public static final int menu_eyedrop=0x7f0b001b;
-        public static final int menu_fill=0x7f0b001d;
-        public static final int menu_move=0x7f0b001a;
-        public static final int menu_new=0x7f0b0018;
-        public static final int menu_playtest=0x7f0b0019;
-        public static final int menu_renamemap=0x7f0b001e;
-        public static final int menu_resizemap=0x7f0b001f;
+        public static final int menu_deletemap=0x7f0b0021;
+        public static final int menu_draw=0x7f0b001d;
+        public static final int menu_eyedrop=0x7f0b001c;
+        public static final int menu_fill=0x7f0b001e;
+        public static final int menu_move=0x7f0b001b;
+        public static final int menu_new=0x7f0b0019;
+        public static final int menu_playtest=0x7f0b001a;
+        public static final int menu_renamemap=0x7f0b001f;
+        public static final int menu_resizemap=0x7f0b0020;
         public static final int npcCharacterName=0x7f0b0016;
         public static final int npcDialog=0x7f0b0017;
         public static final int npcInitialDirection=0x7f0b0001;
@@ -83,6 +83,7 @@ public final class R {
         public static final int textView3=0x7f0b0010;
         public static final int tileDrawerSpinner=0x7f0b000a;
         public static final int tilePalette=0x7f0b0009;
+        public static final int tilesetGridView=0x7f0b0018;
         public static final int widthField=0x7f0b0012;
     }
     public static final class integer {
@@ -99,6 +100,7 @@ public final class R {
         public static final int new_map_layout=0x7f030007;
         public static final int new_project_layout=0x7f030008;
         public static final int npc_event_edit_layout=0x7f030009;
+        public static final int tileset_edit_layout=0x7f03000a;
     }
     public static final class menu {
         public static final int main=0x7f0a0000;

@@ -18,7 +18,6 @@ import com.lukevalenty.rpgforge.DialogUtil;
 import com.lukevalenty.rpgforge.DialogUtil.StringPromptListener;
 import com.lukevalenty.rpgforge.R;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
-import com.lukevalenty.rpgforge.data.BuiltinData;
 import com.lukevalenty.rpgforge.data.RpgDatabase;
 import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 import com.lukevalenty.rpgforge.data.TileData;
@@ -80,7 +79,6 @@ public class BrowseGamesActivity extends BaseActivity {
 
     private File[] rpgDirList;
     
-    // FIXME: this should be moved to RpgForgeApplication
             
     @Override
     protected void onCreate(final Bundle savedInstanceState) {

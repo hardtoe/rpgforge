@@ -109,7 +109,7 @@ public abstract class TileData implements PaletteItem {
     }
     
     public int getAvgColor() {
-        int numPixels = 0;
+        int numPixels = 1; // protect against divide by zero
         
         int r = 0;
         int g = 0;

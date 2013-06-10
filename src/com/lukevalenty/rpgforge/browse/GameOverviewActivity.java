@@ -29,19 +29,33 @@ import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.BaseActivity;
 import com.lukevalenty.rpgforge.R;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
-import com.lukevalenty.rpgforge.data.BuiltinData;
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.data.RpgDatabase;
 import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
+import com.lukevalenty.rpgforge.data.TileSetData;
 import com.lukevalenty.rpgforge.editor.map.MapEditActivity;
 import com.lukevalenty.rpgforge.editor.map.PaletteItem;
 import com.lukevalenty.rpgforge.editor.map.SelectMapEvent;
+import com.lukevalenty.rpgforge.editor.tileset.TilesetEditActivity;
 
 public class GameOverviewActivity extends BaseActivity {
     private static final String TAG = 
         GameOverviewActivity.class.getCanonicalName();
 
     @InjectView(R.id.assetGridView) private GridView assetGridView;
+
+    private static int currentTabIndex;
+    
+    private Tab currentTab;
+
+
+    private BaseAdapter mapsGridAdapter;
+
+    private OnItemClickListener mapsClickListener;
+
+    private BaseAdapter tilesetsGridAdapter;
+
+    private OnItemClickListener tilesetsClickListener;
     
     @Override
     protected void onNewIntent(Intent intent) {
@@ -61,10 +75,13 @@ public class GameOverviewActivity extends BaseActivity {
             if (!intentDatabaseFile.getAbsolutePath().equals(RpgForgeApplication.getDbFile())) {
                 RpgForgeApplication.load(this, intentDatabaseFile);
             }
+            
+            currentTabIndex = 0;
         }
         
         Log.d(TAG, "HANDLE INTENT FINISHED");
     }
+    
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,6 +89,139 @@ public class GameOverviewActivity extends BaseActivity {
         setContentView(R.layout.game_overview_layout);
 
         handleIntent(getIntent());
+        
+
+        Log.d(TAG, "ON CREATE: " + savedInstanceState);
+
+        mapsGridAdapter = new BaseAdapter() {      
+            @Override
+            public View getView(
+                final int position, 
+                final View convertView, 
+                final ViewGroup parent
+            ) {
+                final MapData mapData =
+                    RpgForgeApplication.getDb().getMaps().get(position);
+
+                ImageView mapView;
+                
+                if (convertView == null) {
+                    mapView = 
+                        new ImageView(GameOverviewActivity.this);
+                    
+                    mapView.setLayoutParams(new GridView.LayoutParams(dpToPx(200), dpToPx(200)));
+                    mapView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                    mapView.setPadding(4, 4, 4, 4);
+                    
+                } else {
+                    mapView = 
+                        (ImageView) convertView;
+                }
+                
+                mapView.setImageBitmap(mapData.createBitmap(dpToPx(200)));
+                
+                return mapView;
+            }
+            
+            @Override
+            public long getItemId(int position) {
+                return 0;
+            }
+            
+            @Override
+            public Object getItem(int position) {
+                return RpgForgeApplication.getDb().getMaps().get(position);
+            }
+            
+            @Override
+            public int getCount() {
+                return RpgForgeApplication.getDb().getMaps().size();
+            }
+        };
+
+        mapsClickListener = new OnItemClickListener() {
+            @Override
+            public void onItemClick(
+                final AdapterView<?> parent, 
+                final View view, 
+                final int position,
+                final long row
+            ) {
+                Intent intent = new Intent(GameOverviewActivity.this, MapEditActivity.class);
+                intent.putExtra("ASSET_INDEX", position);
+                startActivity(intent);
+                overridePendingTransition(R.anim.right_slide_in, R.anim.left_slide_out);
+                
+            }
+        };
+        
+        
+        
+        
+
+        tilesetsGridAdapter = new BaseAdapter() {      
+            @Override
+            public View getView(
+                final int position, 
+                final View convertView, 
+                final ViewGroup parent
+            ) {
+                final TileSetData tileSetData =
+                    RpgForgeApplication.getDb().getTileSets().get(position);
+
+                ImageView tileView;
+                
+                if (convertView == null) {
+                    tileView = 
+                        new ImageView(GameOverviewActivity.this);
+                    
+                    tileView.setLayoutParams(new GridView.LayoutParams(dpToPx(200), dpToPx(200)));
+                    tileView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                    tileView.setPadding(4, 4, 4, 4);
+                    
+                } else {
+                    tileView = 
+                        (ImageView) convertView;
+                }
+                
+                tileView.setImageBitmap(tileSetData.bitmap());
+                
+                return tileView;
+            }
+            
+            @Override
+            public long getItemId(int position) {
+                return 0;
+            }
+            
+            @Override
+            public Object getItem(int position) {
+                return RpgForgeApplication.getDb().getTileSets().get(position);
+            }
+            
+            @Override
+            public int getCount() {
+                return RpgForgeApplication.getDb().getTileSets().size();
+            }
+        };
+
+        tilesetsClickListener = new OnItemClickListener() {
+            @Override
+            public void onItemClick(
+                final AdapterView<?> parent, 
+                final View view, 
+                final int position,
+                final long row
+            ) {
+                Intent intent = new Intent(GameOverviewActivity.this, TilesetEditActivity.class);
+                intent.putExtra("ASSET_INDEX", position);
+                startActivity(intent);
+                overridePendingTransition(R.anim.right_slide_in, R.anim.left_slide_out);
+            }
+        };
+        
+        
+        
         
         getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         
@@ -98,7 +248,17 @@ public class GameOverviewActivity extends BaseActivity {
                 final Tab tab, 
                 final FragmentTransaction ft
             ) {
+                currentTab = tab;
                 
+                if (currentTab == mapsTab) {
+                    assetGridView.setAdapter(mapsGridAdapter);
+                    assetGridView.setOnItemClickListener(mapsClickListener);
+                    
+                } else if (currentTab == tilesetsTab) {
+                    assetGridView.setAdapter(tilesetsGridAdapter);
+                    assetGridView.setOnItemClickListener(tilesetsClickListener);
+                    
+                }
             }
             
             @Override
@@ -119,77 +279,28 @@ public class GameOverviewActivity extends BaseActivity {
         getActionBar().addTab(spritesTab.setTabListener(tabListener));
         getActionBar().addTab(eventsTab.setTabListener(tabListener));
         
-
-        final BaseAdapter assetGridAdapter = new BaseAdapter() {      
-            @Override
-            public View getView(
-                final int position, 
-                final View convertView, 
-                final ViewGroup parent
-            ) {
-                final MapData tileData =
-                    RpgForgeApplication.getDb().getMaps().get(position);
-
-                ImageView tileView;
-                
-                if (convertView == null) {
-                    tileView = 
-                        new ImageView(GameOverviewActivity.this);
-                    
-                    tileView.setLayoutParams(new GridView.LayoutParams(dpToPx(200), dpToPx(200)));
-                    tileView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                    tileView.setPadding(4, 4, 4, 4);
-                    
-                } else {
-                    tileView = 
-                        (ImageView) convertView;
-                }
-                
-                tileView.setImageBitmap(tileData.createBitmap(dpToPx(200)));
-                
-                return tileView;
-            }
-            
-            @Override
-            public long getItemId(int position) {
-                return 0;
-            }
-            
-            @Override
-            public Object getItem(int position) {
-                return RpgForgeApplication.getDb().getMaps().get(position);
-            }
-            
-            @Override
-            public int getCount() {
-                return RpgForgeApplication.getDb().getMaps().size();
-            }
-        };
-        assetGridView.setAdapter(assetGridAdapter);
+        /*
+        currentTab = mapsTab;
         
-        assetGridView.setOnItemClickListener(new OnItemClickListener() {
+        assetGridView.setAdapter(mapsGridAdapter);
+        assetGridView.setOnItemClickListener(mapsClickListener);
+        */
 
-            @Override
-            public void onItemClick(
-                final AdapterView<?> parent, 
-                final View view, 
-                final int position,
-                final long row
-            ) {
-                Intent intent = new Intent(GameOverviewActivity.this, MapEditActivity.class);
-                intent.putExtra("ASSET_INDEX", position);
-                startActivity(intent);
-                overridePendingTransition(R.anim.right_slide_in, R.anim.left_slide_out);
-                
-            }
-        });
     }
+    
     
     @Override 
     public void onPause() {
         super.onPause();
         Log.d(TAG, "SAVING FILE: " + RpgForgeApplication.getDbFile());
         RpgForgeApplication.save(this);
+        currentTabIndex = getActionBar().getSelectedNavigationIndex();
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActionBar().setSelectedNavigationItem(currentTabIndex);
     }
 
     @Override

@@ -12,12 +12,14 @@ public class DrawTileMap extends DrawCommand<DrawTileMap> {
     
     private MapData map;
     private Bitmap bitmap;
+    private boolean upper;
+    private boolean lower;
     
     public DrawTileMap set(
         final MapData map, 
         final Bitmap bitmap
     ) {
-        super.init();
+        init();
         
         this.map = map;
         this.bitmap = bitmap;
@@ -28,12 +30,18 @@ public class DrawTileMap extends DrawCommand<DrawTileMap> {
     public DrawTileMap set(
         final MapData map
     ) {
-        super.init();
+        init();
         
         this.map = map;
         this.bitmap = null;
         
         return this;
+    }
+    
+    public void init() {
+        super.init();
+        this.upper = false;
+        this.lower = false;
     }
     
     public MapData map() {
@@ -42,6 +50,24 @@ public class DrawTileMap extends DrawCommand<DrawTileMap> {
     
     public Bitmap bitmap() {
         return bitmap;
+    }
+    
+    public DrawTileMap setUpper() {
+        this.upper = true;
+        return this;
+    }
+    
+    public DrawTileMap setLower() {
+        this.lower = true;
+        return this;
+    }
+    
+    public boolean isUpper() {
+        return this.upper;
+    }
+    
+    public boolean isLower() {
+        return this.lower;
     }
     
     @Override
