@@ -104,7 +104,7 @@ public class NpcEventData extends EventData {
             } else if (frameState.phase == GamePhase.RENDER) {
                 
                 if (showingDialog) {
-                    frameState.drawBuffer.add(frameState.dialogPool.get().set(dialogText()).setZ(1000));
+                    frameState.drawBuffer.add(frameState.dialogPool.get().set(dialogText()).setZ(100000));
                 }
             }
         }

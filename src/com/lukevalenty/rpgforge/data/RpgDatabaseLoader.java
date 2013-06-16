@@ -93,16 +93,18 @@ public class RpgDatabaseLoader {
             final File dbFile, 
             final RpgDatabase rpgDatabase
         ) {
-            try {
-                final Output output = 
-                    new Output(new FileOutputStream(dbFile));
-                
-                kryo.writeObject(output, rpgDatabase);
-                
-                output.close();
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            if (dbFile != null && rpgDatabase != null) {
+                try {
+                    final Output output = 
+                        new Output(new FileOutputStream(dbFile));
+                    
+                    kryo.writeObject(output, rpgDatabase);
+                    
+                    output.close();
+    
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 

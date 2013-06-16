@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lukevalenty.rpgforge"
-    android:versionCode="25"
-    android:versionName="0.1.24-alpha" >
+    android:versionCode="26"
+    android:versionName="0.1.25-alpha" >
 
     <uses-sdk
-        android:minSdkVersion="11"
+        android:minSdkVersion="14"
         android:targetSdkVersion="17" />
 
 	<uses-permission android:name="android.permission.INTERNET" />
@@ -83,6 +83,13 @@
 
         </activity>
         
+        <activity
+            android:name="com.lukevalenty.rpgforge.editor.playercharacter.PlayerCharacterEditActivity"
+            android:label="Character Editor"  
+            android:parentActivityName="com.lukevalenty.rpgforge.browse.GameOverviewActivity"
+            android:screenOrientation="landscape">
+
+        </activity>
         <activity
             android:name="com.lukevalenty.rpgforge.editor.tileset.TilesetEditActivity"
             android:label="Tileset Editor"  

@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import com.google.inject.Inject;
+import com.lukevalenty.rpgforge.data.CharacterData;
+import com.lukevalenty.rpgforge.data.PlayerCharacterData;
 import com.lukevalenty.rpgforge.data.RpgDatabase;
 import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 
@@ -63,9 +65,22 @@ public class RpgForgeApplication extends Application {
 
         rpgDatabase = loader.load(context, dbFile);
           
+        fixEmptyPlayerCharacterArray(rpgDatabase);
+        
         db = rpgDatabase;
     }
     
+    private static void fixEmptyPlayerCharacterArray(
+        final RpgDatabase rpgDatabase
+    ) {
+        if (rpgDatabase.getPlayerCharacters().isEmpty()) {
+            final CharacterData defaultCharacterData = 
+                rpgDatabase.getCharacterSets().getFirst().getCharacters().get(0);
+            
+            rpgDatabase.getPlayerCharacters().add(new PlayerCharacterData(defaultCharacterData));
+        }
+    }
+
     private static void copyAsset(
         final Context context, 
         final String src,

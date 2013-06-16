@@ -6,52 +6,28 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer;
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.BaseActivity;
 import com.lukevalenty.rpgforge.DialogUtil;
 import com.lukevalenty.rpgforge.DialogUtil.StringPromptListener;
 import com.lukevalenty.rpgforge.R;
-import com.lukevalenty.rpgforge.RpgForgeApplication;
-import com.lukevalenty.rpgforge.data.RpgDatabase;
-import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
-import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.data.RpgList;
-import com.lukevalenty.rpgforge.editor.map.MapEditActivity;
-import com.lukevalenty.rpgforge.engine.GameView;
 
 import de.greenrobot.event.EventBus;
 
-import roboguice.activity.RoboFragmentActivity;
 import roboguice.inject.InjectView;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.PixelFormat;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Base64;
-import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -59,12 +35,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class BrowseGamesActivity extends BaseActivity {
     public static final String TAG = BrowseGamesActivity.class.getName();

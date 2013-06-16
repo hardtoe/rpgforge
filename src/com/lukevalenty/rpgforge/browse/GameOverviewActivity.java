@@ -10,7 +10,12 @@ import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -26,16 +31,19 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.google.inject.Inject;
+import com.lukevalenty.rpgforge.NewButton;
 import com.lukevalenty.rpgforge.BaseActivity;
 import com.lukevalenty.rpgforge.R;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
 import com.lukevalenty.rpgforge.data.MapData;
+import com.lukevalenty.rpgforge.data.PlayerCharacterData;
 import com.lukevalenty.rpgforge.data.RpgDatabase;
 import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 import com.lukevalenty.rpgforge.data.TileSetData;
 import com.lukevalenty.rpgforge.editor.map.MapEditActivity;
 import com.lukevalenty.rpgforge.editor.map.PaletteItem;
 import com.lukevalenty.rpgforge.editor.map.SelectMapEvent;
+import com.lukevalenty.rpgforge.editor.playercharacter.PlayerCharacterEditActivity;
 import com.lukevalenty.rpgforge.editor.tileset.TilesetEditActivity;
 
 public class GameOverviewActivity extends BaseActivity {
@@ -56,6 +64,12 @@ public class GameOverviewActivity extends BaseActivity {
     private BaseAdapter tilesetsGridAdapter;
 
     private OnItemClickListener tilesetsClickListener;
+
+    private BaseAdapter charactersGridAdapter;
+
+    private OnItemClickListener charactersClickListener;
+    
+    private Paint paint;
     
     @Override
     protected void onNewIntent(Intent intent) {
@@ -93,6 +107,8 @@ public class GameOverviewActivity extends BaseActivity {
 
         Log.d(TAG, "ON CREATE: " + savedInstanceState);
 
+
+        
         mapsGridAdapter = new BaseAdapter() {      
             @Override
             public View getView(
@@ -223,6 +239,144 @@ public class GameOverviewActivity extends BaseActivity {
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        paint = new Paint();
+        paint.setFlags(paint.getFlags() & ~Paint.FILTER_BITMAP_FLAG);
+
+
+        charactersGridAdapter = new BaseAdapter() {      
+            @Override
+            public View getView(
+                final int position, 
+                final View convertView, 
+                final ViewGroup parent
+            ) {
+                if (position == RpgForgeApplication.getDb().getPlayerCharacters().size()) {
+                    final NewButton view = 
+                        new NewButton(GameOverviewActivity.this);
+
+                    view.setLayoutParams(new GridView.LayoutParams(dpToPx(200), dpToPx(200)));
+                    view.setPadding(4, 4, 4, 4);
+                    
+                    return view;
+                    
+                } else {
+                    final PlayerCharacterData playerCharacterData =
+                        RpgForgeApplication.getDb().getPlayerCharacters().get(position);
+    
+                    ImageView tileView;
+                    
+                    if (convertView == null) {
+                        tileView = 
+                            new ImageView(GameOverviewActivity.this);
+                        
+                        tileView.setLayoutParams(new GridView.LayoutParams(dpToPx(200), dpToPx(200)));
+                        tileView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                        tileView.setPadding(4, 4, 4, 4);
+                        
+                    } else {
+                        tileView = 
+                            (ImageView) convertView;
+                    }
+                    
+                    final Rect src = new Rect();
+                    src.left = playerCharacterData.getCharacterData().src().left + 32;
+                    src.top = playerCharacterData.getCharacterData().src().top;
+                    src.right = playerCharacterData.getCharacterData().src().right - 32;
+                    src.bottom = playerCharacterData.getCharacterData().src().top + 48;
+                    
+                    final Rect dst = new Rect();
+                    
+                    tileView.setImageDrawable(new Drawable() {
+                        @Override
+                        public void setColorFilter(ColorFilter cf) {
+                            // do nothing
+                        }
+                        
+                        @Override
+                        public void setAlpha(int alpha) {
+                            // do nothing
+                        }
+                        
+                        @Override
+                        public int getOpacity() {
+                            return PixelFormat.TRANSLUCENT;
+                        }
+                        
+                        @Override
+                        public void draw(Canvas canvas) {
+                            int height = getBounds().height();
+                            int width = (height * 2) / 3;
+                            
+                            dst.top = getBounds().top;
+                            dst.bottom = getBounds().bottom;
+                            dst.left = (getBounds().width() - width) / 2;
+                            dst.right = dst.left + width;
+                            canvas.drawBitmap(playerCharacterData.getCharacterData().bitmap(), src, dst, paint);
+                        }
+                    });
+                    
+                    return tileView;
+                }
+            }
+            
+            @Override
+            public long getItemId(int position) {
+                return 0;
+            }
+            
+            @Override
+            public Object getItem(int position) {
+                if (position == RpgForgeApplication.getDb().getPlayerCharacters().size()) {
+                    return null;
+                    
+                } else {
+                    return RpgForgeApplication.getDb().getPlayerCharacters().get(position);
+                }
+            }
+            
+            @Override
+            public int getCount() {
+                return RpgForgeApplication.getDb().getPlayerCharacters().size() + 1;
+            }
+        };
+
+        charactersClickListener = new OnItemClickListener() {
+            @Override
+            public void onItemClick(
+                final AdapterView<?> parent, 
+                final View view, 
+                final int position,
+                final long row
+            ) { 
+                final Intent intent = 
+                    new Intent(GameOverviewActivity.this, PlayerCharacterEditActivity.class);
+                
+                intent.putExtra("ASSET_INDEX", position);
+                startActivity(intent);
+                overridePendingTransition(R.anim.right_slide_in, R.anim.left_slide_out);
+            }
+        };
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         
         final Tab mapsTab = getActionBar().newTab().setText("Maps");
@@ -257,6 +411,10 @@ public class GameOverviewActivity extends BaseActivity {
                 } else if (currentTab == tilesetsTab) {
                     assetGridView.setAdapter(tilesetsGridAdapter);
                     assetGridView.setOnItemClickListener(tilesetsClickListener);
+                    
+                } else if (currentTab == charactersTab) {
+                    assetGridView.setAdapter(charactersGridAdapter);
+                    assetGridView.setOnItemClickListener(charactersClickListener);
                     
                 }
             }
@@ -301,29 +459,5 @@ public class GameOverviewActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
         getActionBar().setSelectedNavigationItem(currentTabIndex);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                overridePendingTransition(R.anim.left_slide_in, R.anim.right_slide_out);
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-    
-    @Override
-    public void onBackPressed() {
-        this.finish();
-        overridePendingTransition(R.anim.left_slide_in, R.anim.right_slide_out);
-        return;
-    }
-
-    private int dpToPx(int dp) {
-        return (int) (getResources().getDisplayMetrics().density * dp);
     }
 }

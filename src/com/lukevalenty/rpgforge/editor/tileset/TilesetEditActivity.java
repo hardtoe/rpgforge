@@ -374,35 +374,4 @@ public class TilesetEditActivity extends BaseActivity {
         tileListAdapter.notifyDataSetChanged();
     }
 
-    @Override 
-    public void onPause() {
-        super.onPause();
-        Log.d(TAG, "SAVING FILE: " + RpgForgeApplication.getDbFile());
-        RpgForgeApplication.save(this);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                overridePendingTransition(R.anim.left_slide_in, R.anim.right_slide_out);
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-    
-    @Override
-    public void onBackPressed() {
-        this.finish();
-        overridePendingTransition(R.anim.left_slide_in, R.anim.right_slide_out);
-        return;
-    }
-
-
-    private int dpToPx(int dp) {
-        return (int) (getResources().getDisplayMetrics().density * dp);
-    }
 }
