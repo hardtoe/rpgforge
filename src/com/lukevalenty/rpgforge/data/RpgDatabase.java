@@ -20,6 +20,8 @@ public class RpgDatabase {
 
     private ArrayList<PlayerCharacterData> playerCharacters;
     private PlayerCharacterData defaultPlayerCharacter;
+
+    private ArrayList<EnemyCharacterData> enemyCharacters;
     
     public RpgDatabase() {
         this.maps = new ArrayList<MapData>();
@@ -27,6 +29,7 @@ public class RpgDatabase {
         this.characterSets = new ArrayList<CharacterSetData>();
         this.savedEvents = new ArrayList<EventData>();
         this.playerCharacters = new ArrayList<PlayerCharacterData>();
+        this.enemyCharacters = new ArrayList<EnemyCharacterData>();
     }
     
     public void addCharacterSet(final CharacterSetData characterSet) {
@@ -124,5 +127,9 @@ public class RpgDatabase {
     
     public ArrayList<PlayerCharacterData> getPlayerCharacters() {
         return playerCharacters;
+    }
+    
+    public ArrayList<EnemyCharacterData> getEnemyCharacters() {
+        return enemyCharacters;
     }
 }

@@ -4,7 +4,8 @@ import android.graphics.Bitmap;
 
 public class BattleCharacterData {
     private CharacterData charData;
-
+    private String name;
+    
     @SuppressWarnings("unused")
     protected BattleCharacterData() {
         // default constructor needed for serialization
@@ -25,5 +26,13 @@ public class BattleCharacterData {
         final CharacterData characterData
     ) {
         this.charData = characterData;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
     }
 }

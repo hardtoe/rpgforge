@@ -35,15 +35,16 @@ import com.lukevalenty.rpgforge.NewButton;
 import com.lukevalenty.rpgforge.BaseActivity;
 import com.lukevalenty.rpgforge.R;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
+import com.lukevalenty.rpgforge.data.EnemyCharacterData;
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.data.PlayerCharacterData;
 import com.lukevalenty.rpgforge.data.RpgDatabase;
 import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 import com.lukevalenty.rpgforge.data.TileSetData;
+import com.lukevalenty.rpgforge.editor.character.CharacterEditActivity;
 import com.lukevalenty.rpgforge.editor.map.MapEditActivity;
 import com.lukevalenty.rpgforge.editor.map.PaletteItem;
 import com.lukevalenty.rpgforge.editor.map.SelectMapEvent;
-import com.lukevalenty.rpgforge.editor.playercharacter.PlayerCharacterEditActivity;
 import com.lukevalenty.rpgforge.editor.tileset.TilesetEditActivity;
 
 public class GameOverviewActivity extends BaseActivity {
@@ -65,11 +66,15 @@ public class GameOverviewActivity extends BaseActivity {
 
     private OnItemClickListener tilesetsClickListener;
 
-    private BaseAdapter charactersGridAdapter;
+    private BaseAdapter playerCharactersGridAdapter;
 
-    private OnItemClickListener charactersClickListener;
+    private OnItemClickListener playerCharactersClickListener;
     
     private Paint paint;
+
+    private BaseAdapter enemyCharactersGridAdapter;
+
+    private OnItemClickListener enemyCharactersClickListener;
     
     @Override
     protected void onNewIntent(Intent intent) {
@@ -252,7 +257,7 @@ public class GameOverviewActivity extends BaseActivity {
         paint.setFlags(paint.getFlags() & ~Paint.FILTER_BITMAP_FLAG);
 
 
-        charactersGridAdapter = new BaseAdapter() {      
+        playerCharactersGridAdapter = new BaseAdapter() {      
             @Override
             public View getView(
                 final int position, 
@@ -349,7 +354,7 @@ public class GameOverviewActivity extends BaseActivity {
             }
         };
 
-        charactersClickListener = new OnItemClickListener() {
+        playerCharactersClickListener = new OnItemClickListener() {
             @Override
             public void onItemClick(
                 final AdapterView<?> parent, 
@@ -358,13 +363,157 @@ public class GameOverviewActivity extends BaseActivity {
                 final long row
             ) { 
                 final Intent intent = 
-                    new Intent(GameOverviewActivity.this, PlayerCharacterEditActivity.class);
+                    new Intent(GameOverviewActivity.this, CharacterEditActivity.class);
                 
                 intent.putExtra("ASSET_INDEX", position);
+                intent.putExtra("ENEMY_CHARACTER", false);
                 startActivity(intent);
                 overridePendingTransition(R.anim.right_slide_in, R.anim.left_slide_out);
             }
         };
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+        enemyCharactersGridAdapter = new BaseAdapter() {      
+            @Override
+            public View getView(
+                final int position, 
+                final View convertView, 
+                final ViewGroup parent
+            ) {
+                if (position == RpgForgeApplication.getDb().getEnemyCharacters().size()) {
+                    final NewButton view = 
+                        new NewButton(GameOverviewActivity.this);
+
+                    view.setLayoutParams(new GridView.LayoutParams(dpToPx(200), dpToPx(200)));
+                    view.setPadding(4, 4, 4, 4);
+                    
+                    return view;
+                    
+                } else {
+                    final EnemyCharacterData enemyCharacterData =
+                        RpgForgeApplication.getDb().getEnemyCharacters().get(position);
+    
+                    ImageView tileView;
+                    
+                    if (convertView == null) {
+                        tileView = 
+                            new ImageView(GameOverviewActivity.this);
+                        
+                        tileView.setLayoutParams(new GridView.LayoutParams(dpToPx(200), dpToPx(200)));
+                        tileView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                        tileView.setPadding(4, 4, 4, 4);
+                        
+                    } else {
+                        tileView = 
+                            (ImageView) convertView;
+                    }
+                    
+                    final Rect src = new Rect();
+                    src.left = enemyCharacterData.getCharacterData().src().left + 32;
+                    src.top = enemyCharacterData.getCharacterData().src().top;
+                    src.right = enemyCharacterData.getCharacterData().src().right - 32;
+                    src.bottom = enemyCharacterData.getCharacterData().src().top + 48;
+                    
+                    final Rect dst = new Rect();
+                    
+                    tileView.setImageDrawable(new Drawable() {
+                        @Override
+                        public void setColorFilter(ColorFilter cf) {
+                            // do nothing
+                        }
+                        
+                        @Override
+                        public void setAlpha(int alpha) {
+                            // do nothing
+                        }
+                        
+                        @Override
+                        public int getOpacity() {
+                            return PixelFormat.TRANSLUCENT;
+                        }
+                        
+                        @Override
+                        public void draw(Canvas canvas) {
+                            int height = getBounds().height();
+                            int width = (height * 2) / 3;
+                            
+                            dst.top = getBounds().top;
+                            dst.bottom = getBounds().bottom;
+                            dst.left = (getBounds().width() - width) / 2;
+                            dst.right = dst.left + width;
+                            canvas.drawBitmap(enemyCharacterData.getCharacterData().bitmap(), src, dst, paint);
+                        }
+                    });
+                    
+                    return tileView;
+                }
+            }
+            
+            @Override
+            public long getItemId(int position) {
+                return 0;
+            }
+            
+            @Override
+            public Object getItem(int position) {
+                if (position == RpgForgeApplication.getDb().getEnemyCharacters().size()) {
+                    return null;
+                    
+                } else {
+                    return RpgForgeApplication.getDb().getEnemyCharacters().get(position);
+                }
+            }
+            
+            @Override
+            public int getCount() {
+                return RpgForgeApplication.getDb().getEnemyCharacters().size() + 1;
+            }
+        };
+
+        enemyCharactersClickListener = new OnItemClickListener() {
+            @Override
+            public void onItemClick(
+                final AdapterView<?> parent, 
+                final View view, 
+                final int position,
+                final long row
+            ) { 
+                final Intent intent = 
+                    new Intent(GameOverviewActivity.this, CharacterEditActivity.class);
+                
+                intent.putExtra("ASSET_INDEX", position);
+                intent.putExtra("ENEMY_CHARACTER", true);
+                startActivity(intent);
+                overridePendingTransition(R.anim.right_slide_in, R.anim.left_slide_out);
+            }
+        };
+        
+        
+        
+        
+        
+        
         
         
         
@@ -413,9 +562,12 @@ public class GameOverviewActivity extends BaseActivity {
                     assetGridView.setOnItemClickListener(tilesetsClickListener);
                     
                 } else if (currentTab == charactersTab) {
-                    assetGridView.setAdapter(charactersGridAdapter);
-                    assetGridView.setOnItemClickListener(charactersClickListener);
+                    assetGridView.setAdapter(playerCharactersGridAdapter);
+                    assetGridView.setOnItemClickListener(playerCharactersClickListener);
                     
+                } else if (currentTab == enemiesTab) {
+                    assetGridView.setAdapter(enemyCharactersGridAdapter);
+                    assetGridView.setOnItemClickListener(enemyCharactersClickListener);    
                 }
             }
             
@@ -432,10 +584,13 @@ public class GameOverviewActivity extends BaseActivity {
         getActionBar().addTab(tilesetsTab.setTabListener(tabListener));
         getActionBar().addTab(charactersTab.setTabListener(tabListener));
         getActionBar().addTab(enemiesTab.setTabListener(tabListener));
+        
+        /*
         getActionBar().addTab(itemsTab.setTabListener(tabListener));
         getActionBar().addTab(skillsTab.setTabListener(tabListener));
         getActionBar().addTab(spritesTab.setTabListener(tabListener));
         getActionBar().addTab(eventsTab.setTabListener(tabListener));
+        */
         
         /*
         currentTab = mapsTab;

@@ -1,4 +1,4 @@
-package com.lukevalenty.rpgforge.editor.playercharacter;
+package com.lukevalenty.rpgforge.editor.character;
 
 import java.util.ArrayList;
 

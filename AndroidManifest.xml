@@ -84,7 +84,7 @@
         </activity>
         
         <activity
-            android:name="com.lukevalenty.rpgforge.editor.playercharacter.PlayerCharacterEditActivity"
+            android:name="com.lukevalenty.rpgforge.editor.character.CharacterEditActivity"
             android:label="Character Editor"  
             android:parentActivityName="com.lukevalenty.rpgforge.browse.GameOverviewActivity"
             android:screenOrientation="landscape">
