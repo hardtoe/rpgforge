@@ -32,9 +32,9 @@ import android.widget.Spinner;
 
 public class TilePalettePresenter {
     private GridView tileGridView;
+    
     private ArrayList<? extends PaletteItem> activePaletteItems;
 
-    private ArrayList<? extends PaletteItem> eventPaletteItems = new ArrayList<PaletteItem>();
     
     private int paletteItemWidth;
     private int paletteItemHeight;
@@ -43,6 +43,7 @@ public class TilePalettePresenter {
     private BaseAdapter tilePaletteAdapter;
     private Spinner tileDrawerSpinner;
     private View tilePalette;
+
     
     private void setWidth(final int width) {
         LayoutParams layoutParams = this.tileGridView.getLayoutParams();
@@ -73,13 +74,13 @@ public class TilePalettePresenter {
         final Spinner tileDrawerSpinner, 
         final GridView tileGridView,
         final ArrayList<? extends PaletteItem> tilesetPaletteItems,
-        final ArrayList<? extends PaletteItem> eventPaletteItems
+        final ArrayList<? extends PaletteItem> eventPaletteItems,
+        final ArrayList<? extends PaletteItem> enemyPaletteItems
     ) {
         this.tileGridView = tileGridView;
         this.tilePalette = tilePalette;
         this.tileDrawerSpinner = tileDrawerSpinner;
         this.activePaletteItems = tilesetPaletteItems;
-        this.eventPaletteItems = eventPaletteItems;
         
         final ArrayAdapter<String> spinnerAdapter = 
             new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item);
@@ -88,6 +89,7 @@ public class TilePalettePresenter {
         
         spinnerAdapter.add("Tiles");
         spinnerAdapter.add("Events");
+        spinnerAdapter.add("Enemies");
 
         tileDrawerSpinner.setAdapter(spinnerAdapter);
         
@@ -110,11 +112,21 @@ public class TilePalettePresenter {
                     
                 } else if (id == 1) {
                     activePaletteItems = eventPaletteItems;
+                    
                     paletteItemWidth = 
                         dpToPx(context, 128);
                     
                     paletteItemHeight = 
                         dpToPx(context, 48);
+                    
+                } else if (id == 2) {
+                    activePaletteItems = enemyPaletteItems;
+                    
+                    paletteItemWidth = 
+                        dpToPx(context, 64);
+                    
+                    paletteItemHeight = 
+                        dpToPx(context, 64);
                 }
                 
                 tilePaletteAdapter.notifyDataSetChanged();

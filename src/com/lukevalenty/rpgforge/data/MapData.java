@@ -2,6 +2,7 @@ package com.lukevalenty.rpgforge.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import com.lukevalenty.rpgforge.engine.GameObject;
 
@@ -230,14 +231,15 @@ public class MapData {
                 
                 gameObject.getNumberRef("tileX").value = events.keyAt(i) % width;
                 gameObject.getNumberRef("tileY").value = events.keyAt(i) / width;
+                
+            } else if (object instanceof NpcEventData) {
+                gameObjects.add(((NpcEventData) object).getGameObject());
+                
+            } else if (object instanceof EventData) {
+                gameObjects.add(((EventData) object).getGameObject());
             }
             
-            if (object instanceof NpcEventData) {
-                final GameObject gameObject =
-                    ((NpcEventData) object).getGameObject();
-                
-                gameObjects.add(gameObject);
-            }
+            
         }
         
         return gameObjects;
@@ -302,5 +304,42 @@ public class MapData {
         } else {
             bitmap.setPixel(x, y, sparseTile.getAvgColor());
         }
+    }
+
+    // FIXME: not sure this is the best for GC...especially since it gets called
+    //        every time the map is drawn in editor mode
+    public Iterator<EventData> getEventIterator() {
+        return new Iterator<EventData>() {
+            private int index = 0;
+            
+            @Override
+            public boolean hasNext() {
+                while (index < events.size() && (events.valueAt(index) == null || !(events.valueAt(index) instanceof EventData))) {
+                    events.remove(index);
+                    index++;
+                }
+                
+                return index < events.size();
+            }
+
+            @Override
+            public EventData next() {
+                return events.valueAt(index++);
+            }
+
+            @Override
+            public void remove() {
+                // do nothing
+            }
+        };
+    }
+
+    public Iterable<EventData> getEvents() {
+        return new Iterable<EventData>() {            
+            @Override
+            public Iterator<EventData> iterator() {
+                return getEventIterator();
+            }
+        };
     }
 }

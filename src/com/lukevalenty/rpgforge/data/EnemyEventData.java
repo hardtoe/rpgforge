@@ -1,0 +1,76 @@
+package com.lukevalenty.rpgforge.data;
+
+import android.graphics.drawable.Drawable;
+
+import com.lukevalenty.rpgforge.engine.CharacterRenderComponent;
+import com.lukevalenty.rpgforge.engine.CollisionComponent;
+import com.lukevalenty.rpgforge.engine.Direction;
+import com.lukevalenty.rpgforge.engine.GameObject;
+import com.lukevalenty.rpgforge.engine.MovementComponent;
+import com.lukevalenty.rpgforge.engine.RandomWalkComponent;
+import com.lukevalenty.rpgforge.engine.battle.EnemyComponent;
+
+public class EnemyEventData extends EventData {
+    private GameObject eventGameObject;
+    private int initialX;
+    private int initialY;
+    private boolean stationary;
+    private Direction initialDirection;
+
+    private EnemyCharacterData enemyCharacterData;
+
+    private EnemyEventData() {
+        // do nothing
+    }
+    
+    public EnemyEventData(
+        final EnemyCharacterData enemyCharacterData
+    ) {
+        this.enemyCharacterData = enemyCharacterData;
+        
+        eventGameObject = 
+            new GameObject();      
+    
+        eventGameObject.addComponent(new RandomWalkComponent(eventGameObject));
+        eventGameObject.addComponent(new CollisionComponent(eventGameObject));
+        eventGameObject.addComponent(new MovementComponent(eventGameObject));
+        eventGameObject.addComponent(new CharacterRenderComponent(eventGameObject, enemyCharacterData.getCharacterData()));
+        eventGameObject.addComponent(new EnemyComponent(enemyCharacterData));
+    }
+    
+    @Override
+    protected Drawable createPreview() {
+        return enemyCharacterData.getPreview();
+    }
+
+    @Override
+    public GameObject getGameObject() {
+        eventGameObject.getNumberRef("x").value = initialX;
+        eventGameObject.getNumberRef("y").value = initialY;
+        eventGameObject.getBooleanRef("stationary").value = stationary;
+        eventGameObject.getObjectRef("dir").value = initialDirection;
+        return eventGameObject;
+    }
+
+    @Override
+    public EventData create() {
+        return new EnemyEventData(enemyCharacterData);
+    }
+
+    public void setInitialPosition(final int x, final int y) {
+        initialX = x;
+        initialY = y;
+    }
+    
+    public CharacterData getCharacterData() {
+        return enemyCharacterData.getCharacterData();
+    }
+
+    public void setStationary(final boolean stationary) {
+        this.stationary = stationary;
+    }
+
+    public void setDirection(final Direction initialDirection) {
+        this.initialDirection = initialDirection;
+    }
+}

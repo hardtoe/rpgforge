@@ -69,8 +69,6 @@ public class GameOverviewActivity extends BaseActivity {
     private BaseAdapter playerCharactersGridAdapter;
 
     private OnItemClickListener playerCharactersClickListener;
-    
-    private Paint paint;
 
     private BaseAdapter enemyCharactersGridAdapter;
 
@@ -253,8 +251,6 @@ public class GameOverviewActivity extends BaseActivity {
         
         
         
-        paint = new Paint();
-        paint.setFlags(paint.getFlags() & ~Paint.FILTER_BITMAP_FLAG);
 
 
         playerCharactersGridAdapter = new BaseAdapter() {      
@@ -292,42 +288,7 @@ public class GameOverviewActivity extends BaseActivity {
                             (ImageView) convertView;
                     }
                     
-                    final Rect src = new Rect();
-                    src.left = playerCharacterData.getCharacterData().src().left + 32;
-                    src.top = playerCharacterData.getCharacterData().src().top;
-                    src.right = playerCharacterData.getCharacterData().src().right - 32;
-                    src.bottom = playerCharacterData.getCharacterData().src().top + 48;
-                    
-                    final Rect dst = new Rect();
-                    
-                    tileView.setImageDrawable(new Drawable() {
-                        @Override
-                        public void setColorFilter(ColorFilter cf) {
-                            // do nothing
-                        }
-                        
-                        @Override
-                        public void setAlpha(int alpha) {
-                            // do nothing
-                        }
-                        
-                        @Override
-                        public int getOpacity() {
-                            return PixelFormat.TRANSLUCENT;
-                        }
-                        
-                        @Override
-                        public void draw(Canvas canvas) {
-                            int height = getBounds().height();
-                            int width = (height * 2) / 3;
-                            
-                            dst.top = getBounds().top;
-                            dst.bottom = getBounds().bottom;
-                            dst.left = (getBounds().width() - width) / 2;
-                            dst.right = dst.left + width;
-                            canvas.drawBitmap(playerCharacterData.getCharacterData().bitmap(), src, dst, paint);
-                        }
-                    });
+                    tileView.setImageDrawable(playerCharacterData.getPreview());
                     
                     return tileView;
                 }
@@ -427,44 +388,9 @@ public class GameOverviewActivity extends BaseActivity {
                     } else {
                         tileView = 
                             (ImageView) convertView;
-                    }
+                    }       
                     
-                    final Rect src = new Rect();
-                    src.left = enemyCharacterData.getCharacterData().src().left + 32;
-                    src.top = enemyCharacterData.getCharacterData().src().top;
-                    src.right = enemyCharacterData.getCharacterData().src().right - 32;
-                    src.bottom = enemyCharacterData.getCharacterData().src().top + 48;
-                    
-                    final Rect dst = new Rect();
-                    
-                    tileView.setImageDrawable(new Drawable() {
-                        @Override
-                        public void setColorFilter(ColorFilter cf) {
-                            // do nothing
-                        }
-                        
-                        @Override
-                        public void setAlpha(int alpha) {
-                            // do nothing
-                        }
-                        
-                        @Override
-                        public int getOpacity() {
-                            return PixelFormat.TRANSLUCENT;
-                        }
-                        
-                        @Override
-                        public void draw(Canvas canvas) {
-                            int height = getBounds().height();
-                            int width = (height * 2) / 3;
-                            
-                            dst.top = getBounds().top;
-                            dst.bottom = getBounds().bottom;
-                            dst.left = (getBounds().width() - width) / 2;
-                            dst.right = dst.left + width;
-                            canvas.drawBitmap(enemyCharacterData.getCharacterData().bitmap(), src, dst, paint);
-                        }
-                    });
+                    tileView.setImageDrawable(enemyCharacterData.getPreview());
                     
                     return tileView;
                 }

@@ -10,11 +10,13 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
+import com.lukevalenty.rpgforge.engine.ActivateMessage;
 import com.lukevalenty.rpgforge.engine.BooleanRef;
 import com.lukevalenty.rpgforge.engine.CharacterRenderComponent;
 import com.lukevalenty.rpgforge.engine.CollisionComponent;
 import com.lukevalenty.rpgforge.engine.Direction;
 import com.lukevalenty.rpgforge.engine.FrameState;
+import com.lukevalenty.rpgforge.engine.GameMessage;
 import com.lukevalenty.rpgforge.engine.GameObject;
 import com.lukevalenty.rpgforge.engine.GameObjectComponent;
 import com.lukevalenty.rpgforge.engine.GamePhase;
@@ -23,6 +25,7 @@ import com.lukevalenty.rpgforge.engine.MovementComponent;
 import com.lukevalenty.rpgforge.engine.NumberRef;
 import com.lukevalenty.rpgforge.engine.ObjectRef;
 import com.lukevalenty.rpgforge.engine.RandomWalkComponent;
+import com.lukevalenty.rpgforge.engine.WalkOverMessage;
 
 public class NpcEventData extends EventData {
     private CharacterRenderComponent characterRenderComponent;
@@ -122,9 +125,12 @@ public class NpcEventData extends EventData {
             return dialogText;
         }
 
+
         @Override
-        public void activate(final GameObject sender) {
-            activator = sender;
+        public void onMessage(final GameMessage msg) {
+            if (msg instanceof ActivateMessage) {
+                activator = msg.sender();
+            }
         }
     }
 

@@ -1,20 +1,31 @@
 package com.lukevalenty.rpgforge.engine;
 
+import android.util.Log;
+
 public abstract class GameObjectComponent {
     public abstract void update(
         final FrameState frameState, 
         final GlobalGameState globalState);
     
-    // FIXME: turn this into a message based system
-    public void activate(
-        final GameObject sender
-    ) {
+    public void onMessage(final GameMessage m) {
         // do nothing by default
     }
+    
+    private final String TAG = 
+        this.getClass().getSimpleName();
+    
+    protected void log(final String msg) {
+        Log.d(TAG, msg);
+    }
+    
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName();
+    }
 
-    // FIXME: turn this into a message based system
-    public void walkOver(
-        final GameObject sender
+    public void init(
+        final GameObject gameObject, 
+        final GlobalGameState globalState
     ) {
         // do nothing by default
     }

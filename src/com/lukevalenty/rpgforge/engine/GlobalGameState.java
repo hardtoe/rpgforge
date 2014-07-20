@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.util.Log;
 
 import com.lukevalenty.rpgforge.data.MapData;
+import com.lukevalenty.rpgforge.engine.battle.BattleZoneEventData;
 import com.lukevalenty.rpgforge.engine.input.GameInput;
 
 public class GlobalGameState {
@@ -16,6 +17,12 @@ public class GlobalGameState {
     
     private GameObjectContainer mapGameObjectContainer;
     
+    // FIXME: probably want a better data structure for this
+    // FIXME: need to encapsulate this field
+    public ArrayList<GameObject> mapGameObjects;
+    
+    private PlayerCharacter player;
+    
     public GlobalGameState() {
         gameTree = 
             new GameObjectContainer(); 
@@ -25,10 +32,6 @@ public class GlobalGameState {
         
         gameTree.add(mapGameObjectContainer);
     }
-    
-    // FIXME: probably want a better data structure for this
-    // FIXME: need to encapsulate this field
-    public ArrayList<GameObject> mapGameObjects;
 
     public void setMap(final MapData newMap) {
         mapGameObjectContainer.clear();
@@ -41,6 +44,8 @@ public class GlobalGameState {
         for (int i = 0; i < mapGameObjects.size(); i++) {
             mapGameObjectContainer.add(mapGameObjects.get(i));
         }
+        
+        gameTree.init(this);
     }
 
     public MapData getMap() {
@@ -69,13 +74,12 @@ public class GlobalGameState {
     }
 
     /**
-     * FIXME: make this into a message passing system
-     * @param sender
+     * @param msg
      * @param x
      * @param y
      */
-    public void activate(
-        final GameObject sender,
+    public void sendMessage(
+        final GameMessage msg,
         final int x, 
         final int y
     ) {
@@ -84,26 +88,16 @@ public class GlobalGameState {
             int tileY = (int) o.getNumberRef("tileY").value;
             
             if (tileX == x && tileY == y) {
-                o.activate(sender);
+                o.onMessage(msg);
             }
         }
     }
 
-    /**
-     * FIXME: make this into a message passing system
-     */
-    public void walkOver(
-        final GameObject sender, 
-        final int x, 
-        final int y
-    ) {
-        for (GameObject o : mapGameObjects) {
-            int tileX = (int) o.getNumberRef("tileX").value;
-            int tileY = (int) o.getNumberRef("tileY").value;
-            
-            if (tileX == x && tileY == y) {
-                o.walkOver(sender);
-            }
-        }
+    public void setPlayer(final PlayerCharacter player) {
+        this.player = player;
+    }
+    
+    public PlayerCharacter getPlayer() {
+        return this.player;
     }
 }

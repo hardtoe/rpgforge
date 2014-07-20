@@ -1,7 +1,5 @@
 package com.lukevalenty.rpgforge.editor.map;
 
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -15,10 +13,10 @@ import com.lukevalenty.rpgforge.DialogUtil.StringPromptListener;
 import com.lukevalenty.rpgforge.data.CharacterData;
 import com.lukevalenty.rpgforge.data.CharacterSetData;
 import com.lukevalenty.rpgforge.data.DoorEventData;
+import com.lukevalenty.rpgforge.data.EnemyCharacterData;
+import com.lukevalenty.rpgforge.data.EnemyEventData;
 import com.lukevalenty.rpgforge.data.EventData;
 import com.lukevalenty.rpgforge.data.NpcEventData;
-import com.lukevalenty.rpgforge.data.RpgDatabase;
-import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.editor.map.MapView.OnTileClickListener;
@@ -26,6 +24,7 @@ import com.lukevalenty.rpgforge.engine.Direction;
 import com.lukevalenty.rpgforge.engine.GameActivity;
 import com.lukevalenty.rpgforge.engine.NumberRef;
 import com.lukevalenty.rpgforge.engine.ObjectRef;
+import com.lukevalenty.rpgforge.engine.battle.BattleZoneEventData;
 
 import de.greenrobot.event.EventBus;
 
@@ -51,7 +50,6 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -179,7 +177,7 @@ public class MapEditActivity extends BaseActivity {
         
 
         
-        new TilePalettePresenter(this, eventBus, tilePalette, tileDrawerSpinner, tileList, allTiles, eventTilePalette);
+        new TilePalettePresenter(this, eventBus, tilePalette, tileDrawerSpinner, tileList, allTiles, eventTilePalette, RpgForgeApplication.getDb().getEnemyCharacters());
         
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {  
@@ -287,6 +285,9 @@ public class MapEditActivity extends BaseActivity {
 
             currentTool = Tool.MOVE;
             eventBus.post(new ToolSelectedEvent(currentTool));   
+            
+        } else if (e.tile() instanceof EnemyCharacterData && !tileDrawInProgress) {
+            eventBus.post(new DrawTileEvent(new EnemyEventData((EnemyCharacterData) e.tile()), e.x(), e.y()));
         }
         
         if (e.tile() instanceof DoorEventData) {
@@ -294,6 +295,18 @@ public class MapEditActivity extends BaseActivity {
         
         } else if (e.tile() instanceof NpcEventData) {
             editNpcEvent(e);
+            
+        } else if (e.tile() instanceof EnemyEventData) {
+            ((EnemyEventData) e.tile()).setInitialPosition(e.x() * 32, (e.y() - 1) * 32);  
+            
+        } else if (e.tile() instanceof BattleZoneEventData) {
+            // FIXME: make this size/shape configurable
+            ((BattleZoneEventData) e.tile()).setBattleArea(
+                (e.x() - 8), 
+                (e.y() - 6),
+                (e.x() + 8), 
+                (e.y() + 6));  
+            
         }
     }
 

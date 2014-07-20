@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import android.content.Context;
-import android.graphics.Shader.TileMode;
 
 /**
  * Contains all data for an RPG.

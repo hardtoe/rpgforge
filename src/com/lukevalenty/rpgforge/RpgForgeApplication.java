@@ -11,6 +11,7 @@ import com.lukevalenty.rpgforge.data.CharacterData;
 import com.lukevalenty.rpgforge.data.PlayerCharacterData;
 import com.lukevalenty.rpgforge.data.RpgDatabase;
 import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
+import com.lukevalenty.rpgforge.engine.battle.BattleZoneEventData;
 
 import android.app.Application;
 import android.content.Context;
@@ -61,10 +62,15 @@ public class RpgForgeApplication extends Application {
         
         if (!dbFile.exists()) {
             copyAsset(context, "Template.rpg", dbFile);
-        }
 
-        rpgDatabase = loader.load(context, dbFile);
-          
+            rpgDatabase = loader.load(context, dbFile);
+              
+            rpgDatabase.getEvents().add(new BattleZoneEventData());
+            
+        } else {
+            rpgDatabase = loader.load(context, dbFile);
+        }           
+        
         fixEmptyPlayerCharacterArray(rpgDatabase);
         
         db = rpgDatabase;

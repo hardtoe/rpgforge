@@ -14,6 +14,9 @@ public class PlayerControlComponent extends GameObjectComponent {
     private final ObjectRef<Direction> dir;
     private final BooleanRef walking;
 
+    private final ActivateMessage activateMsg;
+    private final WalkOverMessage walkOverMsg;
+    
     public PlayerControlComponent(
         final GameObject o
     ) {
@@ -24,6 +27,9 @@ public class PlayerControlComponent extends GameObjectComponent {
         this.dy = o.getNumberRef("dy");
         this.dir = o.getObjectRef("dir");
         this.walking = o.getBooleanRef("walking");
+        
+        this.activateMsg = new ActivateMessage(o);
+        this.walkOverMsg = new WalkOverMessage(o);
     }
     
     @Override
@@ -118,7 +124,7 @@ public class PlayerControlComponent extends GameObjectComponent {
             }
             
             // EVENT ACTIVATION BY POSITION
-            globalState.walkOver(gameObject, (int) ((x.value + 16) / 32), (int) ((y.value + 48)/ 32));
+            globalState.sendMessage(walkOverMsg, (int) ((x.value + 16) / 32), (int) ((y.value + 48)/ 32));
             
             // EVENT ACTIVATION BY ACTION
             if (g.action()) {
@@ -128,7 +134,7 @@ public class PlayerControlComponent extends GameObjectComponent {
                 final int yTile = 
                     (int) (((y.value + 48)/ 32) + dir.value.y);
                 
-                globalState.activate(gameObject, xTile, yTile);
+                globalState.sendMessage(activateMsg, xTile, yTile);
             }
             
             // SET WALKING

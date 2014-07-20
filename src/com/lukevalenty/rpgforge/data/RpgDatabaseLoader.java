@@ -89,24 +89,24 @@ public class RpgDatabaseLoader {
     }
     
     public void save(
-            final Context context, 
-            final File dbFile, 
-            final RpgDatabase rpgDatabase
-        ) {
-            if (dbFile != null && rpgDatabase != null) {
-                try {
-                    final Output output = 
-                        new Output(new FileOutputStream(dbFile));
-                    
-                    kryo.writeObject(output, rpgDatabase);
-                    
-                    output.close();
-    
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+        final Context context, 
+        final File dbFile, 
+        final RpgDatabase rpgDatabase
+    ) {
+        if (dbFile != null && rpgDatabase != null) {
+            try {
+                final Output output = 
+                    new Output(new FileOutputStream(dbFile));
+                
+                kryo.writeObject(output, rpgDatabase);
+                
+                output.close();
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
+    }
 
     public RpgDatabase load(
         final Context context, 

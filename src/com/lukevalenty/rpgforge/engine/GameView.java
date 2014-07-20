@@ -8,11 +8,13 @@ import roboguice.RoboGuice;
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.data.AutoTileData;
 import com.lukevalenty.rpgforge.data.CharacterData;
+import com.lukevalenty.rpgforge.data.EnemyEventData;
 import com.lukevalenty.rpgforge.data.EventData;
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.data.NpcEventData;
 import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.editor.map.ScaleMapEvent;
+import com.lukevalenty.rpgforge.engine.battle.BattleZoneEventData;
 import com.lukevalenty.rpgforge.graphics.DrawCommand;
 import com.lukevalenty.rpgforge.graphics.DrawCommandBuffer;
 import com.lukevalenty.rpgforge.graphics.DrawDialog;
@@ -110,7 +112,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private Paint linePaint;
         private Paint dialogPaint;
         private Paint dialogBgPaint;
-        
+        private Paint battleZonePaint;
         
         public Renderer(
             final SurfaceHolder holder, 
@@ -135,6 +137,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             dialogBgPaint = new Paint();
             dialogBgPaint.setColor(Color.argb(0x80, 0, 0, 0));
             dialogBgPaint.setStyle(Style.FILL);
+            
+            battleZonePaint = new Paint();
+            battleZonePaint.setColor(Color.argb(0x20, 0xff, 0, 0));
+            battleZonePaint.setStyle(Style.FILL);
+            
+            
             
             src = new Rect();
             dst = new RectF();
@@ -258,6 +266,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                     
                                     if (eventData != null && debug) {
                                         if (eventData instanceof NpcEventData) {
+                                            // TODO: REFACTOR INTO ONE
                                             final CharacterData charData = 
                                                 ((NpcEventData) eventData).getCharacterData();
                                             
@@ -274,7 +283,26 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                                 
                                                 c.drawBitmap(charData.bitmap(), src, dst, null);
                                             }
+                                        
+                                        } else if (eventData instanceof EnemyEventData) {
+                                            // TODO: REFACTOR INTO ONE
+                                            final CharacterData charData = 
+                                                ((EnemyEventData) eventData).getCharacterData();
                                             
+                                            if (charData != null) {
+                                                src.top = charData.src().top;
+                                                src.bottom = src.top + 48;
+                                                src.left = charData.src().left + 32;
+                                                src.right = src.left + 32;
+                                                
+                                                dst.top = (y * tileSize) - 16;
+                                                dst.bottom = dst.top + tileSize + 16;
+                                                dst.left = (x * tileSize);
+                                                dst.right = dst.left + tileSize;
+                                                
+                                                c.drawBitmap(charData.bitmap(), src, dst, null);
+                                            }
+
                                         } else {
                                             dst.top = (y * tileSize) + 3;
                                             dst.bottom = dst.top + tileSize - 6;
@@ -284,6 +312,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                             c.drawRect(dst, linePaint); 
                                         }
                                         
+                                    }
+                                }
+                            }
+
+                            if (debug) {
+                                for (final EventData eventData : map.getEvents()) {
+                                    if (eventData instanceof BattleZoneEventData) {
+                                        final BattleZoneEventData bz = 
+                                            (BattleZoneEventData) eventData;
+                                        
+                                        c.drawRect(
+                                            bz.getX1() * tileSize, 
+                                            bz.getY1() * tileSize, 
+                                            bz.getX2() * tileSize, 
+                                            bz.getY2() * tileSize, 
+                                            battleZonePaint); 
                                     }
                                 }
                             }

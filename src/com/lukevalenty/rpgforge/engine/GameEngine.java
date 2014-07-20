@@ -8,6 +8,7 @@ import android.content.Context;
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
 import com.lukevalenty.rpgforge.data.MapData;
+import com.lukevalenty.rpgforge.engine.battle.BattleZoneEventData;
 import com.lukevalenty.rpgforge.engine.input.GameInput;
 import com.lukevalenty.rpgforge.graphics.DrawCommand;
 import com.lukevalenty.rpgforge.graphics.DrawCommandBuffer;
@@ -56,9 +57,6 @@ public class GameEngine {
         private boolean mRunning;
         private DrawDialogPool dialogPool;
 
-        
-
-        
         @Inject MainLoop(
             final DrawCommandBuffer drawCommandBuffer,
             final SetMatrixPool setMatrixPool,
@@ -81,22 +79,17 @@ public class GameEngine {
             final MapData map = 
                 RpgForgeApplication.getDb().getMaps().getFirst();
 
-            
-
             // 512 x 384 effective resolution
             final float scaleFactor =
                 (float) (context.getResources().getDisplayMetrics().heightPixels / 384.0);
             
             globalState.gameTree.add(new CameraObject(scaleFactor));
             globalState.gameTree.add(new MapObject());
-            globalState.gameTree.add(new PlayerCharacter());
+            final PlayerCharacter player = new PlayerCharacter();
+            globalState.gameTree.add(player);
             
-            
+            globalState.setPlayer(player);
             globalState.setMap(map);
-            
-
-
-            
         }
 
                 
@@ -131,7 +124,10 @@ public class GameEngine {
                     // sort draw commands by z-order before rendering them
                     Collections.sort(frameState.drawBuffer, new Comparator<DrawCommand>() {
                         @Override
-                        public int compare(DrawCommand lhs, DrawCommand rhs) {
+                        public int compare(
+                            final DrawCommand lhs, 
+                            final DrawCommand rhs
+                        ) {
                             if (lhs.z() < rhs.z()) {
                                 return -1;
                                 

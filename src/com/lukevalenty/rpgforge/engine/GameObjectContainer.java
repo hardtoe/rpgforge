@@ -14,6 +14,16 @@ public class GameObjectContainer {
             new ArrayList<GameObjectContainer>();
     }
     
+    public void init(final GlobalGameState globalState) {
+        for (int i = 0; i < objects.size(); i++) {
+            objects.get(i).init(globalState);
+        }
+        
+        for (int i = 0; i < containers.size(); i++) {
+            containers.get(i).init(globalState);
+        }
+    }
+    
     public void add(final GameObject object) {
         this.objects.add(object);
     }

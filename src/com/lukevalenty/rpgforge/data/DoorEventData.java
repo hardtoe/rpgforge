@@ -10,14 +10,17 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
+import com.lukevalenty.rpgforge.engine.ActivateMessage;
 import com.lukevalenty.rpgforge.engine.BooleanRef;
 import com.lukevalenty.rpgforge.engine.FrameState;
+import com.lukevalenty.rpgforge.engine.GameMessage;
 import com.lukevalenty.rpgforge.engine.GameObject;
 import com.lukevalenty.rpgforge.engine.GameObjectComponent;
 import com.lukevalenty.rpgforge.engine.GamePhase;
 import com.lukevalenty.rpgforge.engine.GlobalGameState;
 import com.lukevalenty.rpgforge.engine.NumberRef;
 import com.lukevalenty.rpgforge.engine.ObjectRef;
+import com.lukevalenty.rpgforge.engine.WalkOverMessage;
 
 public class DoorEventData extends EventData {
     public static class DoorGameObject extends GameObjectComponent {
@@ -59,16 +62,12 @@ public class DoorEventData extends EventData {
         }
 
         @Override
-        public void activate(final GameObject sender) {
-            if (!activeOnWalkOver.value) {
-                activator = sender;
-            }
-        }
-
-        @Override
-        public void walkOver(final GameObject sender) {
-            if (activeOnWalkOver.value) {
-                activator = sender;
+        public void onMessage(final GameMessage msg) {
+            if (msg instanceof WalkOverMessage && activeOnWalkOver.value) {
+                activator = msg.sender();
+                
+            } else if (msg instanceof ActivateMessage && !activeOnWalkOver.value) {
+                activator = msg.sender();
             }
         }
     }

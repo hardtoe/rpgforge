@@ -21,6 +21,11 @@ public class GameObject {
             values;
     }
     
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + " : " + components + " : " + values;
+    }
+    
     public final void addComponent(
         final GameObjectComponent component
     ) {
@@ -36,23 +41,10 @@ public class GameObject {
         }
     }
     
-    /**
-     * FIXME: make this into a message passing system
-     * @param sender
-     */
-    public final void activate(final GameObject sender) {
+
+    public final void onMessage(final GameMessage msg) {
         for (int i = 0; i < components.size(); i++) {
-            components.get(i).activate(sender);
-        }
-    }
-    
-    /**
-     * FIXME: make this into a message passing system
-     * @param sender
-     */
-    public final void walkOver(final GameObject sender) {
-        for (int i = 0; i < components.size(); i++) {
-            components.get(i).walkOver(sender);
+            components.get(i).onMessage(msg);
         }
     }
     
@@ -96,5 +88,11 @@ public class GameObject {
         }
         
         return ref;
+    }
+
+    public void init(final GlobalGameState globalState) {
+        for (int i = 0; i < components.size(); i++) {
+            components.get(i).init(this, globalState);
+        }
     }
 }
