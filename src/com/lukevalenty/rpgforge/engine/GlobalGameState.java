@@ -13,6 +13,8 @@ public class GlobalGameState {
     private GameInput gameInput;
     private int xFocus;
     private int yFocus;
+    
+    // FIXME: need to encapsulate this field
     public GameObjectContainer gameTree;
     
     private GameObjectContainer mapGameObjectContainer;
@@ -22,6 +24,9 @@ public class GlobalGameState {
     public ArrayList<GameObject> mapGameObjects;
     
     private PlayerCharacter player;
+    
+    // true when player is in battle
+    private boolean battle;
     
     public GlobalGameState() {
         gameTree = 
@@ -99,5 +104,13 @@ public class GlobalGameState {
     
     public PlayerCharacter getPlayer() {
         return this.player;
+    }
+    
+    public boolean isBattle() {
+        return battle;
+    }
+    
+    public void setBattle(final boolean battle) {
+        this.battle = battle;
     }
 }

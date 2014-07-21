@@ -323,10 +323,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                             (BattleZoneEventData) eventData;
                                         
                                         c.drawRect(
-                                            bz.getX1() * tileSize, 
-                                            bz.getY1() * tileSize, 
-                                            bz.getX2() * tileSize, 
-                                            bz.getY2() * tileSize, 
+                                            bz.getX1(), 
+                                            bz.getY1(), 
+                                            bz.getX2(), 
+                                            bz.getY2(), 
                                             battleZonePaint); 
                                     }
                                 }

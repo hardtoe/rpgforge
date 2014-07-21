@@ -15,7 +15,7 @@ public class NonPlayerCharacter extends GameObject {
         
         addComponent(new RandomWalkComponent(this));
         addComponent(new CollisionComponent(this));
-        addComponent(new MovementComponent(this));
+        addComponent(new MovementComponent());
         addComponent(new CharacterRenderComponent(this, charData));
     }
 }

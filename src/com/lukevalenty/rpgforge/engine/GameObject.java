@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 public class GameObject {
     private final ArrayList<GameObjectComponent> components;
+    
+    // FIXME: may want to change this to an enumerated object hierarchy of some sort rather than string names
     private final HashMap<String, Object> values;
     
     public GameObject() {

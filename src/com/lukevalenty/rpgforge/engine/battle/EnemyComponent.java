@@ -16,7 +16,7 @@ public class EnemyComponent extends GameObjectComponent {
     private transient NumberRef enemyX;
     private transient NumberRef enemyY;
     private transient GameObject enemyGameObject;
-
+    
     private EnemyComponent() {
         // used for serialization
     }
@@ -46,6 +46,9 @@ public class EnemyComponent extends GameObjectComponent {
         
         this.playerY = 
             globalState.getPlayer().getNumberRef("y");
+        
+        gameObject.getBooleanRef("isEnemy").value = true;
+        gameObject.getObjectRef("enemyCharacterData").value = enemyCharacterData;
     }
     
     @Override

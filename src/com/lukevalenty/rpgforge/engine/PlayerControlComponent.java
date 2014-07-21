@@ -16,6 +16,8 @@ public class PlayerControlComponent extends GameObjectComponent {
 
     private final ActivateMessage activateMsg;
     private final WalkOverMessage walkOverMsg;
+
+    private transient BooleanRef inCombat;
     
     public PlayerControlComponent(
         final GameObject o
@@ -31,22 +33,29 @@ public class PlayerControlComponent extends GameObjectComponent {
         this.activateMsg = new ActivateMessage(o);
         this.walkOverMsg = new WalkOverMessage(o);
     }
+
+    @Override
+    public void init(
+        final GameObject gameObject, 
+        final GlobalGameState globalState
+    ) {
+        this.inCombat = gameObject.getBooleanRef("inCombat");
+    }
     
     @Override
     public void update(
         final FrameState frameState,
         final GlobalGameState globalState
     ) {
-        if (frameState.phase == GamePhase.UPDATE) {
+        if (
+            (frameState.phase == GamePhase.UPDATE) && 
+            (inCombat.value == false)
+        ) {
             final GameInput g = 
                 globalState.getGameInput();
             
             final float timeDelta =
                 frameState.timeDelta;
-            
-            if (dir.value == null) {
-                dir.value = Direction.DOWN;
-            }
             
             // COMPUTE MOVEMENT DIRECTION AND MAGNITUDE
             if (g.up()) {
@@ -74,55 +83,6 @@ public class PlayerControlComponent extends GameObjectComponent {
                 dy.value = dy.value * 0.7071;
             }
             
-            // COMPUTE DIRECTION CHARACTER IS FACING
-            if (g.up()) {
-                if (dir.value == Direction.DOWN) {
-                    dir.value = Direction.UP;
-                    
-                } else if (g.left()) {
-                    if (dir.value == Direction.RIGHT) {
-                        dir.value = Direction.LEFT;
-                    }
-                    
-                } else if (g.right()) {
-                    if (dir.value == Direction.LEFT) {
-                        dir.value = Direction.RIGHT;
-                    }
-                
-                } else {
-                    dir.value = Direction.UP;
-                }
-                
-            } else if (g.down()) {
-                if (dir.value == Direction.UP) {
-                    dir.value = Direction.DOWN;
-                    
-                } else if (g.left()) {
-                    if (dir.value == Direction.RIGHT) {
-                        dir.value = Direction.LEFT;
-                    }
-                    
-                } else if (g.right()) {
-                    if (dir.value == Direction.LEFT) {
-                        dir.value = Direction.RIGHT;
-                    }
-                    
-                } else {
-                    dir.value = Direction.DOWN;
-                }
-                
-            } else {
-                if (g.left()) {
-                    dir.value = Direction.LEFT;
-                    
-                } else if (g.right()) {
-                    dir.value = Direction.RIGHT;
-                    
-                } else {
-                    // keep facing previous direction
-                }
-            }
-            
             // EVENT ACTIVATION BY POSITION
             globalState.sendMessage(walkOverMsg, (int) ((x.value + 16) / 32), (int) ((y.value + 48)/ 32));
             
@@ -136,9 +96,6 @@ public class PlayerControlComponent extends GameObjectComponent {
                 
                 globalState.sendMessage(activateMsg, xTile, yTile);
             }
-            
-            // SET WALKING
-            walking.value = g.left() || g.right() || g.up() || g.down();
         }
     }
 }

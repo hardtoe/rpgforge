@@ -148,7 +148,7 @@ public class NpcEventData extends EventData {
 
         eventGameObject.addComponent(new RandomWalkComponent(eventGameObject));
         eventGameObject.addComponent(new CollisionComponent(eventGameObject));
-        eventGameObject.addComponent(new MovementComponent(eventGameObject));
+        eventGameObject.addComponent(new MovementComponent());
         
         characterRenderComponent = 
             new CharacterRenderComponent(eventGameObject, null);

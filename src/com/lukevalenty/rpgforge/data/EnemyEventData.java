@@ -33,7 +33,7 @@ public class EnemyEventData extends EventData {
     
         eventGameObject.addComponent(new RandomWalkComponent(eventGameObject));
         eventGameObject.addComponent(new CollisionComponent(eventGameObject));
-        eventGameObject.addComponent(new MovementComponent(eventGameObject));
+        eventGameObject.addComponent(new MovementComponent());
         eventGameObject.addComponent(new CharacterRenderComponent(eventGameObject, enemyCharacterData.getCharacterData()));
         eventGameObject.addComponent(new EnemyComponent(enemyCharacterData));
     }

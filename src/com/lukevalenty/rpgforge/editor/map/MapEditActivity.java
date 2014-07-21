@@ -302,10 +302,10 @@ public class MapEditActivity extends BaseActivity {
         } else if (e.tile() instanceof BattleZoneEventData) {
             // FIXME: make this size/shape configurable
             ((BattleZoneEventData) e.tile()).setBattleArea(
-                (e.x() - 8), 
-                (e.y() - 6),
-                (e.x() + 8), 
-                (e.y() + 6));  
+                (e.x() - 8) * 32, 
+                (e.y() - 6) * 32,
+                (e.x() + 8) * 32, 
+                (e.y() + 6) * 32);  
             
         }
     }

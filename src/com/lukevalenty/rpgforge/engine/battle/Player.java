@@ -1,11 +1,16 @@
 package com.lukevalenty.rpgforge.engine.battle;
 
+import com.lukevalenty.rpgforge.data.BattleCharacterData;
 import com.lukevalenty.rpgforge.data.PlayerCharacterData;
 import com.lukevalenty.rpgforge.engine.GameObject;
 
-class Player {
-    public final PlayerCharacterData characterData;
-    public final GameObject gameObject;
+class Player extends CombatParticipant {
+    public PlayerCharacterData characterData;
+    public GameObject gameObject;
+    
+    public Player() {
+        // do nothing
+    }
     
     public Player(
         final PlayerCharacterData characterData, 
@@ -13,5 +18,15 @@ class Player {
     ) {
         this.characterData = characterData;
         this.gameObject = gameObject;
+    }
+
+    @Override
+    public BattleCharacterData getBattleCharacterData() {
+        return characterData;
+    }
+
+    @Override
+    public GameObject getGameObject() {
+        return gameObject;
     }
 }
