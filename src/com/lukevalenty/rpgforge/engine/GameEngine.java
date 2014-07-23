@@ -8,7 +8,6 @@ import android.content.Context;
 import com.google.inject.Inject;
 import com.lukevalenty.rpgforge.RpgForgeApplication;
 import com.lukevalenty.rpgforge.data.MapData;
-import com.lukevalenty.rpgforge.engine.battle.BattleZoneEventData;
 import com.lukevalenty.rpgforge.engine.input.GameInput;
 import com.lukevalenty.rpgforge.graphics.DrawCommand;
 import com.lukevalenty.rpgforge.graphics.DrawCommandBuffer;
@@ -85,7 +84,8 @@ public class GameEngine {
             
             globalState.gameTree.add(new CameraObject(scaleFactor));
             globalState.gameTree.add(new MapObject());
-            final PlayerCharacter player = new PlayerCharacter();
+            final PlayerCharacter player = 
+                new PlayerCharacter(RpgForgeApplication.getDb().getPlayerCharacters().get(0));
             globalState.gameTree.add(player);
             
             globalState.setPlayer(player);

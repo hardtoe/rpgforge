@@ -5,22 +5,28 @@ import com.lukevalenty.rpgforge.engine.input.GameInput;
 public class PlayerControlComponent extends GameObjectComponent {
     public static final double WALK_SPEED = 0.14;
 
-    private final GameObject gameObject;
+    private GameObject gameObject;
     
-    private final NumberRef x;
-    private final NumberRef y;
-    private final NumberRef dx;
-    private final NumberRef dy;
-    private final ObjectRef<Direction> dir;
-    private final BooleanRef walking;
+    private NumberRef x;
+    private NumberRef y;
+    private NumberRef dx;
+    private NumberRef dy;
+    private ObjectRef<Direction> dir;
+    private BooleanRef walking;
 
-    private final ActivateMessage activateMsg;
-    private final WalkOverMessage walkOverMsg;
+    private ActivateMessage activateMsg;
+    private WalkOverMessage walkOverMsg;
 
-    private transient BooleanRef inCombat;
+    private BooleanRef inCombat;
     
-    public PlayerControlComponent(
-        final GameObject o
+    public PlayerControlComponent() {
+        // do nothing
+    }
+
+    @Override
+    public void init(
+        final GameObject o, 
+        final GlobalGameState globalState
     ) {
         this.gameObject = o;
         this.x = o.getNumberRef("x");
@@ -29,17 +35,9 @@ public class PlayerControlComponent extends GameObjectComponent {
         this.dy = o.getNumberRef("dy");
         this.dir = o.getObjectRef("dir");
         this.walking = o.getBooleanRef("walking");
-        
+        this.inCombat = o.getBooleanRef("inCombat");
         this.activateMsg = new ActivateMessage(o);
         this.walkOverMsg = new WalkOverMessage(o);
-    }
-
-    @Override
-    public void init(
-        final GameObject gameObject, 
-        final GlobalGameState globalState
-    ) {
-        this.inCombat = gameObject.getBooleanRef("inCombat");
     }
     
     @Override

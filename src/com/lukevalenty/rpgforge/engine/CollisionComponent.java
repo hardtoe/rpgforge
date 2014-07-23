@@ -19,37 +19,19 @@ public class CollisionComponent extends GameObjectComponent {
     private NumberRef x;
     private NumberRef y;
 
-    private CollisionComponent() {
+    public CollisionComponent() {
         // do nothing
     }
-    
-    public CollisionComponent(
-        final GameObject o
+
+    @Override
+    public void init(
+        final GameObject o, 
+        final GlobalGameState globalState
     ) {
         this.dx = o.getNumberRef("dx");
         this.dy = o.getNumberRef("dy");
         this.x = o.getNumberRef("x");
         this.y = o.getNumberRef("y");
-    }
-
-    private boolean hit(
-        final MapData map, 
-        final Point p,
-        final double dx,
-        final double dy
-    ) {
-        final TileData tile = map.getTile(
-            (int) ((x.value + p.x + dx) / 32), 
-            (int) ((y.value + p.y + dy) / 32));
-        
-        final TileData sparseTile = map.getSparseTile(
-            (int) ((x.value + p.x + dx) / 32), 
-            (int) ((y.value + p.y + dy) / 32));
-        
-        return 
-            tile == null || 
-            !tile.isPassable() ||
-            (sparseTile != null && !sparseTile.isPassable());
     }
 
     @Override
@@ -142,5 +124,25 @@ public class CollisionComponent extends GameObjectComponent {
             dx.value = outDx + pushDx;
             dy.value = outDy + pushDy;
         }
+    }
+
+    private boolean hit(
+        final MapData map, 
+        final Point p,
+        final double dx,
+        final double dy
+    ) {
+        final TileData tile = map.getTile(
+            (int) ((x.value + p.x + dx) / 32), 
+            (int) ((y.value + p.y + dy) / 32));
+        
+        final TileData sparseTile = map.getSparseTile(
+            (int) ((x.value + p.x + dx) / 32), 
+            (int) ((y.value + p.y + dy) / 32));
+        
+        return 
+            tile == null || 
+            !tile.isPassable() ||
+            (sparseTile != null && !sparseTile.isPassable());
     }
 }

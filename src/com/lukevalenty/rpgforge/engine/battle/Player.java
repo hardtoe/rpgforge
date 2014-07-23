@@ -5,8 +5,8 @@ import com.lukevalenty.rpgforge.data.PlayerCharacterData;
 import com.lukevalenty.rpgforge.engine.GameObject;
 
 class Player extends CombatParticipant {
-    public PlayerCharacterData characterData;
-    public GameObject gameObject;
+    private PlayerCharacterData characterData;
+    private GameObject gameObject;
     
     public Player() {
         // do nothing

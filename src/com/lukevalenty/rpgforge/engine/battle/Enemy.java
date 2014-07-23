@@ -5,8 +5,8 @@ import com.lukevalenty.rpgforge.data.EnemyCharacterData;
 import com.lukevalenty.rpgforge.engine.GameObject;
 
 class Enemy extends CombatParticipant {
-    public EnemyCharacterData characterData;
-    public GameObject gameObject;
+    private EnemyCharacterData characterData;
+    private GameObject gameObject;
     
     public Enemy() {
         // do nothing

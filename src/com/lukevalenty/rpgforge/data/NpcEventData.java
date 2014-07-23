@@ -8,10 +8,8 @@ import android.graphics.PixelFormat;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import com.lukevalenty.rpgforge.engine.ActivateMessage;
-import com.lukevalenty.rpgforge.engine.BooleanRef;
 import com.lukevalenty.rpgforge.engine.CharacterRenderComponent;
 import com.lukevalenty.rpgforge.engine.CollisionComponent;
 import com.lukevalenty.rpgforge.engine.Direction;
@@ -25,7 +23,6 @@ import com.lukevalenty.rpgforge.engine.MovementComponent;
 import com.lukevalenty.rpgforge.engine.NumberRef;
 import com.lukevalenty.rpgforge.engine.ObjectRef;
 import com.lukevalenty.rpgforge.engine.RandomWalkComponent;
-import com.lukevalenty.rpgforge.engine.WalkOverMessage;
 
 public class NpcEventData extends EventData {
     private CharacterRenderComponent characterRenderComponent;
@@ -41,11 +38,15 @@ public class NpcEventData extends EventData {
         
         private transient GameObject activator = null;
 
-        private NpcGameObject() {
-            // do nothing and keep private
+        public NpcGameObject() {
+            // do nothing
         }
-        
-        public NpcGameObject(final GameObject gameObject) {
+
+        @Override
+        public void init(
+            final GameObject gameObject, 
+            final GlobalGameState globalState
+        ) {
             this.gameObject = gameObject;
             
             characterName = gameObject.getObjectRef("characterName");
@@ -144,14 +145,14 @@ public class NpcEventData extends EventData {
         eventGameObject = 
             new GameObject();      
         
-        eventGameObject.addComponent(new NpcGameObject(eventGameObject));
+        eventGameObject.addComponent(new NpcGameObject());
 
-        eventGameObject.addComponent(new RandomWalkComponent(eventGameObject));
-        eventGameObject.addComponent(new CollisionComponent(eventGameObject));
+        eventGameObject.addComponent(new RandomWalkComponent());
+        eventGameObject.addComponent(new CollisionComponent());
         eventGameObject.addComponent(new MovementComponent());
         
         characterRenderComponent = 
-            new CharacterRenderComponent(eventGameObject, null);
+            new CharacterRenderComponent(null);
         
         eventGameObject.addComponent(characterRenderComponent);
     }

@@ -1,7 +1,6 @@
 package com.lukevalenty.rpgforge.data;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 
 import com.lukevalenty.rpgforge.engine.GameObject;
@@ -301,6 +300,7 @@ public class MapData {
         
         if (sparseTile == null) {
             bitmap.setPixel(x, y, getTile(x, y).getAvgColor());
+            
         } else {
             bitmap.setPixel(x, y, sparseTile.getAvgColor());
         }
@@ -309,37 +309,10 @@ public class MapData {
     // FIXME: not sure this is the best for GC...especially since it gets called
     //        every time the map is drawn in editor mode
     public Iterator<EventData> getEventIterator() {
-        return new Iterator<EventData>() {
-            private int index = 0;
-            
-            @Override
-            public boolean hasNext() {
-                while (index < events.size() && (events.valueAt(index) == null || !(events.valueAt(index) instanceof EventData))) {
-                    events.remove(index);
-                    index++;
-                }
-                
-                return index < events.size();
-            }
-
-            @Override
-            public EventData next() {
-                return events.valueAt(index++);
-            }
-
-            @Override
-            public void remove() {
-                // do nothing
-            }
-        };
+        return new SparseArrayIterator<EventData>(events, EventData.class);
     }
 
     public Iterable<EventData> getEvents() {
-        return new Iterable<EventData>() {            
-            @Override
-            public Iterator<EventData> iterator() {
-                return getEventIterator();
-            }
-        };
+        return new SparseArrayIterable<EventData>(events, EventData.class);
     }
 }

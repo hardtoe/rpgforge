@@ -7,23 +7,27 @@ import com.lukevalenty.rpgforge.data.PlayerCharacterData;
 import com.lukevalenty.rpgforge.data.RpgDatabase;
 
 public class PlayerCharacter extends GameObject {   
-    private final PlayerCharacterData playerCharacterData;
+    private PlayerCharacterData playerCharacterData;
 
-    public PlayerCharacter() {
-        final RpgDatabase db = 
-            RpgForgeApplication.getDb();
-        
-        playerCharacterData = 
-            db.getPlayerCharacters().get(0);
+    private PlayerCharacter() {
+        // used only for serialization
+    }
+    
+    public PlayerCharacter(
+        final PlayerCharacterData playerCharacterData
+    ) {
+        this.playerCharacterData = 
+            playerCharacterData;
         
         final CharacterData charData =
             playerCharacterData.getCharacterData();
 
-        addComponent(new PlayerControlComponent(this));
-        addComponent(new CollisionComponent(this));
+        addComponent(new PlayerControlComponent());
+        addComponent(new PlayerCombatComponent(charData));
+        addComponent(new CollisionComponent());
         addComponent(new MovementComponent()); 
-        addComponent(new CameraFocusComponent(this));
-        addComponent(new CharacterRenderComponent(this, charData));
+        addComponent(new CameraFocusComponent());
+        addComponent(new CharacterRenderComponent(charData));
     }
     
     public PlayerCharacterData getPlayerCharacterData() {

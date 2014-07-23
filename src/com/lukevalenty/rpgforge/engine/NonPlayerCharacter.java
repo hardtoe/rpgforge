@@ -1,7 +1,5 @@
 package com.lukevalenty.rpgforge.engine;
 
-
-import com.lukevalenty.rpgforge.RpgForgeApplication;
 import com.lukevalenty.rpgforge.data.CharacterData;
 
 public class NonPlayerCharacter extends GameObject {   
@@ -13,9 +11,9 @@ public class NonPlayerCharacter extends GameObject {
         getNumberRef("x").value = xStart;
         getNumberRef("y").value = yStart;
         
-        addComponent(new RandomWalkComponent(this));
-        addComponent(new CollisionComponent(this));
+        addComponent(new RandomWalkComponent());
+        addComponent(new CollisionComponent());
         addComponent(new MovementComponent());
-        addComponent(new CharacterRenderComponent(this, charData));
+        addComponent(new CharacterRenderComponent(charData));
     }
 }

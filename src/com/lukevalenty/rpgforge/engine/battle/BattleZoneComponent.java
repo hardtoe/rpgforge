@@ -1,6 +1,7 @@
 package com.lukevalenty.rpgforge.engine.battle;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import android.util.Log;
 
@@ -15,6 +16,8 @@ import com.lukevalenty.rpgforge.engine.NumberRef;
 import com.lukevalenty.rpgforge.engine.ObjectRef;
 
 public class BattleZoneComponent extends GameObjectComponent {  
+    private transient GameObject gameObject;
+    
     private transient NumberRef x1;
     private transient NumberRef y1;
     private transient NumberRef x2;
@@ -27,6 +30,8 @@ public class BattleZoneComponent extends GameObjectComponent {
     private transient NumberRef yPlayer;
     
     private transient ObjectRef<ArrayList<CombatParticipant>> combatParticipants;
+
+    private transient ExecuteCombatTurn EXECUTE_COMBAT_TURN;
     
     public BattleZoneComponent() {
         // do nothing
@@ -54,6 +59,9 @@ public class BattleZoneComponent extends GameObjectComponent {
         
         this.players =
             gameObject.getObjectRef("players");
+
+        this.combatParticipants =
+            gameObject.getObjectRef("combatParticipants");
         
         this.xPlayer =
             globalState.getPlayer().getNumberRef("x");
@@ -72,8 +80,14 @@ public class BattleZoneComponent extends GameObjectComponent {
         if (combatParticipants.value == null) {
             combatParticipants.value = new ArrayList<CombatParticipant>();
         }
+        
+        EXECUTE_COMBAT_TURN = new ExecuteCombatTurn(gameObject).setFinished(true);
     }
     
+    
+    private int combatParticipantIndex = 0;
+    
+    // FIXME: maybe this should be recoded more explicitly as a state machine
     @Override
     public void update(
         final FrameState frameState, 
@@ -81,23 +95,41 @@ public class BattleZoneComponent extends GameObjectComponent {
     ) {
         if (frameState.phase == GamePhase.UPDATE) {
             if (globalState.isBattle()) {
-                for (final CombatParticipant p : combatParticipants.value) {
-                    
+                if (EXECUTE_COMBAT_TURN.isFinished()) {
+                    CombatParticipant currentCombatParticipant = getNextParticipant();
+                    currentCombatParticipant.getGameObject().onMessage(EXECUTE_COMBAT_TURN.setFinished(false));
+
+                    Log.i(getClass().getCanonicalName(), "STARTING TURN FOR " + currentCombatParticipant.getBattleCharacterData().getName());
                 }
-                
+ 
             } else {  
                 if (
                     xPlayer.value > x1.value && xPlayer.value < x2.value &&
                     yPlayer.value > y1.value && yPlayer.value < y2.value
                 ) {
+                    // initiate battle
                     globalState.setBattle(true);
                     Log.i(getClass().getCanonicalName(), "BATTLE INITIATED");
 
                     gatherPlayerCharacters(globalState);
                     gatherEnemyCharacters(globalState);
+                    
+                    // FIXME: need to sort these guys based on agility or other appropriate trait
+                    combatParticipantIndex = 0;
                 }
             }
         }
+    }
+
+    private CombatParticipant getNextParticipant() {
+        final CombatParticipant combatParticipant = 
+            combatParticipants.value.get(combatParticipantIndex);
+        
+        combatParticipantIndex = 
+            (combatParticipantIndex + 1) % combatParticipants.value.size();
+        
+        return 
+            combatParticipant;
     }
 
     private void gatherEnemyCharacters(

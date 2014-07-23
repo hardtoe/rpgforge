@@ -1,10 +1,18 @@
 package com.lukevalenty.rpgforge.engine;
 
 public class CameraFocusComponent extends GameObjectComponent {
-    private final NumberRef x;
-    private final NumberRef y;
+    private NumberRef x;
+    private NumberRef y;
 
-    public CameraFocusComponent(final GameObject o) {
+    public CameraFocusComponent() {
+        // do nothing
+    }
+
+    @Override
+    public void init(
+        final GameObject o, 
+        final GlobalGameState globalState
+    ) {
         this.x = o.getNumberRef("x");
         this.y = o.getNumberRef("y");
     }

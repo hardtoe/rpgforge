@@ -17,15 +17,19 @@ public class CharacterRenderComponent extends GameObjectComponent {
     private BooleanRef walking;
 
     private CharacterRenderComponent() {
-        // do nothing
+        // used for serialization only
     }
     
     public CharacterRenderComponent(
-        final GameObject o, 
         final CharacterData charData
     ) {
         this.charData = charData;
-        
+    }
+
+    public void init(
+        final GameObject o, 
+        final GlobalGameState globalState
+    ) {
         this.x = o.getNumberRef("x");
         this.y = o.getNumberRef("y");
         this.dir = o.getObjectRef("dir");

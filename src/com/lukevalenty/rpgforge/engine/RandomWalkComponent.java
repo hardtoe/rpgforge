@@ -14,25 +14,21 @@ public class RandomWalkComponent extends GameObjectComponent {
     private float decisionTimeframe = 5000;
     private float timeSinceLastDecision = Float.POSITIVE_INFINITY;
     
-    private RandomWalkComponent() {
-        
+    public RandomWalkComponent() {
+        // do nothing
     }
-    
-    public RandomWalkComponent(
-        final GameObject o
+
+    @Override
+    public void init(
+        final GameObject o, 
+        final GlobalGameState globalState
     ) {
         this.dx = o.getNumberRef("dx");
         this.dy = o.getNumberRef("dy");
         this.dir = o.getObjectRef("dir");
         this.walking = o.getBooleanRef("walking");
         this.stationary = o.getBooleanRef("stationary");
-    }
-
-    public void init(
-        final GameObject gameObject, 
-        final GlobalGameState globalState
-    ) {
-        this.inCombat = gameObject.getBooleanRef("inCombat");
+        this.inCombat = o.getBooleanRef("inCombat");
     }
 
     @Override
