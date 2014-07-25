@@ -25,13 +25,19 @@ import com.lukevalenty.rpgforge.graphics.DrawTileMap;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Canvas.EdgeType;
+import android.graphics.EmbossMaskFilter;
+import android.graphics.Paint.Cap;
+import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Shader;
+import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
+import android.graphics.LinearGradient;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -112,6 +118,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private Paint linePaint;
         private Paint dialogPaint;
         private Paint dialogBgPaint;
+        private Paint dialogBorderPaint;
         private Paint battleZonePaint;
         
         public Renderer(
@@ -131,13 +138,24 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             
             dialogPaint = new Paint();
             dialogPaint.setColor(Color.WHITE);
-            dialogPaint.setTextSize(32);
+            dialogPaint.setTextSize(16);
             dialogPaint.setTypeface(Typeface.MONOSPACE);
+            dialogPaint.setShadowLayer(1, 1, 1, Color.BLACK);
+            dialogPaint.setAntiAlias(true);
             
             dialogBgPaint = new Paint();
-            dialogBgPaint.setColor(Color.argb(0x80, 0, 0, 0));
-            dialogBgPaint.setStyle(Style.FILL);
+            //dialogBgPaint.setColor(Color.rgb(0, 0, 0x63));
+            //dialogBgPaint.setStyle(Style.FILL);
+            dialogBgPaint.setShader(new LinearGradient(0, 0, 0, 400, Color.rgb(0x7a, 0x7a, 0xd5), Color.rgb(0, 0, 0x39), TileMode.CLAMP)); 
             
+            dialogBorderPaint = new Paint();
+            dialogBorderPaint.setColor(Color.WHITE);
+            dialogBorderPaint.setStyle(Style.STROKE);
+            dialogBorderPaint.setStrokeWidth(4);
+            dialogBorderPaint.setShadowLayer(2, 2, 2, Color.BLACK);
+            dialogBorderPaint.setStrokeCap(Cap.ROUND);
+            dialogBorderPaint.setStrokeJoin(Join.ROUND);
+
             battleZonePaint = new Paint();
             battleZonePaint.setColor(Color.argb(0x20, 0xff, 0, 0));
             battleZonePaint.setStyle(Style.FILL);
@@ -342,30 +360,56 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     DrawDialog dialog =
                         (DrawDialog) drawCommand;
                     
-                    matrix.getValues(matrixValues);
-                    final float x = matrixValues[Matrix.MTRANS_X] / matrixValues[Matrix.MSCALE_X];
-                    final float y = matrixValues[Matrix.MTRANS_Y] / matrixValues[Matrix.MSCALE_Y];
-                    
-                    
-                    //c.drawRect(16, 240, 496, 372, dialogBgPaint);
-                    c.drawRect(0 - x, 208 - y, 512 - x, 384 - y, dialogBgPaint);
-                    
-                    final int numlines = 
-                        dialog.text().length;
-                    
-                    for (int lineNumber = 0; lineNumber < numlines; lineNumber++) {
-                        c.drawText(
-                            dialog.text()[lineNumber], 
-                            16 - x, 
-                            (240 + (32 * lineNumber)) - y, 
-                            dialogPaint);
-                    }
+                    drawInGameUiWindow(c, dialog.text(), 0, 8, 16, 12);
                     
                     
                 }
             }
             
             duration = System.nanoTime() - startTime;
+        }
+
+        private void drawInGameUiWindow(
+            final Canvas c, 
+            final String[] text,
+            final int x1,
+            final int y1,
+            final int x2,
+            final int y2
+        ) {
+            matrix.getValues(matrixValues);
+            final float x = matrixValues[Matrix.MTRANS_X] / matrixValues[Matrix.MSCALE_X];
+            final float y = matrixValues[Matrix.MTRANS_Y] / matrixValues[Matrix.MSCALE_Y];
+            
+            final int x1_scaled = x1 * 32;
+            final int y1_scaled = y1 * 32;
+            final int x2_scaled = x2 * 32;
+            final int y2_scaled = y2 * 32;
+            
+            c.drawRect(
+                x1_scaled - x, 
+                y1_scaled - y, 
+                x2_scaled - x, 
+                y2_scaled - y, 
+                dialogBgPaint);
+            
+            c.drawRect(
+                (x1_scaled - x) + 2, 
+                (y1_scaled - y) + 2, 
+                (x2_scaled - x) - 2, 
+                (y2_scaled - y) - 2, 
+                dialogBorderPaint);
+            
+            final int numlines = 
+                text.length;
+            
+            for (int lineNumber = 0; lineNumber < numlines; lineNumber++) {
+                c.drawText(
+                    text[lineNumber], 
+                    (x1_scaled + 16) - x, 
+                    ((y1_scaled + 24) + (16 * lineNumber)) - y, 
+                    dialogPaint);
+            }
         }
 
         float[] matrixValues = new float[9];

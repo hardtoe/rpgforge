@@ -9,6 +9,7 @@ public class PlayerCombatComponent extends GameObjectComponent {
     private ExecuteCombatTurn executeCombatTurn;
     private transient BooleanRef inCombat;
 
+    @SuppressWarnings("unused")
     private PlayerCombatComponent() {
         // for serialization
     }
@@ -32,8 +33,7 @@ public class PlayerCombatComponent extends GameObjectComponent {
         final FrameState frameState, 
         final GlobalGameState globalState
     ) {
-
-
+        
     }
 
     @Override
