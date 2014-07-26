@@ -116,6 +116,8 @@ public class BattleZoneComponent extends GameObjectComponent {
                     
                     // FIXME: need to sort these guys based on agility or other appropriate trait
                     combatParticipantIndex = 0;
+                    
+                    
                 }
             }
         }

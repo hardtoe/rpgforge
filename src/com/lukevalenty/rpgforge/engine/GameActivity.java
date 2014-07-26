@@ -18,6 +18,7 @@ import roboguice.inject.InjectView;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -132,9 +133,37 @@ public class GameActivity extends BaseActivity {
     }
    
 
-    private Timer fadeoutTimer;
+    //private Timer fadeoutTimer;
+    private Handler handler = new Handler();
+    private Runnable fadeOnScreenDPad = new Runnable() {
+        @SuppressLint("NewApi")
+        @Override
+        public void run() {
+            onScreenDPad.getHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    onScreenDPad.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+                    onScreenDPad.setVisible(false);
+                    onScreenDPad.invalidate();
+                }
+            });
+            
+            onScreenActionPad.getHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    onScreenActionPad.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+                    onScreenActionPad.setVisible(false);
+                    onScreenActionPad.invalidate();
+                }
+            });
+        }
+    };
     
     private void startTimer() {
+        handler.removeCallbacks(fadeOnScreenDPad);
+        handler.postDelayed(fadeOnScreenDPad, 10000);
+        
+        /*
         if (fadeoutTimer != null) {
             fadeoutTimer.cancel();
             fadeoutTimer = null;
@@ -164,6 +193,7 @@ public class GameActivity extends BaseActivity {
                 });
             }
         }, 10000);
+        */
     }
 
     @Override 
@@ -248,10 +278,14 @@ public class GameActivity extends BaseActivity {
         super.onPause();
         gameEngine.stop();
         
+        /*
         if (fadeoutTimer != null) {
             fadeoutTimer.cancel();
             fadeoutTimer = null;
         }
+        */
+        
+        handler.removeCallbacks(fadeOnScreenDPad);
     }
     
     @Override

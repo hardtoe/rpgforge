@@ -6,6 +6,7 @@ import com.lukevalenty.rpgforge.engine.CharacterRenderComponent;
 import com.lukevalenty.rpgforge.engine.CollisionComponent;
 import com.lukevalenty.rpgforge.engine.Direction;
 import com.lukevalenty.rpgforge.engine.GameObject;
+import com.lukevalenty.rpgforge.engine.LuaGameObjectComponent;
 import com.lukevalenty.rpgforge.engine.MovementComponent;
 import com.lukevalenty.rpgforge.engine.RandomWalkComponent;
 import com.lukevalenty.rpgforge.engine.battle.EnemyComponent;

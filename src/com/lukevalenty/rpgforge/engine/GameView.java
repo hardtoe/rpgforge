@@ -1,5 +1,6 @@
 package com.lukevalenty.rpgforge.engine;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,18 +18,20 @@ import com.lukevalenty.rpgforge.editor.map.ScaleMapEvent;
 import com.lukevalenty.rpgforge.engine.battle.BattleZoneEventData;
 import com.lukevalenty.rpgforge.graphics.DrawCommand;
 import com.lukevalenty.rpgforge.graphics.DrawCommandBuffer;
-import com.lukevalenty.rpgforge.graphics.DrawDialog;
+import com.lukevalenty.rpgforge.graphics.DrawInGameUiWindow;
 import com.lukevalenty.rpgforge.graphics.SetMatrix;
 import com.lukevalenty.rpgforge.graphics.DrawSprite;
 import com.lukevalenty.rpgforge.graphics.DrawTileMap;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Canvas.EdgeType;
 import android.graphics.EmbossMaskFilter;
 import android.graphics.Paint.Cap;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -121,6 +124,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private Paint dialogBorderPaint;
         private Paint battleZonePaint;
         
+        private Bitmap finger;
+        
         public Renderer(
             final SurfaceHolder holder, 
             final Context context
@@ -160,7 +165,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             battleZonePaint.setColor(Color.argb(0x20, 0xff, 0, 0));
             battleZonePaint.setStyle(Style.FILL);
             
-            
+            try {
+                finger = BitmapFactory.decodeStream(context.getAssets().open("finger.png"));
+                
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
             
             src = new Rect();
             dst = new RectF();
@@ -356,20 +366,23 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     matrix = ((SetMatrix) drawCommand).matrix();
                     c.setMatrix(matrix);
                 
-                } else if (drawCommand instanceof DrawDialog) {
-                    DrawDialog dialog =
-                        (DrawDialog) drawCommand;
+                } else if (drawCommand instanceof DrawInGameUiWindow) {
+                    DrawInGameUiWindow dialog =
+                        (DrawInGameUiWindow) drawCommand;
                     
-                    drawInGameUiWindow(c, dialog.text(), 0, 8, 16, 12);
-                    
-                    
+                    if (dialog.isDialog()) {
+                        drawInGameUiWindowDialog(c, dialog.text(), dialog.getX1(), dialog.getY1(), dialog.getX2(), dialog.getY2());
+                        
+                    } else if (dialog.isSelection()) {
+                        drawInGameSelectionBox(c, dialog.text(), dialog.selectedOption(), dialog.getX1(), dialog.getY1(), dialog.getX2(), dialog.getY2());
+                    }
                 }
             }
             
             duration = System.nanoTime() - startTime;
         }
 
-        private void drawInGameUiWindow(
+        private void drawInGameUiWindowDialog(
             final Canvas c, 
             final String[] text,
             final int x1,
@@ -377,9 +390,74 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             final int x2,
             final int y2
         ) {
-            matrix.getValues(matrixValues);
-            final float x = matrixValues[Matrix.MTRANS_X] / matrixValues[Matrix.MSCALE_X];
-            final float y = matrixValues[Matrix.MTRANS_Y] / matrixValues[Matrix.MSCALE_Y];
+            drawInGameUiWindow(c, x1, y1, x2, y2);
+
+            final float x = getX();
+            final float y = getY();
+            
+            final int numlines = 
+                text.length;
+
+            final int x1_scaled = x1 * 32;
+            final int y1_scaled = y1 * 32;
+            
+            for (int lineNumber = 0; lineNumber < numlines; lineNumber++) {
+                c.drawText(
+                    text[lineNumber], 
+                    (x1_scaled + 16) - x, 
+                    ((y1_scaled + 24) + (16 * lineNumber)) - y, 
+                    dialogPaint);
+            }      
+        }
+
+        private void drawInGameSelectionBox(
+                final Canvas c, 
+                final String[] options,
+                final int selectedOption,
+                final int x1,
+                final int y1,
+                final int x2,
+                final int y2
+        ) {
+            drawInGameUiWindow(c, x1, y1, x2, y2);
+
+            final float x = getX();
+            final float y = getY();
+            
+            final int numlines = 
+                    options.length;
+
+            final int x1_scaled = x1 * 32;
+            final int y1_scaled = y1 * 32;
+            
+            for (int lineNumber = 0; lineNumber < numlines; lineNumber++) {
+                final float xText = 
+                    (x1_scaled + 36) - x;
+                
+                final float yText = 
+                    ((y1_scaled + 24) + (16 * lineNumber)) - y;
+                
+                c.drawText(
+                    options[lineNumber], 
+                    xText, 
+                    yText, 
+                    dialogPaint);
+                
+                if (lineNumber == selectedOption) {
+                    c.drawBitmap(finger, xText - 24, yText - 10, null);
+                }
+            }    
+        }
+        
+        private void drawInGameUiWindow(
+            final Canvas c, 
+            final int x1,
+            final int y1, 
+            final int x2, 
+            final int y2
+        ) {
+            final float x = getX();
+            final float y = getY();
             
             final int x1_scaled = x1 * 32;
             final int y1_scaled = y1 * 32;
@@ -399,17 +477,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 (x2_scaled - x) - 2, 
                 (y2_scaled - y) - 2, 
                 dialogBorderPaint);
-            
-            final int numlines = 
-                text.length;
-            
-            for (int lineNumber = 0; lineNumber < numlines; lineNumber++) {
-                c.drawText(
-                    text[lineNumber], 
-                    (x1_scaled + 16) - x, 
-                    ((y1_scaled + 24) + (16 * lineNumber)) - y, 
-                    dialogPaint);
-            }
+        }
+
+        private float getY() {
+            matrix.getValues(matrixValues);
+            return matrixValues[Matrix.MTRANS_Y] / matrixValues[Matrix.MSCALE_Y];
+        }
+
+        private float getX() {
+            matrix.getValues(matrixValues);
+            return matrixValues[Matrix.MTRANS_X] / matrixValues[Matrix.MSCALE_X];
         }
 
         float[] matrixValues = new float[9];

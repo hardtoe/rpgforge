@@ -26,13 +26,22 @@ import se.krka.kahlua.converter.KahluaConverterManager;
 import se.krka.kahlua.vm.KahluaThread;
 
 public class LuaCaller {
-	
 	private final KahluaConverterManager converterManager;
 
 	public LuaCaller(KahluaConverterManager converterManager) {
 		this.converterManager = converterManager;
 	}
 
+	/**
+	 * Call a function with no return and no arguments.
+	 * 
+	 * @param thread
+	 * @param functionObject
+	 */
+    public void voidCall(KahluaThread thread, Object functionObject) {
+        thread.voidCall(functionObject);
+    }
+	
 	public Object[] pcall(KahluaThread thread, Object functionObject, Object... args) {
 		if (args != null) {
 			for (int i = args.length - 1; i >= 0; i--) {

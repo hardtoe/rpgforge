@@ -477,7 +477,7 @@ public class MapEditActivity extends BaseActivity {
                     final int position, 
                     final long id
                 ) {
-                    npcEvent.setDirection(Direction.values()[position]);
+                    npcEvent.setDirection(Direction.getDirection(position));
                 }
 
                 @Override

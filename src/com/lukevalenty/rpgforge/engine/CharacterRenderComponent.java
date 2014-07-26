@@ -1,7 +1,12 @@
 package com.lukevalenty.rpgforge.engine;
 
+import java.util.ArrayList;
+
 import com.lukevalenty.rpgforge.data.CharacterData;
 import com.lukevalenty.rpgforge.engine.input.GameInput;
+import com.lukevalenty.rpgforge.graphics.DrawCommand;
+import com.lukevalenty.rpgforge.graphics.DrawSprite;
+import com.lukevalenty.rpgforge.graphics.DrawSpritePool;
 
 public class CharacterRenderComponent extends GameObjectComponent {
     private static final float FRAME_LENGTH_MS = 200;
@@ -84,7 +89,16 @@ public class CharacterRenderComponent extends GameObjectComponent {
             }
 
             
-            frameState.drawBuffer.add(frameState.spritePool.get().set(
+            final ArrayList<DrawCommand> drawBuffer = 
+                frameState.drawBuffer;
+            
+            final DrawSpritePool spritePool = 
+                frameState.spritePool;
+            
+            final DrawSprite drawSprite = 
+                spritePool.get();
+            
+            drawSprite.set(
                 charData.bitmap(), 
                 yOffset + charData.src().top, 
                 xOffset + charData.src().left, 
@@ -95,7 +109,9 @@ public class CharacterRenderComponent extends GameObjectComponent {
                 (int) (0 + x.value), 
                 (int) (32 + x.value), 
                 (int) (64 + y.value))
-                .setZ((float) y.value));
+                .setZ((float) y.value);
+            
+            drawBuffer.add(drawSprite);
         }
     }
 

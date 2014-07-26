@@ -2,6 +2,16 @@ package com.lukevalenty.rpgforge.engine;
 
 import java.util.ArrayList;
 
+import se.krka.kahlua.converter.KahluaConverterManager;
+import se.krka.kahlua.integration.LuaCaller;
+import se.krka.kahlua.integration.annotations.LuaMethod;
+import se.krka.kahlua.integration.expose.LuaJavaClassExposer;
+import se.krka.kahlua.j2se.J2SEPlatform;
+import se.krka.kahlua.luaj.compiler.LuaCompiler;
+import se.krka.kahlua.vm.KahluaTable;
+import se.krka.kahlua.vm.KahluaThread;
+import se.krka.kahlua.vm.LuaClosure;
+
 import android.util.Log;
 
 import com.lukevalenty.rpgforge.data.MapData;
@@ -113,4 +123,17 @@ public class GlobalGameState {
     public void setBattle(final boolean battle) {
         this.battle = battle;
     }
+    
+    @LuaMethod(global = true)
+    public void log(final String msg) {
+        Log.i(getClass().getCanonicalName(), msg);
+    }
+    
+
+/*    
+    @LuaMethod(global = true)
+    public void displaySelectionDialog(final String msg) {
+        frameState.drawBuffer.add(frameState.dialogPool.get().set(12, 4, 16, 8, "Attack", "Move").setSelection(0).setZ(100000));
+    }
+    */
 }

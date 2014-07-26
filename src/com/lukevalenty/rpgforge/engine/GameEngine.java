@@ -55,6 +55,24 @@ public class GameEngine {
         
         private boolean mRunning;
         private DrawDialogPool dialogPool;
+        
+        private static final Comparator<DrawCommand> drawCommandComparator = new Comparator<DrawCommand>() {
+            @Override
+            public int compare(
+                final DrawCommand lhs, 
+                final DrawCommand rhs
+            ) {
+                if (lhs.z() < rhs.z()) {
+                    return -1;
+                    
+                } else if (lhs.z() > rhs.z()) {
+                    return 1;
+                    
+                } else {
+                    return 0;
+                }
+            }
+        };
 
         @Inject MainLoop(
             final DrawCommandBuffer drawCommandBuffer,
@@ -116,29 +134,12 @@ public class GameEngine {
                     lastFrameTimestamp =
                         System.nanoTime();
                     
-                    for (final GamePhase phase : GamePhase.values()) {
+                    for (final GamePhase phase : GamePhase.getGamePhases()) {
                         frameState.phase = phase;
                         globalState.gameTree.update(frameState, globalState);
                     }
                     
-                    // sort draw commands by z-order before rendering them
-                    Collections.sort(frameState.drawBuffer, new Comparator<DrawCommand>() {
-                        @Override
-                        public int compare(
-                            final DrawCommand lhs, 
-                            final DrawCommand rhs
-                        ) {
-                            if (lhs.z() < rhs.z()) {
-                                return -1;
-                                
-                            } else if (lhs.z() > rhs.z()) {
-                                return 1;
-                                
-                            } else {
-                                return 0;
-                            }
-                        }
-                    });
+                    Collections.sort(frameState.drawBuffer, drawCommandComparator);
                 }
                 
                 drawCommandBuffer.unlockBackBuffer();

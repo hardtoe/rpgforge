@@ -33,7 +33,11 @@ public class PlayerCombatComponent extends GameObjectComponent {
         final FrameState frameState, 
         final GlobalGameState globalState
     ) {
-        
+        if (frameState.phase == GamePhase.UPDATE) {
+            if (true == inCombat.value) {
+                frameState.drawBuffer.add(frameState.dialogPool.get().set(12, 4, 16, 8, "Attack", "Move").setSelection(0).setZ(100000));
+            }
+        }
     }
 
     @Override

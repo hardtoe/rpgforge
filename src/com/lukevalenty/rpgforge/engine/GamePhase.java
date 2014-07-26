@@ -25,4 +25,10 @@ public enum GamePhase {
      * Send draw commands to render thread.
      */
     RENDER;
+    
+    private static GamePhase[] gamePhases = GamePhase.values();
+    
+    public static GamePhase[] getGamePhases() {
+        return gamePhases;
+    }
 }

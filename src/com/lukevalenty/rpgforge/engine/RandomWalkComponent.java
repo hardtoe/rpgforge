@@ -54,7 +54,7 @@ public class RandomWalkComponent extends GameObjectComponent {
                     
                     if (timeSinceLastDecision > decisionTimeframe) {
                         walking.value = (Math.random() > 0.7); 
-                        dir.value = Direction.values()[(int) (Direction.values().length * Math.random())];
+                        dir.value = Direction.getDirection((int) (4 * Math.random()));
                         timeSinceLastDecision = 0;
                     }
                     

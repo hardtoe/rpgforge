@@ -21,6 +21,7 @@ THE SOFTWARE.
 */
 package se.krka.kahlua.vm;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class Coroutine {
@@ -31,7 +32,7 @@ public class Coroutine {
 
 	public KahluaTable environment;
 
-	public String stackTrace = "";
+	public final ArrayList<Object> stackTrace = new ArrayList<Object>();
 
 	private final Vector liveUpvalues = new Vector();
 
@@ -46,6 +47,8 @@ public class Coroutine {
 
 	private LuaCallFrame[] callFrameStack;
 	private int callFrameTop;
+
+    private final LuaCallFramePool luaCallFramePool = new LuaCallFramePool();
 
 	public Coroutine() {
         platform = null;
@@ -80,6 +83,14 @@ public class Coroutine {
 		if (isDead()) {
 			throw new RuntimeException("Stack underflow");			
 		}
+		
+		final LuaCallFrame luaCallFrame = 
+		    callFrameStack[callFrameTop];
+		
+		if (luaCallFrame != null) {
+		    luaCallFrame.recycle();
+		}
+		
 		setCallFrameStackTop(callFrameTop - 1);
 	}
 	
@@ -198,7 +209,8 @@ public class Coroutine {
 		}
 		LuaCallFrame callFrame = callFrameStack[callFrameTop - 1]; 
 		if (callFrame == null) {
-			callFrame = new LuaCallFrame(this);
+			callFrame = luaCallFramePool.get();
+			callFrame.constructor(this);
 			callFrameStack[callFrameTop - 1] = callFrame;
 		}
 		return callFrame;
@@ -245,7 +257,7 @@ public class Coroutine {
 	}
 
 	public void addStackTrace(LuaCallFrame frame) {
-		stackTrace += getStackTrace(frame); 
+		stackTrace.add(getStackTrace(frame)); 
 	}
 
 	private String getStackTrace(LuaCallFrame frame) {

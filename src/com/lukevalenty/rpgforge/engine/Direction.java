@@ -16,4 +16,13 @@ public enum Direction {
         this.x = x;
         this.y = y;
     }
+    
+    public static Direction getDirection(final int index) {
+        switch (index) {
+        case 0: return UP;
+        case 1: return DOWN;
+        case 2: return LEFT;
+        default: return RIGHT;
+        }
+    }
 }

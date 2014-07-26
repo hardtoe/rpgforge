@@ -2,9 +2,9 @@ package com.lukevalenty.rpgforge.graphics;
 
 import com.lukevalenty.rpgforge.memory.ObjectPool;
 
-public class DrawDialogPool extends ObjectPool<DrawDialog> {
+public class DrawDialogPool extends ObjectPool<DrawInGameUiWindow> {
     @Override
-    protected DrawDialog create() {
-        return new DrawDialog(this);
+    protected DrawInGameUiWindow create() {
+        return new DrawInGameUiWindow(this);
     }
 }
