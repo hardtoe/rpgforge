@@ -719,7 +719,7 @@ public class MapEditActivity extends BaseActivity {
             
             destMap.setMap(currentMap);
             destMap.start();
-            destMap.setZOrderOnTop(true);
+            //destMap.setZOrderOnTop(true);
 
             destMapRef.value = currentMap;
             destX.value = 32;

@@ -45,8 +45,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
-public class GameView extends SurfaceView implements SurfaceHolder.Callback {
+public class GameView extends View {
     public static final String TAG = GameView.class.getName();
 
     private Renderer renderer;
@@ -89,20 +90,26 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         this.drawCommandBuffer = drawCommandBuffer;
     }
     
+    
+   
+    
+    protected void onDraw(Canvas canvas) {
+        renderer.run(canvas);
+    }
+    
     private void init(
         final Context context
     ) {
         RoboGuice.getInjector(context).injectMembers(this);
-        SurfaceHolder holder = getHolder();
-        holder.addCallback(this);
-        renderer = new Renderer(holder, context);
+        //SurfaceHolder holder = getHolder();
+        //holder.addCallback(this);
+        renderer = new Renderer(context);
+        setWillNotDraw(false);
     }
     
-    public class Renderer implements Runnable {
+    public class Renderer {
         private static final float DEFRINGE_CORRECTION = 1f / 2f;
         
-        private SurfaceHolder mHolder;
-        private boolean mRunning;
         private Paint paint;
         private long duration;
 
@@ -127,14 +134,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private Bitmap finger;
         
         public Renderer(
-            final SurfaceHolder holder, 
             final Context context
         ){
-            mHolder = holder;
             
             paint = new Paint();
             paint.setColor(Color.BLACK);
             paint.setStrokeWidth(1);
+            paint.setFilterBitmap(false);
             
             linePaint = new Paint();
             linePaint.setColor(Color.WHITE);
@@ -176,24 +182,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             dst = new RectF();
         }
 
-        @Override
-        public void run() {
-            while(mRunning){
-                final ArrayList<DrawCommand> frontBuffer = 
-                    drawCommandBuffer.lockFrontBuffer();
-                
-                if (frontBuffer != null) { 
-                    final Canvas c = 
-                        mHolder.lockCanvas();
-                    
-                    if (c != null) {      
-                        doDraw(c, frontBuffer);
-                        mHolder.unlockCanvasAndPost(c);
-                    }
-                }
-                
-                drawCommandBuffer.unlockFrontBuffer();
+        public void run(final Canvas c) {
+            final ArrayList<DrawCommand> frontBuffer = 
+                drawCommandBuffer.lockFrontBuffer();
+            
+            if (frontBuffer != null) {  
+                doDraw(c, frontBuffer);
             }
+            
+            drawCommandBuffer.unlockFrontBuffer();
+
+            postInvalidate();
         }
 
         private void doDraw(final Canvas c, final ArrayList<DrawCommand> frontBuffer) {
@@ -233,8 +232,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                         int yMinTile = Math.max((int) (yMin / 32), 0);
                         
     
-                        pts[0] = c.getWidth();
-                        pts[1] = c.getHeight();
+                        pts[0] = c.getWidth() + GameView.this.getLeft();
+                        pts[1] = c.getHeight() + GameView.this.getTop();
                         inverseMatrix.mapPoints(pts);
                         float xMax = pts[0];
                         float yMax = pts[1];
@@ -364,8 +363,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     
                 } else if (drawCommand instanceof SetMatrix) {
                     matrix = ((SetMatrix) drawCommand).matrix();
+                    matrix.postTranslate(GameView.this.getLeft(), GameView.this.getTop());
                     c.setMatrix(matrix);
-                
+
                 } else if (drawCommand instanceof DrawInGameUiWindow) {
                     DrawInGameUiWindow dialog =
                         (DrawInGameUiWindow) drawCommand;
@@ -612,44 +612,5 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 default: return 0;
             }
         }
-
-        int counter;
-        private void updateFramerate() {
-            counter++;
-            
-            if (counter > 60 || counter < 0) {
-                counter = 0;
-                Log.d(TAG, "frametime in ms = " + (duration/1000000.0));
-            }
-        }
-
-        public void setRunning(boolean b) {
-            mRunning = b;
-        }
-    }
-    
-
-    public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
-        Log.d(TAG, "surface changed");
-    }
-    
-    public void surfaceDestroyed(SurfaceHolder arg0) {
-        Log.d(TAG, "surface destroyed");
-        
-        renderer.setRunning(false);
-
-        try {
-            renderThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public void surfaceCreated(SurfaceHolder holder) {
-        Log.d(TAG, "surface created");
-        
-        renderThread = new Thread(renderer);
-        renderer.setRunning(true);
-        renderThread.start();
     }
 }
