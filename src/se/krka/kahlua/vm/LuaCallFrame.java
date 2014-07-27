@@ -21,35 +21,16 @@ THE SOFTWARE.
 */
 package se.krka.kahlua.vm;
 
-import com.lukevalenty.rpgforge.memory.AbstractPooledObject;
-import com.lukevalenty.rpgforge.memory.ObjectPool;
+public class LuaCallFrame {
+    private final Platform platform;
 
-public class LuaCallFrame extends AbstractPooledObject<LuaCallFrame> {
-    private Platform platform;
+	public final Coroutine coroutine;
 
-	public Coroutine coroutine;
-
-    public LuaCallFrame(final ObjectPool<LuaCallFrame> objectPool) {
-        super(objectPool);
+    public LuaCallFrame(Coroutine coroutine) {
+		this.coroutine = coroutine;
+        platform = coroutine.getPlatform();
 	}
 	
-    public void constructor(final Coroutine coroutine) {
-        // moved from constructor
-        this.coroutine = coroutine;
-        platform = coroutine.getPlatform();
-        
-        // initializing for safety
-        closure = null;
-        javaFunction = null;
-        pc = 0;
-        localBase = 0;
-        returnBase = 0;
-        nArguments = 0;
-        fromLua = false;
-        canYield = false;
-        restoreTop = false;
-    }
-    
 	public LuaClosure closure;
 	public JavaFunction javaFunction;
 
@@ -220,5 +201,4 @@ public class LuaCallFrame extends AbstractPooledObject<LuaCallFrame> {
 	public KahluaThread getThread() {
 		return coroutine.getThread();
 	}
-
 }

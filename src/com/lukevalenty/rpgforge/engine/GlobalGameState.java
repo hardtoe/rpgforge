@@ -38,6 +38,8 @@ public class GlobalGameState {
     // true when player is in battle
     private boolean battle;
     
+    private transient FrameState frameState;
+    
     public GlobalGameState() {
         gameTree = 
             new GameObjectContainer(); 
@@ -123,17 +125,67 @@ public class GlobalGameState {
     public void setBattle(final boolean battle) {
         this.battle = battle;
     }
-    
-    @LuaMethod(global = true)
-    public void log(final String msg) {
-        Log.i(getClass().getCanonicalName(), msg);
-    }
-    
 
-/*    
-    @LuaMethod(global = true)
-    public void displaySelectionDialog(final String msg) {
-        frameState.drawBuffer.add(frameState.dialogPool.get().set(12, 4, 16, 8, "Attack", "Move").setSelection(0).setZ(100000));
+    public void setFrameState(final FrameState frameState) {
+        this.frameState = frameState;
     }
-    */
+    
+    @LuaMethod(global = true)
+    public void log(final String tag, final String msg) {
+        Log.i(tag, msg);
+    }
+   
+    @LuaMethod(global = true)
+    public void displaySelectionWindow(
+        final double x1,
+        final double y1, 
+        final double x2, 
+        final double y2, 
+        final double selection, 
+        final String... options
+    ) {
+        frameState.drawBuffer.add(frameState.dialogPool.get().set((int) x1, (int) y1, (int) x2, (int) y2, options).setSelection((int) selection).setZ(100000));
+    }
+   
+    @LuaMethod(global = true)
+    public void displayDialogWindow(
+        final double x1, 
+        final double y1, 
+        final double x2, 
+        final double y2, 
+        final String... text
+    ) {
+        frameState.drawBuffer.add(frameState.dialogPool.get().set((int) x1, (int) y1, (int) x2, (int) y2, text).setDialog().setZ(100000));
+    }
+
+    @LuaMethod(global = true)
+    public Boolean isUpPressed() {
+        return gameInput.up();
+    }
+
+    @LuaMethod(global = true)
+    public Boolean isDownPressed() {
+        return gameInput.down();
+    }
+
+    @LuaMethod(global = true)
+    public Boolean isLeftPressed() {
+        return gameInput.left();
+    }
+
+    @LuaMethod(global = true)
+    public Boolean isRightPressed() {
+        return gameInput.right();
+    }
+
+    @LuaMethod(global = true)
+    public Boolean isActionPressed() {
+        return gameInput.action();
+    }
+
+    @LuaMethod(global = true)
+    public Boolean isBackPressed() {
+        return gameInput.back();
+    }
+    
 }

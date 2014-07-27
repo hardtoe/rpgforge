@@ -123,6 +123,8 @@ public class GameEngine {
             frameState.tilemapPool = tilemapPool;
             frameState.dialogPool = dialogPool;
             
+            globalState.setFrameState(frameState);
+            
             while(mRunning){
                 frameState.drawBuffer = 
                     drawCommandBuffer.lockBackBuffer();

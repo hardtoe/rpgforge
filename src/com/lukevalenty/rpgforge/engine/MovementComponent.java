@@ -3,6 +3,8 @@ package com.lukevalenty.rpgforge.engine;
 public class MovementComponent extends GameObjectComponent {
     private transient NumberRef dx;
     private transient NumberRef dy;
+    private transient NumberRef dxOld;
+    private transient NumberRef dyOld;
     private transient NumberRef x;
     private transient NumberRef y;
     private transient ObjectRef<Object> dir;
@@ -18,6 +20,8 @@ public class MovementComponent extends GameObjectComponent {
     ) {
         this.dx = o.getNumberRef("dx");
         this.dy = o.getNumberRef("dy");
+        this.dxOld = o.getNumberRef("dxOld");
+        this.dyOld = o.getNumberRef("dyOld");
         this.x = o.getNumberRef("x");
         this.y = o.getNumberRef("y");
         this.dir = o.getObjectRef("dir");
@@ -42,16 +46,16 @@ public class MovementComponent extends GameObjectComponent {
                 dir.value = Direction.DOWN;
             }
             
-            if (dy.value < 0) {
+            if (dyOld.value < 0) {
                 if (dir.value == Direction.DOWN) {
                     dir.value = Direction.UP;
                     
-                } else if (dx.value < 0) {
+                } else if (dxOld.value < 0) {
                     if (dir.value == Direction.RIGHT) {
                         dir.value = Direction.LEFT;
                     }
                     
-                } else if (dx.value > 0) {
+                } else if (dxOld.value > 0) {
                     if (dir.value == Direction.LEFT) {
                         dir.value = Direction.RIGHT;
                     }
@@ -60,16 +64,16 @@ public class MovementComponent extends GameObjectComponent {
                     dir.value = Direction.UP;
                 }
                 
-            } else if (dy.value > 0) {
+            } else if (dyOld.value > 0) {
                 if (dir.value == Direction.UP) {
                     dir.value = Direction.DOWN;
                     
-                } else if (dx.value < 0) {
+                } else if (dxOld.value < 0) {
                     if (dir.value == Direction.RIGHT) {
                         dir.value = Direction.LEFT;
                     }
                     
-                } else if (dx.value > 0) {
+                } else if (dxOld.value > 0) {
                     if (dir.value == Direction.LEFT) {
                         dir.value = Direction.RIGHT;
                     }
@@ -82,7 +86,7 @@ public class MovementComponent extends GameObjectComponent {
                 if (dx.value < 0) {
                     dir.value = Direction.LEFT;
                     
-                } else if (dx.value > 0) {
+                } else if (dxOld.value > 0) {
                     dir.value = Direction.RIGHT;
                     
                 } else {

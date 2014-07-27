@@ -3,6 +3,10 @@ package com.lukevalenty.rpgforge.engine;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import se.krka.kahlua.converter.JavaToLuaConverter;
+import se.krka.kahlua.integration.annotations.LuaMethod;
+import android.util.Log;
+
 public class GameObject {
     private final ArrayList<GameObjectComponent> components;
     
@@ -96,5 +100,15 @@ public class GameObject {
         for (int i = 0; i < components.size(); i++) {
             components.get(i).init(this, globalState);
         }
+    }
+    
+    @LuaMethod(global = true)
+    public Boolean getLocalFlag(final String name) {
+        return getBooleanRef(name).value;
+    }
+    
+    @LuaMethod(global = true)
+    public void setLocalFlag(final String name, final boolean value) {
+        getBooleanRef(name).value = value;
     }
 }

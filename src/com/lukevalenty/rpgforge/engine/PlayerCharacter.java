@@ -23,7 +23,8 @@ public class PlayerCharacter extends GameObject {
             playerCharacterData.getCharacterData();
 
         addComponent(new PlayerControlComponent());
-        addComponent(new PlayerCombatComponent(charData));
+        //addComponent(new PlayerCombatComponent(charData));
+        addComponent(new LuaGameObjectComponent("/com/lukevalenty/rpgforge/engine/PlayerCombatComponent.lua"));
         addComponent(new CollisionComponent());
         addComponent(new MovementComponent()); 
         addComponent(new CameraFocusComponent());

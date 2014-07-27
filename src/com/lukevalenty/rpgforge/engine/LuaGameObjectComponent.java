@@ -1,6 +1,9 @@
 package com.lukevalenty.rpgforge.engine;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import se.krka.kahlua.converter.KahluaConverterManager;
 import se.krka.kahlua.integration.LuaCaller;
@@ -21,7 +24,17 @@ public class LuaGameObjectComponent extends GameObjectComponent {
     
     private transient LuaClosure coroutine;
     
+    private String scriptFileName;
     
+    private LuaGameObjectComponent() {
+        // used for serialization only
+    }
+    
+    public LuaGameObjectComponent(final String scriptFileName) {
+        this.scriptFileName = scriptFileName; 
+    }
+
+
     @Override
     public void init(
         final GameObject gameObject, 
@@ -29,10 +42,25 @@ public class LuaGameObjectComponent extends GameObjectComponent {
     ) {
         exposer.exposeGlobalFunctions(globalState);
         exposer.exposeGlobalFunctions(gameObject);
+        exposer.exposeGlobalFunctions(exposer);
         
         try {
+            final BufferedReader scriptReader = 
+                new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(scriptFileName)));
+            
+            final StringBuilder script =
+                new StringBuilder();
+            
+            String line = null;
+            
+            script.append("co = coroutine.create(function() \n");
+            while ((line = scriptReader.readLine()) != null) {
+                script.append(line).append("\n");
+            }
+            script.append(" end)");
+            
             final LuaClosure coroutineBuilder = 
-                LuaCompiler.loadstring("co = coroutine.create(function() log(\"HELLO FROM LUA\") end)", "", env);
+                LuaCompiler.loadstring(script.toString(), "", env);
             
             caller.protectedCall(thread, coroutineBuilder);
             
@@ -50,7 +78,7 @@ public class LuaGameObjectComponent extends GameObjectComponent {
         final GlobalGameState globalState
     ) {
         if (frameState.phase == GamePhase.UPDATE) {
-            thread.voidCall(coroutine);
+            thread.pcall(coroutine);
         }
     }
 
