@@ -364,7 +364,7 @@ public class GameView extends View {
                     
                 } else if (drawCommand instanceof SetMatrix) {
                     matrix = ((SetMatrix) drawCommand).matrix();
-                    matrix.postTranslate(GameView.this.getLeft(), GameView.this.getTop());
+                    //matrix.postTranslate(GameView.this.getLeft(), GameView.this.getTop());
                     c.setMatrix(matrix);
 
                 } else if (drawCommand instanceof DrawInGameUiWindow) {
