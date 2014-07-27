@@ -135,7 +135,7 @@ public class KahluaThread {
 
 		int nReturnValues = currentCoroutine.getTop() - base;
 
-		currentCoroutine.stackTrace.clear();
+		currentCoroutine.stackTrace = "";
 
 		return nReturnValues;
 	}
@@ -910,7 +910,7 @@ public class KahluaThread {
 
 							nextCallFrame.push(Boolean.FALSE);
 							nextCallFrame.push(e.getMessage());
-							nextCallFrame.push(currentCoroutine.stackTrace.toString());
+							nextCallFrame.push(currentCoroutine.stackTrace);
 
 							// Yield and fail
 							currentCoroutine.destroy();
@@ -1191,20 +1191,6 @@ public class KahluaThread {
 		coroutine.setTop(oldTop);
 		return ret;
 	}
-	
-	   public void voidCall(Object fun) {
-	        Coroutine coroutine = currentCoroutine;
-	        int oldTop = coroutine.getTop();
-
-	        coroutine.setTop(oldTop + 1);
-	        coroutine.objectStack[oldTop] = fun;
-
-	        pcall(0);
-	        KahluaUtil.luaAssert(coroutine == currentCoroutine, "Internal Kahlua error - coroutine changed in pcall");
-
-	        coroutine.setTop(oldTop);
-	    }
-	
 
 	public Object[] pcall(Object fun) {
 		return pcall(fun, null);
@@ -1213,7 +1199,7 @@ public class KahluaThread {
 	public int pcall(int nArguments) {
 		Coroutine coroutine = currentCoroutine;
 		LuaCallFrame currentCallFrame = coroutine.currentCallFrame();
-		coroutine.stackTrace.clear();
+		coroutine.stackTrace = "";
 		int oldBase = coroutine.getTop() - nArguments - 1;
 
 		Object errorMessage;
@@ -1247,9 +1233,9 @@ public class KahluaThread {
 		coroutine.setTop(oldBase + 4);
 		coroutine.objectStack[oldBase] = Boolean.FALSE;
 		coroutine.objectStack[oldBase + 1] = errorMessage;
-		coroutine.objectStack[oldBase + 2] = coroutine.stackTrace.toString();
+		coroutine.objectStack[oldBase + 2] = coroutine.stackTrace;
 		coroutine.objectStack[oldBase + 3] = exception;
-		coroutine.stackTrace.clear();
+		coroutine.stackTrace = "";
 
 		return 4;
 	}

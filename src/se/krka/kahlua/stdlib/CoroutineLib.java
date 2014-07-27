@@ -21,7 +21,6 @@ THE SOFTWARE.
 */
 package se.krka.kahlua.stdlib;
 
-import android.util.Log;
 import se.krka.kahlua.vm.*;
 
 public class CoroutineLib implements JavaFunction {
@@ -50,8 +49,6 @@ public class CoroutineLib implements JavaFunction {
 	}
 
 	private final int index;
-    private final String toStringValue;
-    
 	private static final CoroutineLib[] functions;
 
     static {
@@ -62,12 +59,11 @@ public class CoroutineLib implements JavaFunction {
 	}
 	
 	public String toString() {
-		return toStringValue;
+		return "coroutine." + names[index];
 	}
 	
 	public CoroutineLib(int index) {
 		this.index = index;
-		this.toStringValue = "coroutine." + names[index];
 	}
 
 	public static void register(Platform platform, KahluaTable env) {
@@ -124,35 +120,33 @@ public class CoroutineLib implements JavaFunction {
 		String status = t.getStatus();
 		// equals on strings works because they are both constants
 		if (status != "suspended") {
-		    // ignore quietly
-			//Log.w("CoroutineLib", "Can not resume coroutine that is not suspended");
-		
-		} else {
-    		Coroutine parent = callFrame.coroutine;
-    		t.resume(parent);
-    
-    		LuaCallFrame nextCallFrame = t.currentCallFrame();
-    
-    		// Is this the first time the coroutine is resumed?
-    		if (nextCallFrame.nArguments == -1) {
-    			nextCallFrame.setTop(0);
-    		}
-    
-    		// Copy arguments
-    		for (int i = 1; i < nArguments; i++) {
-    			nextCallFrame.push(callFrame.get(i));
-    		}
-    		
-    		// Is this the first time the coroutine is resumed?
-    		if (nextCallFrame.nArguments == -1) {
-    			nextCallFrame.nArguments = nArguments - 1;
-    			nextCallFrame.init();
-    		}
-    
-    		callFrame.getThread().currentCoroutine = t;
+			KahluaUtil.fail(("Can not resume coroutine that is in status: " + status));
+		}
+
+		Coroutine parent = callFrame.coroutine;
+		t.resume(parent);
+
+		LuaCallFrame nextCallFrame = t.currentCallFrame();
+
+		// Is this the first time the coroutine is resumed?
+		if (nextCallFrame.nArguments == -1) {
+			nextCallFrame.setTop(0);
+		}
+
+		// Copy arguments
+		for (int i = 1; i < nArguments; i++) {
+			nextCallFrame.push(callFrame.get(i));
 		}
 		
-        return 0;
+		// Is this the first time the coroutine is resumed?
+		if (nextCallFrame.nArguments == -1) {
+			nextCallFrame.nArguments = nArguments - 1;
+			nextCallFrame.init();
+		}
+
+		callFrame.getThread().currentCoroutine = t;
+		
+		return 0;
 	}
 
 	private static int yield(LuaCallFrame callFrame, int nArguments) {

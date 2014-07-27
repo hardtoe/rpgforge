@@ -18,6 +18,9 @@ public class CollisionComponent extends GameObjectComponent {
     private NumberRef dy;
     private NumberRef x;
     private NumberRef y;
+    
+    private transient NumberRef dxOld;
+    private transient NumberRef dyOld;
 
     public CollisionComponent() {
         // do nothing
@@ -30,6 +33,8 @@ public class CollisionComponent extends GameObjectComponent {
     ) {
         this.dx = o.getNumberRef("dx");
         this.dy = o.getNumberRef("dy");
+        this.dxOld = o.getNumberRef("dxOld");
+        this.dyOld = o.getNumberRef("dyOld");
         this.x = o.getNumberRef("x");
         this.y = o.getNumberRef("y");
     }
@@ -120,6 +125,9 @@ public class CollisionComponent extends GameObjectComponent {
                     }
                 }
             }
+            
+            dxOld.value = dx.value;
+            dyOld.value = dy.value;
             
             dx.value = outDx + pushDx;
             dy.value = outDy + pushDy;

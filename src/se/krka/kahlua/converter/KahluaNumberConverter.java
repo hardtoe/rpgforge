@@ -117,6 +117,16 @@ public class KahluaNumberConverter {
 				return Boolean.class;
 			}
 		});
+		
+        manager.addJavaConverter(new JavaToLuaConverter<Boolean>() {
+            public Object fromJavaToLua(Boolean javaObject) {
+                return Boolean.valueOf(javaObject.booleanValue());
+            }
+
+            public Class<Boolean> getJavaType() {
+                return boolean.class;
+            }
+        });
 	}
 
     private static class NumberToLuaConverter<T extends Number> implements JavaToLuaConverter<T> {
@@ -127,7 +137,7 @@ public class KahluaNumberConverter {
         }
 
         public Object fromJavaToLua(T javaObject) {
-            return new Double(javaObject.doubleValue());
+            return Double.valueOf(javaObject.doubleValue());
         }
 
         public Class<T> getJavaType() {

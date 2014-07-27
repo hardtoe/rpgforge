@@ -285,8 +285,7 @@ public final class BaseLib implements JavaFunction {
 			if (stacktrace == null) {
 				stacktrace = "";
 			}
-			callFrame.coroutine.stackTrace.clear();
-			callFrame.coroutine.stackTrace.add(stacktrace);
+			callFrame.coroutine.stackTrace = stacktrace;
 			throw new KahluaException(callFrame.get(0));
 		}
 		return 0;
