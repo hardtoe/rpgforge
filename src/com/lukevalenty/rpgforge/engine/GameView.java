@@ -100,6 +100,7 @@ public class GameView extends View {
     private void init(
         final Context context
     ) {
+        this.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         RoboGuice.getInjector(context).injectMembers(this);
         //SurfaceHolder holder = getHolder();
         //holder.addCallback(this);
@@ -232,8 +233,8 @@ public class GameView extends View {
                         int yMinTile = Math.max((int) (yMin / 32), 0);
                         
     
-                        pts[0] = c.getWidth() + GameView.this.getLeft();
-                        pts[1] = c.getHeight() + GameView.this.getTop();
+                        pts[0] = c.getWidth();
+                        pts[1] = c.getHeight();
                         inverseMatrix.mapPoints(pts);
                         float xMax = pts[0];
                         float yMax = pts[1];
