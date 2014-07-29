@@ -20,12 +20,17 @@ import com.lukevalenty.rpgforge.engine.ObjectRef;
 
 public class BattleZoneEventData extends EventData {
     private GameObject battleZoneGameObject;
+    private BattleZoneComponent battleZoneComponent;
+    
     
     public BattleZoneEventData() {
         battleZoneGameObject = 
             new GameObject();      
 
-        battleZoneGameObject.addComponent(new BattleZoneComponent());
+        battleZoneComponent = 
+            new BattleZoneComponent();
+        
+        battleZoneGameObject.addComponent(battleZoneComponent);
     }
 
     @Override
@@ -94,25 +99,22 @@ public class BattleZoneEventData extends EventData {
         final int x2,
         final int y2
     ) {
-        getGameObject().getNumberRef("x1").value = x1;
-        getGameObject().getNumberRef("y1").value = y1;
-        getGameObject().getNumberRef("x2").value = x2;
-        getGameObject().getNumberRef("y2").value = y2;
+        battleZoneComponent.setBattleArea(x1, y1, x2, y2);
     }
     
     public int getX1() {
-        return (int) getGameObject().getNumberRef("x1").value;
+        return battleZoneComponent.getX1();
     }
     
     public int getY1() {
-        return (int) getGameObject().getNumberRef("y1").value;
+        return battleZoneComponent.getY1();
     }
     
     public int getX2() {
-        return (int) getGameObject().getNumberRef("x2").value;
+        return battleZoneComponent.getX2();
     }
     
     public int getY2() {
-        return (int) getGameObject().getNumberRef("y2").value;
+        return battleZoneComponent.getY2();
     }
 }

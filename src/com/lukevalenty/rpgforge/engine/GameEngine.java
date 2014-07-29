@@ -109,8 +109,7 @@ public class GameEngine {
             globalState.setPlayer(player);
             globalState.setMap(map);
         }
-
-                
+        
         @Override
         public void run() {
             long lastFrameTimestamp =

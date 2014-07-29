@@ -3,9 +3,7 @@ package com.lukevalenty.rpgforge.engine;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import se.krka.kahlua.converter.JavaToLuaConverter;
 import se.krka.kahlua.integration.annotations.LuaMethod;
-import android.util.Log;
 
 public class GameObject {
     private final ArrayList<GameObjectComponent> components;
@@ -111,4 +109,14 @@ public class GameObject {
     public void setLocalFlag(final String name, final boolean value) {
         getBooleanRef(name).value = value;
     }
+    
+    @LuaMethod(global = true)
+    public void setLocalObject(final String name, final Object value) {
+        getObjectRef(name).value = value;
+    }
+
+    public void reset() {
+        values.clear();
+    }
+    
 }

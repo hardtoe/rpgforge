@@ -1,5 +1,7 @@
 package com.lukevalenty.rpgforge.engine.battle;
 
+import se.krka.kahlua.integration.annotations.LuaMethod;
+
 import com.lukevalenty.rpgforge.engine.GameMessage;
 import com.lukevalenty.rpgforge.engine.GameObject;
 
@@ -16,10 +18,12 @@ public class ExecuteCombatTurn extends GameMessage {
         this.isFinished = false;
     }
     
-    public boolean isFinished() {
+    @LuaMethod
+    public Boolean isFinished() {
         return isFinished;
     }
     
+    @LuaMethod
     public ExecuteCombatTurn setFinished(final boolean isFinished) {
         this.isFinished = isFinished;
         return this;

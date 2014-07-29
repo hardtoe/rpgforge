@@ -1,7 +1,6 @@
 package com.lukevalenty.rpgforge.engine.battle;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import android.util.Log;
 
@@ -18,10 +17,10 @@ import com.lukevalenty.rpgforge.engine.ObjectRef;
 public class BattleZoneComponent extends GameObjectComponent {  
     private transient GameObject gameObject;
     
-    private transient NumberRef x1;
-    private transient NumberRef y1;
-    private transient NumberRef x2;
-    private transient NumberRef y2;
+    private int x1;
+    private int y1;
+    private int x2;
+    private int y2;
     
     private transient ObjectRef<ArrayList<Enemy>> enemies;
     private transient ObjectRef<ArrayList<Player>> players;
@@ -42,17 +41,10 @@ public class BattleZoneComponent extends GameObjectComponent {
         final GameObject gameObject, 
         final GlobalGameState globalState
     ) {
-        this.x1 =
-            gameObject.getNumberRef("x1");
-        
-        this.y1 =
-            gameObject.getNumberRef("y1");
-        
-        this.x2 =
-            gameObject.getNumberRef("x2");
-        
-        this.y2 =
-            gameObject.getNumberRef("y2");
+        gameObject.getNumberRef("x1").value = x1;
+        gameObject.getNumberRef("y1").value = y1;
+        gameObject.getNumberRef("x2").value = x2;
+        gameObject.getNumberRef("y2").value = y2;
         
         this.enemies =
             gameObject.getObjectRef("enemies");
@@ -69,17 +61,17 @@ public class BattleZoneComponent extends GameObjectComponent {
         this.yPlayer =
             globalState.getPlayer().getNumberRef("y");
         
-        if (enemies.value == null) {
+        //if (enemies.value == null) {
             enemies.value = new ArrayList<Enemy>();
-        }
+        //}
         
-        if (players.value == null) {
+        //if (players.value == null) {
             players.value = new ArrayList<Player>();
-        }
+        //}
         
-        if (combatParticipants.value == null) {
+        //if (combatParticipants.value == null) {
             combatParticipants.value = new ArrayList<CombatParticipant>();
-        }
+        //}
         
         EXECUTE_COMBAT_TURN = new ExecuteCombatTurn(gameObject).setFinished(true);
     }
@@ -104,8 +96,8 @@ public class BattleZoneComponent extends GameObjectComponent {
  
             } else {  
                 if (
-                    xPlayer.value > x1.value && xPlayer.value < x2.value &&
-                    yPlayer.value > y1.value && yPlayer.value < y2.value
+                    xPlayer.value > x1 && xPlayer.value < x2 &&
+                    yPlayer.value > y1 && yPlayer.value < y2
                 ) {
                     // initiate battle
                     globalState.setBattle(true);
@@ -144,8 +136,8 @@ public class BattleZoneComponent extends GameObjectComponent {
             if (
                 o.getBooleanRef("isEnemy").value &&
 
-                o.getNumberRef("x").value > x1.value && o.getNumberRef("x").value < x2.value &&
-                o.getNumberRef("y").value > y1.value && o.getNumberRef("y").value < y2.value
+                o.getNumberRef("x").value > x1 && o.getNumberRef("x").value < x2 &&
+                o.getNumberRef("y").value > y1 && o.getNumberRef("y").value < y2
             ) {
                 Log.i(getClass().getCanonicalName(), "adding enemy to BattleZone");
                 o.getBooleanRef("inCombat").value = true;
@@ -183,5 +175,29 @@ public class BattleZoneComponent extends GameObjectComponent {
         final Player player = new Player(playerCharacterData, playerGameObject);
         players.value.add(player);
         combatParticipants.value.add(player);
+    }
+
+    // FIXME: change this to a rect
+    public void setBattleArea(final int x1, final int y1, final int x2, final int y2) {
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+    }
+
+    public int getX1() {
+        return x1;
+    }
+
+    public int getY1() {
+        return y1;
+    }
+
+    public int getX2() {
+        return x2;
+    }
+
+    public int getY2() {
+        return y2;
     }
 }

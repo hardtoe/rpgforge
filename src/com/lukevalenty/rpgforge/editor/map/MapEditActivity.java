@@ -17,11 +17,14 @@ import com.lukevalenty.rpgforge.data.EnemyCharacterData;
 import com.lukevalenty.rpgforge.data.EnemyEventData;
 import com.lukevalenty.rpgforge.data.EventData;
 import com.lukevalenty.rpgforge.data.NpcEventData;
+import com.lukevalenty.rpgforge.data.RpgDatabase;
+import com.lukevalenty.rpgforge.data.RpgDatabaseLoader;
 import com.lukevalenty.rpgforge.data.TileData;
 import com.lukevalenty.rpgforge.data.MapData;
 import com.lukevalenty.rpgforge.editor.map.MapView.OnTileClickListener;
 import com.lukevalenty.rpgforge.engine.Direction;
 import com.lukevalenty.rpgforge.engine.GameActivity;
+import com.lukevalenty.rpgforge.engine.GameObject;
 import com.lukevalenty.rpgforge.engine.NumberRef;
 import com.lukevalenty.rpgforge.engine.ObjectRef;
 import com.lukevalenty.rpgforge.engine.battle.BattleZoneEventData;
@@ -825,6 +828,13 @@ public class MapEditActivity extends BaseActivity {
                 return true;
                 
             case R.id.menu_playtest:
+                // clear all game state before play test
+                for (final MapData map : RpgForgeApplication.getDb().getMaps()) {
+                    for (final GameObject o : map.getGameObjects()) {
+                        o.reset();
+                    }
+                }
+                
                 Intent intent = new Intent(this, GameActivity.class);
                 //intent.putExtra("PROJECT_NAME", projectName);
                 startActivity(intent);

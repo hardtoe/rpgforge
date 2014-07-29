@@ -36,6 +36,7 @@ public class BattleCharacterData implements PaletteItem {
         this.charData = characterData;
     }
 
+    
     public String getName() {
         return name;
     }
@@ -54,9 +55,8 @@ public class BattleCharacterData implements PaletteItem {
         src.right = getCharacterData().src().right - 32;
         src.bottom = getCharacterData().src().top + 48;
         
-        final Paint paint = new Paint();
-        
-        paint.setFlags(paint.getFlags() & ~Paint.FILTER_BITMAP_FLAG);
+        final Paint paint = new Paint();     
+        paint.setFilterBitmap(false);
         
         return new Drawable() {
             @Override

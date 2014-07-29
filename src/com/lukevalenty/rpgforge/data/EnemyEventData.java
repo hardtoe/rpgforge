@@ -9,7 +9,6 @@ import com.lukevalenty.rpgforge.engine.GameObject;
 import com.lukevalenty.rpgforge.engine.LuaGameObjectComponent;
 import com.lukevalenty.rpgforge.engine.MovementComponent;
 import com.lukevalenty.rpgforge.engine.RandomWalkComponent;
-import com.lukevalenty.rpgforge.engine.battle.EnemyComponent;
 
 public class EnemyEventData extends EventData {
     private GameObject eventGameObject;
@@ -36,7 +35,7 @@ public class EnemyEventData extends EventData {
         eventGameObject.addComponent(new CollisionComponent());
         eventGameObject.addComponent(new MovementComponent());
         eventGameObject.addComponent(new CharacterRenderComponent(enemyCharacterData.getCharacterData()));
-        eventGameObject.addComponent(new EnemyComponent(enemyCharacterData));
+        eventGameObject.addComponent(new LuaGameObjectComponent("/com/lukevalenty/rpgforge/engine/EnemyCombatComponent.lua", enemyCharacterData));
     }
     
     @Override
